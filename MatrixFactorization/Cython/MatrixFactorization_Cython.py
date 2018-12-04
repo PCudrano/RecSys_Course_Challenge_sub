@@ -23,7 +23,7 @@ class MatrixFactorization_Cython(Recommender, Incremental_Training_Early_Stoppin
     RECOMMENDER_NAME = "MatrixFactorization_Cython_Recommender"
 
 
-    def __init__(self, URM_train, positive_threshold=4, URM_validation = None, recompile_cython = False, algorithm = "MF_BPR"):
+    def __init__(self, URM_train, positive_threshold=0.5, URM_validation = None, recompile_cython = False, algorithm = "MF_BPR"):
 
 
         super(MatrixFactorization_Cython, self).__init__()
@@ -89,7 +89,7 @@ class MatrixFactorization_Cython(Recommender, Incremental_Training_Early_Stoppin
                                                      algorithm = self.algorithm,
                                                      n_factors = self.num_factors,
                                                      learning_rate = learning_rate,
-                                                     batch_size = 1,
+                                                     batch_size = batch_size,
                                                      sgd_mode = sgd_mode,
                                                      user_reg = user_reg,
                                                      positive_reg = positive_reg,
@@ -102,7 +102,7 @@ class MatrixFactorization_Cython(Recommender, Incremental_Training_Early_Stoppin
                                                      algorithm = self.algorithm,
                                                      n_factors = self.num_factors,
                                                      learning_rate = learning_rate,
-                                                     batch_size = 1,
+                                                     batch_size = batch_size,
                                                      sgd_mode = sgd_mode,
                                                      user_reg = user_reg,
                                                      positive_reg = positive_reg,
@@ -122,7 +122,7 @@ class MatrixFactorization_Cython(Recommender, Incremental_Training_Early_Stoppin
                                                      algorithm = self.algorithm,
                                                      n_factors = self.num_factors,
                                                      learning_rate=learning_rate,
-                                                     batch_size=1,
+                                                     batch_size=batch_size,
                                                      sgd_mode = sgd_mode,
                                                      user_reg=user_reg,
                                                      positive_reg=positive_reg,
@@ -323,7 +323,7 @@ class MatrixFactorization_FunkSVD_Cython(MatrixFactorization_Cython):
         super(MatrixFactorization_FunkSVD_Cython, self).__init__(*pos_args, algorithm="FUNK_SVD", **key_args)
 
 
-    def fit(self, **key_args):
+    def fit(self, **key_argskey_args):
 
         if "reg" in key_args:
             key_args["positive_reg"] = key_args["reg"]

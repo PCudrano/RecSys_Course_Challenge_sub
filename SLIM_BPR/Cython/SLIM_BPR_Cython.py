@@ -30,7 +30,7 @@ class SLIM_BPR_Cython(SimilarityMatrixRecommender, Recommender, Incremental_Trai
     RECOMMENDER_NAME = "SLIM_BPR_Recommender"
 
 
-    def __init__(self, URM_train, positive_threshold=4, URM_validation = None,
+    def __init__(self, URM_train, positive_threshold=0.5, URM_validation = None,
                  recompile_cython = False, final_model_sparse_weights = True, train_with_sparse_weights = False,
                  symmetric = True):
 

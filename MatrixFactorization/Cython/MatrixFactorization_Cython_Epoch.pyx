@@ -369,8 +369,8 @@ cdef class MatrixFactorization_Cython_Epoch:
                 # Copy original value to avoid messing up the updates
                 H_i = self.ITEM_factors[sample.item, factor_index]
                 W_u = user_factors_accumulated[factor_index]
-                print("H_i" + str(H_i))
-                print("W_u" + str(W_u))
+                # print("H_i" + str(H_i))
+                # print("W_u" + str(W_u))
                 self.ITEM_factors[sample.item, factor_index] += self.learning_rate * (adaptive_gradient_item * W_u - self.positive_reg * H_i)
 
 
@@ -439,7 +439,8 @@ cdef class MatrixFactorization_Cython_Epoch:
                 x_uij += self.USER_factors[u,index] * (self.ITEM_factors[i,index] - self.ITEM_factors[j,index])
 
             # Use gradient of log(sigm(-x_uij))
-            sigmoid_item = 1 / (1 + exp(x_uij))
+            # sigmoid_item = 1 / (1 + exp(x_uij))
+            sigmoid_item = 1 / (1 + exp(x_uij)) # * exp(-x_uij)
             sigmoid_user = sigmoid_item
 
             cumulative_loss += x_uij**2
@@ -450,8 +451,6 @@ cdef class MatrixFactorization_Cython_Epoch:
             sigmoid_user = self.adaptive_gradient_user(sigmoid_user, u)
 
 
-
-
             for index in range(self.n_factors):
 
                 # Copy original value to avoid messing up the updates
@@ -459,12 +458,24 @@ cdef class MatrixFactorization_Cython_Epoch:
                 H_j = self.ITEM_factors[j, index]
                 W_u = self.USER_factors[u, index]
 
-                self.USER_factors[u, index] += self.learning_rate * (sigmoid_user * ( H_i - H_j ) - self.user_reg * W_u)
+                self.USER_factors[u, index] += self.learning_rate * (sigmoid_user * ( H_i - H_j ) - self.user_reg * W_u )
                 self.ITEM_factors[i, index] += self.learning_rate * (sigmoid_item_i * ( W_u ) - self.positive_reg * H_i)
                 self.ITEM_factors[j, index] += self.learning_rate * (sigmoid_item_j * (-W_u ) - self.negative_reg * H_j)
 
+                # if u == 36365 and i==17095 and j==6846:
+                #     print("u: ", u, ", i: ", i, ", j: ", j)
+                #     print("H_i: ", H_i, ", H_j: ", H_j, ", W_u: ", W_u, ", sigmoid_user: ", sigmoid_user, ", sigmoid_item_i: ", sigmoid_item_i, ", sigmoid_item_j: ", sigmoid_item_j)
+                #     print("new_H_i: ", self.ITEM_factors[i, index], ", new_H_j: ", self.ITEM_factors[j, index], "new_W_u: ", self.USER_factors[u, index])
 
-
+                # # For positive item is PLUS logistic minus lambda*S
+                # if(pos_item_id != userSeenItem):
+                #     update = logisticFunction - self.lambda_i*self.S[pos_item_id, userSeenItem]
+                #     self.S[pos_item_id, userSeenItem] += self.learning_rate*update
+                #
+                # # For positive item is MINUS logistic minus lambda*S
+                # if (neg_item_id != userSeenItem):
+                #     update = - logisticFunction - self.lambda_j*self.S[neg_item_id, userSeenItem]
+                #     self.S[neg_item_id, userSeenItem] += self.learning_rate*update
 
 
             if processed_samples_last_print >= print_block_size or numCurrentBatch == totalNumberOfBatch-1:

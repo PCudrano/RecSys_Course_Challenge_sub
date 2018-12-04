@@ -43,7 +43,7 @@ class BPR_Sampling(object):
 
         while (True):
 
-            neg_item_id = np.random.randint(0, self.n_items)
+            neg_item_id = np.random.randint(0, self.n_items-1)
 
             if (neg_item_id not in userSeenItems):
                 return pos_item_id, neg_item_id
@@ -61,7 +61,7 @@ class BPR_Sampling(object):
         return user_id, pos_item_id, neg_item_id
 
 
-    def initializeFastSampling(self, positive_threshold=3):
+    def initializeFastSampling(self, positive_threshold=0.5):
         print("Initializing fast sampling")
 
         self.eligibleUsers = []
@@ -94,7 +94,7 @@ class BPR_Sampling(object):
             # It's faster to just try again then to build a mapping of the non-seen items
             # for every user
             while (not negItemSelected):
-                neg_item_id = np.random.randint(0, self.n_items)
+                neg_item_id = np.random.randint(0, self.n_items-1)
 
                 if (neg_item_id not in self.userSeenItems[user_id]):
                     negItemSelected = True

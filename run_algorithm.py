@@ -11,6 +11,8 @@ from src.utils.data_splitter import train_test_holdout, train_test_user_holdout,
 # import src.utils.similarity_wrapper as sim
 # import time
 
+import random
+
 import traceback, os
 import datetime
 
@@ -23,6 +25,7 @@ from SLIM_ElasticNet.SLIMElasticNetRecommender import SLIMElasticNetRecommender,
 
 from MatrixFactorization.Cython.MatrixFactorization_Cython import MatrixFactorization_BPR_Cython, MatrixFactorization_FunkSVD_Cython
 from MatrixFactorization.PureSVD import PureSVDRecommender
+from MatrixFactorization.MatrixFactorization_BPR_Theano import MatrixFactorization_BPR_Theano
 
 from Base.NonPersonalizedRecommender import TopPop, Random
 
@@ -113,22 +116,27 @@ if __name__ == '__main__':
     # URM_validation = URM_valid
     URM_test = URM_test_pred.tocsr()
 
-    recommender_list = [
-        # Random,
-        # TopPop,
-        # P3alphaRecommender,
-        # RP3betaRecommender,
-        # ItemKNNCFRecommender,
-        # UserKNNCFRecommender,
-        # MatrixFactorization_BPR_Cython,
-        # MatrixFactorization_FunkSVD_Cython,
-        # PureSVDRecommender,
-        # SLIM_BPR_Cython,
-        # SLIMElasticNetRecommender,
-        # SLIMElasticNetRecommender,
-        # CFW_D_Similarity_Linalg,
-        MatrixFactorization_BPR_Theano
-        ]
+    # def get_all_tuples_uip_generator(URM):
+    #     URM = URM.tocsr()
+    #     return ((u, URM.indices[ind]) for u in range(URM.shape[0]) for ind in range(URM.indptr[u], URM.indptr[u + 1]))
+    #
+    # def get_rand_tuples_uip_generator(URM, repeated_times=1):
+    #     def gen(URM):
+    #         URM = URM.tocsr()
+    #         URM.eliminate_zeros()
+    #         ind = random.randint(0, len(URM.data))
+    #         u = bis.bisect_right(URM.indptr, ind) - 1
+    #         ip = URM.indices[ind]
+    #         return (u, ip)
+    #
+    #     for i in range(repeated_times * URM.nnz):
+    #         yield gen(URM)
+    #
+    # train_data_u_ip = list(get_all_tuples_uip_generator(URM_train))
+    # # valid_data_u_ip = list(get_all_tuples_uip_generator(URM_valid))
+    # test_data_u_ip = list(get_all_tuples_uip_generator(URM_test))
+
+    recommender_class = MatrixFactorization_BPR_Theano
 
 
     from Base.Evaluation.Evaluator import SequentialEvaluator
@@ -143,35 +151,24 @@ if __name__ == '__main__':
         os.makedirs(output_root_path)
 
 
-    logFile = open(output_root_path + "result_all_algorithms_bprtests.txt".format(date=datetime.datetime.now()), "a")
+    logFile = open(output_root_path + "result_{algtype:}_{date:%Y%m%d%H%M%S}.txt".format(algtype=recommender_class, date=datetime.datetime.now()), "a")
 
 
-    for recommender_class in recommender_list:
+    try:
+        print("Algorithm: {}".format(recommender_class))
 
-        try:
+        numFactors = 300
+        recommender = recommender_class(URM_train)
+        # recommender.fit()
+        recommender.fit(num_factors=numFactors, epochs=1, batch_size=1)
 
-            print("Algorithm: {}".format(recommender_class))
+        results_run, results_run_string = evaluator.evaluateRecommender(recommender)
 
-            recommender = recommender_class(URM_train)
-            # recommender.fit()
+        print("Algorithm: {}, results: \n{}".format(recommender.__class__, results_run_string))
+        logFile.write("Algorithm: {}, results: \n{}\n".format(recommender.__class__, results_run_string))
+        logFile.flush()
 
-            # batch != 1 not implemented...
-            fit_args = {"epochs":50, "batch_size": 1, "num_factors": 80,
-            "learning_rate": 0.01, "sgd_mode":'sgd', "user_reg": 0.01, "positive_reg": 0.01, "negative_reg": 0.01,
-            "stop_on_validation": False, "lower_validatons_allowed": 5, "validation_metric": "MAP",
-            "evaluator_object": None, "validation_every_n": 5}
-
-            print(fit_args)
-
-            recommender.fit(**fit_args)
-
-            results_run, results_run_string = evaluator.evaluateRecommender(recommender)
-
-            print("Algorithm: {}, results: \n{}".format(recommender.__class__, results_run_string))
-            logFile.write("Algorithm: {}, results: \n{}\n".format(recommender.__class__, results_run_string))
-            logFile.flush()
-
-        except Exception as e:
-            traceback.print_exc()
-            logFile.write("Algorithm: {} - Exception: {}\n".format(recommender_class, str(e)))
-            logFile.flush()
+    except Exception as e:
+        traceback.print_exc()
+        logFile.write("Algorithm: {} - Exception: {}\n".format(recommender_class, str(e)))
+        logFile.flush()

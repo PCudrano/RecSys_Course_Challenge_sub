@@ -108,3 +108,15 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# MacOS
+.DS_Store
+
+# Pycharm project dir
+.idea
+
+# Cython
+**/*.c
+**/*.cpp
+**.html
+**.so

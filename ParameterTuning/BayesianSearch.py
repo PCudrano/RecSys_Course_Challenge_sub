@@ -285,7 +285,9 @@ class BayesianSearch(AbstractClassSearch):
             writeLog("BayesianSearch: Testing config: {} - Exception {}\n".format(paramether_dictionary, str(e)), self.logFile)
             traceback.print_exc()
 
-            return - np.inf
+            # return - np.inf # creates some issues with GP (exception for -inf value)
+            # return np.finfo(np.float64).min # issues too, doesn't fit in their vars, don't know if they're float63/32 or int or whatever
+            return -65000 # kind of random negative number I felt could work
 
 
 

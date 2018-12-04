@@ -27,7 +27,7 @@ class SLIM_BPR_Python(BPR_Sampling, SimilarityMatrixRecommender, Recommender):
 
     RECOMMENDER_NAME = "SLIM_BPR_Recommender"
 
-    def __init__(self, URM_train, positive_threshold=4, sparse_weights = False):
+    def __init__(self, URM_train, positive_threshold=0.5, sparse_weights = False):
         super(SLIM_BPR_Python, self).__init__()
 
         """
