@@ -1,5 +1,5 @@
 # RecSys Course 2018
-This is the official repository for the 2018 Recommender Systems course at Polimi.
+This is not the official repository for the 2018 Recommender Systems course at Polimi.
 
 #### This repo contains a Cython implementation of:
  - SLIM BPR: Item-item similarity matrix machine learning algorithm optimizing BPR.
