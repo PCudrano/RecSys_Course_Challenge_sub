@@ -1,0 +1,1 @@
+Algorithm: <class 'SLIM_ElasticNet.SLIMElasticNetRecommender.MultiThreadSLIM_ElasticNet'> - Exception: Recommender_Base_Class: URM_train is not CSR, this will cause errors in filtering seen items

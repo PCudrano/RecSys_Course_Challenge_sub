@@ -1,0 +1,1 @@
+Algorithm: <class 'MatrixFactorization.MatrixFactorization_BPR_Theano.MatrixFactorization_BPR_Theano'> - Exception: 'MatrixFactorization_BPR_Theano' object has no attribute 'fit'

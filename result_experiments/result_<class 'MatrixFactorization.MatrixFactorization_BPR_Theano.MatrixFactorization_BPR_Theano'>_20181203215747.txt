@@ -1,0 +1,54 @@
+Algorithm: <class 'MatrixFactorization.MatrixFactorization_BPR_Theano.MatrixFactorization_BPR_Theano'> - Exception: index 20635 is out of bounds for size 20635
+Apply node that caused the error: AdvancedSubtensor1(B, j)
+Toposort index: 10
+Inputs types: [TensorType(float32, vector), TensorType(int64, vector)]
+Inputs shapes: [(20635,), (1000,)]
+Inputs strides: [(4,), (8,)]
+Inputs values: ['not shown', 'not shown']
+Inputs type_num: [11, 7]
+Outputs clients: [[Elemwise{Composite{(((i0 - i1) + i2) - i3)}}[(0, 0)](AdvancedSubtensor1.0, AdvancedSubtensor1.0, ExtractDiag{offset=0, axis1=0, axis2=1, view=False}.0, ExtractDiag{offset=0, axis1=0, axis2=1, view=False}.0)]]
+
+Backtrace when the node is created(use Theano flag traceback.limit=N to make it longer):
+  File "/Users/archnnj/anaconda3/envs/recsys_python36/lib/python3.6/site-packages/IPython/core/interactiveshell.py", line 3191, in run_ast_nodes
+    if (yield from self.run_code(code, result)):
+  File "/Users/archnnj/anaconda3/envs/recsys_python36/lib/python3.6/site-packages/IPython/core/interactiveshell.py", line 3267, in run_code
+    exec(code_obj, self.user_global_ns, self.user_ns)
+  File "<ipython-input-2-f341de6d3f44>", line 1, in <module>
+    runfile('/Users/archnnj/Development/recsys/recsys_polimi_challenge_2018/repo/src/libs/RecSys_Course_2018/run_algorithm.py', wdir='/Users/archnnj/Development/recsys/recsys_polimi_challenge_2018/repo/src/libs/RecSys_Course_2018')
+  File "/Users/archnnj/Library/Application Support/JetBrains/Toolbox/apps/PyCharm-P/ch-0/183.4284.139/PyCharm.app/Contents/helpers/pydev/_pydev_bundle/pydev_umd.py", line 198, in runfile
+    pydev_imports.execfile(filename, global_vars, local_vars)  # execute the script
+  File "/Users/archnnj/Library/Application Support/JetBrains/Toolbox/apps/PyCharm-P/ch-0/183.4284.139/PyCharm.app/Contents/helpers/pydev/_pydev_imps/_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+  File "/Users/archnnj/Development/recsys/recsys_polimi_challenge_2018/repo/src/libs/RecSys_Course_2018/run_algorithm.py", line 163, in <module>
+    recommender.fit(numFactors, numUsers, numItems, epochs=100, batch_size=1000)
+  File "/Users/archnnj/Development/recsys/recsys_polimi_challenge_2018/repo/src/libs/RecSys_Course_2018/MatrixFactorization/MatrixFactorization_BPR_Theano.py", line 106, in fit
+    self._generate_train_model_function()
+  File "/Users/archnnj/Development/recsys/recsys_polimi_challenge_2018/repo/src/libs/RecSys_Course_2018/MatrixFactorization/MatrixFactorization_BPR_Theano.py", line 182, in _generate_train_model_function
+    self.lambda_bias * (self.B[i] ** 2 + self.B[j] ** 2))
+
+Debugprint of the apply node: 
+AdvancedSubtensor1 [id A] <TensorType(float32, vector)> ''   
+ |B [id B] <TensorType(float32, vector)>
+ |j [id C] <TensorType(int64, vector)>
+
+Storage map footprint:
+ - W, Shared Input, Shape: (50446, 100), ElemSize: 4 Byte(s), TotalSize: 20178400 Byte(s)
+ - H, Shared Input, Shape: (20635, 100), ElemSize: 4 Byte(s), TotalSize: 8254000 Byte(s)
+ - B, Shared Input, Shape: (20635,), ElemSize: 4 Byte(s), TotalSize: 82540 Byte(s)
+ - u, Input, Shape: (1000,), ElemSize: 8 Byte(s), TotalSize: 8000 Byte(s)
+ - i, Input, Shape: (1000,), ElemSize: 8 Byte(s), TotalSize: 8000 Byte(s)
+ - j, Input, Shape: (1000,), ElemSize: 8 Byte(s), TotalSize: 8000 Byte(s)
+ - AdvancedSubtensor1.0, Shape: (1000,), ElemSize: 4 Byte(s), TotalSize: 4000 Byte(s)
+ - TensorConstant{(1, 1) of 0.0}, Shape: (1, 1), ElemSize: 4 Byte(s), TotalSize: 4 Byte(s)
+ - TensorConstant{(1, 1) of 0.005}, Shape: (1, 1), ElemSize: 4 Byte(s), TotalSize: 4 Byte(s)
+ - TensorConstant{(1, 1) of 0.0005}, Shape: (1, 1), ElemSize: 4 Byte(s), TotalSize: 4 Byte(s)
+ - TensorConstant{(1,) of 0.0}, Shape: (1,), ElemSize: 4 Byte(s), TotalSize: 4 Byte(s)
+ - TensorConstant{(1,) of 1.0}, Shape: (1,), ElemSize: 4 Byte(s), TotalSize: 4 Byte(s)
+ - TensorConstant{(1,) of 0.05}, Shape: (1,), ElemSize: 4 Byte(s), TotalSize: 4 Byte(s)
+ - TensorConstant{(1,) of 0.0025}, Shape: (1,), ElemSize: 4 Byte(s), TotalSize: 4 Byte(s)
+ - TensorConstant{(1,) of 0.00025}, Shape: (1,), ElemSize: 4 Byte(s), TotalSize: 4 Byte(s)
+ - TensorConstant{(1, 1) of 0.05}, Shape: (1, 1), ElemSize: 4 Byte(s), TotalSize: 4 Byte(s)
+ TotalSize: 28542976 Byte(s) 0.027 GB
+ TotalSize inputs: 28538976 Byte(s) 0.027 GB
+
+
