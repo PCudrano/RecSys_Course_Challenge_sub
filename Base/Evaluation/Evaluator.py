@@ -194,9 +194,7 @@ class Evaluator(object):
 
         return output_str
 
-
-
-
+    ## not used apparently
     def _run_evaluation_on_selected_users(self, recommender_object, usersToEvaluate):
 
 
@@ -217,7 +215,7 @@ class Evaluator(object):
 
         n_users_evaluated = 0
 
-
+        print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
         for test_user in usersToEvaluate:
 
             # Being the URM CSR, the indices are the non-zero column indexes
@@ -276,27 +274,7 @@ class Evaluator(object):
 
                 start_time_print = time.time()
 
-
-
         return results_dict, n_users_evaluated
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class SequentialEvaluator(Evaluator):
@@ -316,16 +294,11 @@ class SequentialEvaluator(Evaluator):
                             ignore_items = ignore_items, ignore_users = ignore_users)
 
 
-
-
-
+    ## the used one apparently
     def _run_evaluation_on_selected_users(self, recommender_object, usersToEvaluate, block_size = 1000):
-
-
 
         start_time = time.time()
         start_time_print = time.time()
-
 
         results_dict = {}
 
@@ -340,86 +313,85 @@ class SequentialEvaluator(Evaluator):
         n_users_evaluated = 0
 
         # Start from -block_size to ensure it to be 0 at the first block
-        user_batch_start = 0
-        user_batch_end = 0
-
-        while user_batch_start < len(self.usersToEvaluate):
-
-            user_batch_end = user_batch_start + block_size
-            user_batch_end = min(user_batch_end, len(usersToEvaluate))
-
-            test_user_batch_array = np.array(usersToEvaluate[user_batch_start:user_batch_end])
-            user_batch_start = user_batch_end
-
-            # Compute predictions for a batch of users using vectorization, much more efficient than computing it one at a time
-            recommended_items_batch_list = recommender_object.recommend(test_user_batch_array,
-                                                                  remove_seen_flag=self.exclude_seen,
-                                                                  cutoff = self.max_cutoff,
-                                                                  remove_top_pop_flag=False,
-                                                                  remove_CustomItems_flag=self.ignore_items_flag)
+        #user_batch_start = 0
+        #user_batch_end = 0
 
 
-            # Compute recommendation quality for each user in batch
-            for batch_user_index in range(len(recommended_items_batch_list)):
+        #if block_size is None:
+        #    block_size = len(self.usersToEvaluate)
 
-                user_id = test_user_batch_array[batch_user_index]
-                recommended_items = recommended_items_batch_list[batch_user_index]
-
-                # Being the URM CSR, the indices are the non-zero column indexes
-                relevant_items = self.get_user_relevant_items(user_id)
-                is_relevant = np.in1d(recommended_items, relevant_items, assume_unique=True)
-
-                n_users_evaluated += 1
-
-                for cutoff in self.cutoff_list:
-
-                    results_current_cutoff = results_dict[cutoff]
-
-                    is_relevant_current_cutoff = is_relevant[0:cutoff]
-                    recommended_items_current_cutoff = recommended_items[0:cutoff]
-
-                    results_current_cutoff[EvaluatorMetrics.ROC_AUC.value]              += roc_auc(is_relevant_current_cutoff)
-                    results_current_cutoff[EvaluatorMetrics.PRECISION.value]            += precision(is_relevant_current_cutoff, len(relevant_items))
-                    results_current_cutoff[EvaluatorMetrics.RECALL.value]               += recall(is_relevant_current_cutoff, relevant_items)
-                    results_current_cutoff[EvaluatorMetrics.RECALL_TEST_LEN.value]      += recall_min_test_len(is_relevant_current_cutoff, relevant_items)
-                    results_current_cutoff[EvaluatorMetrics.MAP.value]                  += map(is_relevant_current_cutoff, relevant_items)
-                    results_current_cutoff[EvaluatorMetrics.MRR.value]                  += rr(is_relevant_current_cutoff)
-                    results_current_cutoff[EvaluatorMetrics.NDCG.value]                 += ndcg(recommended_items_current_cutoff, relevant_items, relevance=self.get_user_test_ratings(user_id), at=cutoff)
-                    results_current_cutoff[EvaluatorMetrics.HIT_RATE.value]             += is_relevant_current_cutoff.sum()
-                    results_current_cutoff[EvaluatorMetrics.ARHR.value]                 += arhr(is_relevant_current_cutoff)
-
-                    results_current_cutoff[EvaluatorMetrics.NOVELTY.value].add_recommendations(recommended_items_current_cutoff)
-                    results_current_cutoff[EvaluatorMetrics.DIVERSITY_GINI.value].add_recommendations(recommended_items_current_cutoff)
-                    results_current_cutoff[EvaluatorMetrics.SHANNON_ENTROPY.value].add_recommendations(recommended_items_current_cutoff)
-                    results_current_cutoff[EvaluatorMetrics.COVERAGE_ITEM.value].add_recommendations(recommended_items_current_cutoff)
-                    results_current_cutoff[EvaluatorMetrics.COVERAGE_USER.value].add_recommendations(recommended_items_current_cutoff, user_id)
-                    results_current_cutoff[EvaluatorMetrics.DIVERSITY_MEAN_INTER_LIST.value].add_recommendations(recommended_items_current_cutoff)
-                    results_current_cutoff[EvaluatorMetrics.DIVERSITY_HERFINDAHL.value].add_recommendations(recommended_items_current_cutoff)
-
-                    if EvaluatorMetrics.DIVERSITY_SIMILARITY.value in results_current_cutoff:
-                        results_current_cutoff[EvaluatorMetrics.DIVERSITY_SIMILARITY.value].add_recommendations(recommended_items_current_cutoff)
+        print("AAAAAApparently not used")
 
 
+        #while user_batch_start < len(self.usersToEvaluate):
+
+        #user_batch_end = user_batch_start + block_size
+        #user_batch_end = min(user_batch_end, len(usersToEvaluate))
+
+        #test_user_batch_array = np.array(usersToEvaluate[user_batch_start:user_batch_end])
+        #user_batch_start = user_batch_end
+
+        # Compute predictions for a batch of users using vectorization, much more efficient than computing it one at a time
+        recommended_items_batch_list = recommender_object.recommend(usersToEvaluate,
+                                                              remove_seen_flag=self.exclude_seen,
+                                                              cutoff = self.max_cutoff,
+                                                              remove_top_pop_flag=False,
+                                                              remove_CustomItems_flag=self.ignore_items_flag)
 
 
+        # Compute recommendation quality for each user .
+        for batch_user_index in range(len(recommended_items_batch_list)):
 
-                if time.time() - start_time_print > 30 or n_users_evaluated==len(self.usersToEvaluate):
-                    print("SequentialEvaluator: Processed {} ( {:.2f}% ) in {:.2f} seconds. Users per second: {:.0f}".format(
-                                  n_users_evaluated,
-                                  100.0* float(n_users_evaluated)/len(self.usersToEvaluate),
-                                  time.time()-start_time,
-                                  float(n_users_evaluated)/(time.time()-start_time)))
+            user_id = usersToEvaluate[batch_user_index]
+            recommended_items = recommended_items_batch_list[batch_user_index]
 
-                    sys.stdout.flush()
-                    sys.stderr.flush()
+            # Being the URM CSR, the indices are the non-zero column indexes
+            relevant_items = self.get_user_relevant_items(user_id)
+            is_relevant = np.in1d(recommended_items, relevant_items, assume_unique=True)
 
-                    start_time_print = time.time()
+            n_users_evaluated += 1
 
+            for cutoff in self.cutoff_list:
 
+                results_current_cutoff = results_dict[cutoff]
+
+                is_relevant_current_cutoff = is_relevant[0:cutoff]
+                recommended_items_current_cutoff = recommended_items[0:cutoff]
+
+                results_current_cutoff[EvaluatorMetrics.ROC_AUC.value]              += roc_auc(is_relevant_current_cutoff)
+                results_current_cutoff[EvaluatorMetrics.PRECISION.value]            += precision(is_relevant_current_cutoff, len(relevant_items))
+                results_current_cutoff[EvaluatorMetrics.RECALL.value]               += recall(is_relevant_current_cutoff, relevant_items)
+                results_current_cutoff[EvaluatorMetrics.RECALL_TEST_LEN.value]      += recall_min_test_len(is_relevant_current_cutoff, relevant_items)
+                results_current_cutoff[EvaluatorMetrics.MAP.value]                  += map(is_relevant_current_cutoff, relevant_items)
+                results_current_cutoff[EvaluatorMetrics.MRR.value]                  += rr(is_relevant_current_cutoff)
+                results_current_cutoff[EvaluatorMetrics.NDCG.value]                 += ndcg(recommended_items_current_cutoff, relevant_items, relevance=self.get_user_test_ratings(user_id), at=cutoff)
+                results_current_cutoff[EvaluatorMetrics.HIT_RATE.value]             += is_relevant_current_cutoff.sum()
+                results_current_cutoff[EvaluatorMetrics.ARHR.value]                 += arhr(is_relevant_current_cutoff)
+
+                results_current_cutoff[EvaluatorMetrics.NOVELTY.value].add_recommendations(recommended_items_current_cutoff)
+                results_current_cutoff[EvaluatorMetrics.DIVERSITY_GINI.value].add_recommendations(recommended_items_current_cutoff)
+                results_current_cutoff[EvaluatorMetrics.SHANNON_ENTROPY.value].add_recommendations(recommended_items_current_cutoff)
+                results_current_cutoff[EvaluatorMetrics.COVERAGE_ITEM.value].add_recommendations(recommended_items_current_cutoff)
+                results_current_cutoff[EvaluatorMetrics.COVERAGE_USER.value].add_recommendations(recommended_items_current_cutoff, user_id)
+                results_current_cutoff[EvaluatorMetrics.DIVERSITY_MEAN_INTER_LIST.value].add_recommendations(recommended_items_current_cutoff)
+                results_current_cutoff[EvaluatorMetrics.DIVERSITY_HERFINDAHL.value].add_recommendations(recommended_items_current_cutoff)
+
+                if EvaluatorMetrics.DIVERSITY_SIMILARITY.value in results_current_cutoff:
+                    results_current_cutoff[EvaluatorMetrics.DIVERSITY_SIMILARITY.value].add_recommendations(recommended_items_current_cutoff)
+
+            if time.time() - start_time_print > 30 or n_users_evaluated==len(self.usersToEvaluate):
+                print("SequentialEvaluator: Processed {} ( {:.2f}% ) in {:.2f} seconds. Users per second: {:.0f}".format(
+                              n_users_evaluated,
+                              100.0* float(n_users_evaluated)/len(self.usersToEvaluate),
+                              time.time()-start_time,
+                              float(n_users_evaluated)/(time.time()-start_time)))
+
+                sys.stdout.flush()
+                sys.stderr.flush()
+
+                start_time_print = time.time()
 
         return results_dict, n_users_evaluated
-
-
 
 
     def evaluateRecommender(self, recommender_object):
@@ -432,10 +404,7 @@ class SequentialEvaluator(Evaluator):
         if self.ignore_items_flag:
             recommender_object.set_items_to_ignore(self.ignore_items_ID)
 
-
-
         results_dict, n_users_evaluated = self._run_evaluation_on_selected_users(recommender_object, self.usersToEvaluate)
-
 
         if (n_users_evaluated > 0):
 
