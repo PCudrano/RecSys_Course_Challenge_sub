@@ -1,0 +1,1 @@
+Algorithm: <class 'MatrixFactorization.Cython.MatrixFactorization_Cython.MatrixFactorization_BPR_Cython'> - Exception: 'MatrixFactorization_Cython_Epoch.MatrixFactorizati' object has no attribute 'W'
