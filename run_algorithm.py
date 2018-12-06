@@ -9,7 +9,7 @@ from src.utils.data_splitter import train_test_holdout, train_test_user_holdout,
 # from src.utils.Compute_Similarity_Python import Compute_Similarity_Python
 # from src.libs.similarity import cosine
 # import src.utils.similarity_wrapper as sim
-# import time
+import time
 
 import random
 
@@ -101,15 +101,15 @@ if __name__ == '__main__':
     # URM_train, URM_test_known, URM_test_pred = train_test_user_holdout(URM_all, user_perc=0.8, train_perc=0.8, seed=seed)
 
     # row holdout
-    URM_train, URM_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df, train_perc=0.8, seed=seed, targetsListOrdered=targetsListOrdered, nnz_threshold=10)
-    URM_test_known = None
+    #URM_train, URM_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df, train_perc=0.8, seed=seed, targetsListOrdered=targetsListOrdered, nnz_threshold=10)
+    #URM_test_known = None
 
     # row holdout - validation
-    # URM_train_val, URM_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df, train_perc=0.8,
-    #                                                       seed=seed, targetsListOrdered=targetsListOrdered,
-    #                                                       nnz_threshold=10)
-    # URM_train, URM_valid = train_test_holdout(URM_train_val, train_perc=0.7, seed=seed)
-    # URM_test_known = None
+    URM_train_val, URM_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df, train_perc=0.8,
+                                                           seed=seed, targetsListOrdered=targetsListOrdered,
+                                                           nnz_threshold=1)
+    URM_train, URM_valid = train_test_holdout(URM_train_val, train_perc=0.7, seed=seed)
+    URM_test_known = None
 
 
     URM_train = URM_train.tocsr()
@@ -136,12 +136,14 @@ if __name__ == '__main__':
     # # valid_data_u_ip = list(get_all_tuples_uip_generator(URM_valid))
     # test_data_u_ip = list(get_all_tuples_uip_generator(URM_test))
 
-    recommender_class = MatrixFactorization_BPR_Theano
+    #recommender_class = MatrixFactorization_BPR_Theano
+    recommender_class = ItemKNNCFRecommender
 
+    from Base.Evaluation.Evaluator import SequentialEvaluator, CompleteEvaluator, FastEvaluator
 
-    from Base.Evaluation.Evaluator import SequentialEvaluator
-
-    evaluator = SequentialEvaluator(URM_test, [10], minRatingsPerUser=10, exclude_seen=True)
+    #evaluator = SequentialEvaluator(URM_test, [10], minRatingsPerUser=1, exclude_seen=True)
+    #evaluator = CompleteEvaluator(URM_test, [10], minRatingsPerUser=1, exclude_seen=True)
+    evaluator = FastEvaluator(URM_test, [10], minRatingsPerUser=1, exclude_seen=True)
 
 
     output_root_path = "result_experiments/"
@@ -156,13 +158,19 @@ if __name__ == '__main__':
 
     try:
         print("Algorithm: {}".format(recommender_class))
-
+        t = time.time()
         numFactors = 300
         recommender = recommender_class(URM_train)
         # recommender.fit()
-        recommender.fit(num_factors=numFactors, epochs=1, batch_size=1)
+        #recommender.fit(num_factors=numFactors, epochs=1, batch_size=1)
+        recommender.fit(topK=172, shrink=12, similarity='cosine', normalize=True)
 
         results_run, results_run_string = evaluator.evaluateRecommender(recommender)
+
+        elapsed_time = time.time() - t
+        print("Elapsed time (recommend_mat_fast) [mm:ss.fff]: {:02d}:{:06.3f}".format(int(elapsed_time / 60),
+                                                                                      elapsed_time - 60 * int(
+                                                                                          elapsed_time / 60)))
 
         print("Algorithm: {}, results: \n{}".format(recommender.__class__, results_run_string))
         logFile.write("Algorithm: {}, results: \n{}\n".format(recommender.__class__, results_run_string))
