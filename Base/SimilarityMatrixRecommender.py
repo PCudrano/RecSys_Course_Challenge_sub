@@ -25,6 +25,22 @@ class SimilarityMatrixRecommender(object):
         self.compute_item_score = self.compute_score_item_based
 
 
+    # def compute_score_item_based(self, user_id):
+    #
+    #     if self.sparse_weights:
+    #         user_profile = self.URM_train[user_id]
+    #
+    #         return user_profile.dot(self.W_sparse).toarray()
+    #
+    #     else:
+    #
+    #         assert False
+    #
+    #         user_profile = self.URM_train.indices[self.URM_train.indptr[user_id]:self.URM_train.indptr[user_id + 1]]
+    #         user_ratings = self.URM_train.data[self.URM_train.indptr[user_id]:self.URM_train.indptr[user_id + 1]]
+    #
+    #         relevant_weights = self.W[user_profile]
+    #         return relevant_weights.T.dot(user_ratings)
 
     def compute_score_item_based(self, user_id):
 
