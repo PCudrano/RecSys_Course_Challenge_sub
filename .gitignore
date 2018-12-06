@@ -7,7 +7,7 @@ __pycache__/
 Notebooks_utils/movielens_10m.zip
 Notebooks_utils/ml-10M100K
 .ipynb_checkpoints
-result_experiments
+#result_experiments
 
 # Exclude all that is in folder, except python files
 data/Movielens_10M
@@ -120,3 +120,7 @@ ENV/
 **/*.cpp
 **.html
 **.so
+
+# Exclude bin files in result_experiments
+result_experiments/*
+!result_experiments/**/*.txt
