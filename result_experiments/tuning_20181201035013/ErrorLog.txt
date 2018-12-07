@@ -1,0 +1,1 @@
+On recommender <class 'GraphBased.P3alphaRecommender.P3alphaRecommender'> Exception array must not contain infs or NaNs

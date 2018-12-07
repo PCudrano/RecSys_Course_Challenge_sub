@@ -1,0 +1,2 @@
+On recommender <class 'MatrixFactorization.Cython.MatrixFactorization_Cython.MatrixFactorization_FunkSVD_Cython'> Exception frozenset({('reg', 0.0), ('num_factors', 1), ('learning_rate', 0.01), ('sgd_mode', 'adagrad')})
+On recommender <class 'MatrixFactorization.Cython.MatrixFactorization_Cython.MatrixFactorization_FunkSVD_Cython'> Exception frozenset({('learning_rate', 0.0001), ('reg', 1e-09), ('sgd_mode', 'adam'), ('num_factors', 10)})

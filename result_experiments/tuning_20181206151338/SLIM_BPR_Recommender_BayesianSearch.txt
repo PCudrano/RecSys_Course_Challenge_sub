@@ -1,0 +1,1 @@
+BayesianSearch: Testing config: {'topK': 10, 'epochs': 50, 'sgd_mode': 'adam', 'lambda_i': 1e-06, 'lambda_j': 0.001, 'learning_rate': 0.01} - Exception not enough values to unpack (expected 3, got 2)

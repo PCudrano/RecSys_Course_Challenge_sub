@@ -1,0 +1,1 @@
+BayesianSearch: Testing config: {'topK': 20, 'alpha': 1.5118729603056664, 'normalize_similarity': True} - Exception 2.928968253968254

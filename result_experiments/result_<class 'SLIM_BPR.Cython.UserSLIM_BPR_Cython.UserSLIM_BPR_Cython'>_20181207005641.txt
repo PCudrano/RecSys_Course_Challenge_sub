@@ -1,0 +1,1 @@
+Algorithm: <class 'SLIM_BPR.Cython.UserSLIM_BPR_Cython.UserSLIM_BPR_Cython'> - Exception: 
