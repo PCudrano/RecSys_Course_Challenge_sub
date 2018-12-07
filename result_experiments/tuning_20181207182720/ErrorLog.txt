@@ -1,0 +1,1 @@
+On recommender <class 'src.recommenders.HybridLinCombItemSimilarities.HybridLinCombItemSimilarities'> Exception type object 'HybridLinCombItemSimilarities' has no attribute 'RECOMMENDER_NAME'
