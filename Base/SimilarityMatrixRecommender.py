@@ -68,9 +68,9 @@ class SimilarityMatrixRecommender(object):
     def compute_score_user_based(self, user_id):
 
         if self.sparse_weights:
-            assert False
+            # assert False
             #TODO change dot_product to a serious one
-            return self.W_sparse[user_id].dot(self.URM_train).toarray()
+            return self.W_sparse[user_id].dot(self.URM_train) # .toarray()
 
         else:
             # Numpy dot does not recognize sparse matrices, so we must
