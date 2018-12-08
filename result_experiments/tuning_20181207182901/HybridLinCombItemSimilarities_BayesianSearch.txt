@@ -1,0 +1,1 @@
+BayesianSearch: Testing config: {'alphas': range(0, 20)} - Exception 'HybridLinCombItemSimilarities' object has no attribute 'get_URM_train'

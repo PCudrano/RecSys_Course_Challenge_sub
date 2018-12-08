@@ -1,0 +1,2 @@
+BayesianSearch: New best config found. Config: {'alphas': range(0, 20)} - results: {'ROC_AUC': 0.0, 'PRECISION': 0.0, 'RECALL': 0.0, 'RECALL_TEST_LEN': 0.0, 'MAP': 0.07710135135070761, 'MRR': 0.0, 'NDCG': 0.0, 'F1': 0.0, 'HIT_RATE': 0.0, 'ARHR': 0.0, 'NOVELTY': 0.0, 'DIVERSITY_MEAN_INTER_LIST': 1.0, 'DIVERSITY_HERFINDAHL': nan, 'COVERAGE_ITEM': 0.0, 'COVERAGE_USER': 0.0, 'DIVERSITY_GINI': 0.0, 'SHANNON_ENTROPY': -0.0}
+BayesianSearch: Testing config: {'alphas': range(0, 20)} - Exception Not. Yet.
