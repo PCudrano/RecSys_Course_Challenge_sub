@@ -1,4 +1,11 @@
-from .bayesian_optimization import BayesianOptimization
-from .helpers import UtilityFunction
+from .bayesian_optimization import BayesianOptimization, Events
+from .util import UtilityFunction
+from .observer import ScreenLogger, JSONLogger
 
-__all__ = ["BayesianOptimization", "UtilityFunction"]
+__all__ = [
+    "BayesianOptimization",
+    "UtilityFunction",
+    "Events",
+    "ScreenLogger",
+    "JSONLogger",
+]
