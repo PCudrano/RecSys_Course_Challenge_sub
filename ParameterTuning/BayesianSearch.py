@@ -10,6 +10,9 @@ from ParameterTuning.AbstractClassSearch import AbstractClassSearch, DictionaryK
 from functools import partial
 import traceback, pickle
 import numpy as np
+from ParameterTuning.BayesianOptimization_master.bayes_opt.observer import JSONLogger
+from ParameterTuning.BayesianOptimization_master.bayes_opt.event import Events
+from ParameterTuning.BayesianOptimization_master.bayes_opt.util import load_logs
 
 try:
     #from bayes_opt import BayesianOptimization
@@ -53,7 +56,7 @@ class BayesianSearch(AbstractClassSearch):
 
 
     def search(self, dictionary, metric ="MAP", init_points = 5, n_cases = 30, output_root_path = None, parallelPoolSize = 2, parallelize = True,
-               save_model = "best"):
+               save_model = "best", loggerPath=None, loadLogsPath=None, **kwargs):
 
         # Associate the params that will be returned by BayesianOpt object to those you want to save
         # E.g. with early stopping you know which is the optimal number of epochs only afterwards
@@ -108,33 +111,42 @@ class BayesianSearch(AbstractClassSearch):
 
             hyperparamethers_range_dictionary[key] = [min_val, max_val]
 
-
+        self.hyperparamethers_range_dictionary = hyperparamethers_range_dictionary
 
         self.runSingleCase_partial = partial(self.runSingleCase,
                                              dictionary = dictionary,
                                              metric = metric)
 
-
-
-
-
-
         self.bayesian_optimizer = BayesianOptimization(self.runSingleCase_partial, hyperparamethers_range_dictionary)
+
+        if loadLogsPath is not None:
+            self.loadLogs(loadLogsPath)
+
+        if loggerPath is not None:
+            self.initLogger(loggerPath)
 
         self.best_solution_val = None
         self.best_solution_parameters = None
         #self.best_solution_object = None
 
+        self.callMaximizer(init_points=init_points, n_iter=n_cases, **kwargs)
+        return self.saveBestSolution(metric=metric, best_solution_val=None, best_solution_parameters = None)
 
-        self.bayesian_optimizer.maximize(init_points=init_points, n_iter=n_cases, kappa=2)
 
-        best_solution = self.bayesian_optimizer.res['max']
+    def callMaximizer(self, init_points=5, n_iter=30, kappa=2, acq = 'ucb', xi = 0.0):
 
-        self.best_solution_val = best_solution["max_val"]
-        self.best_solution_parameters = best_solution["max_params"].copy()
+        # self.bayesian_optimizer.maximize(init_points=init_points, n_iter=n_cases, kappa=2)
+        self.bayesian_optimizer.maximize(init_points=init_points, n_iter=n_iter, acq=acq, kappa=kappa, xi=xi)
+
+    def saveBestSolution(self, metric="MAP", best_solution_val=None, best_solution_parameters = None):
+
+        best_solution = self.bayesian_optimizer.max # .res['max']
+
+        self.best_solution_val = best_solution["target"] # best_solution["max_val"]
+        self.best_solution_parameters = best_solution["params"].copy() # best_solution["max_params"].copy()
         self.best_solution_parameters = self.parameter_bayesian_to_token(self.best_solution_parameters)
-        self.best_solution_parameters = self.from_fit_params_to_saved_params[frozenset(self.best_solution_parameters.items())]
-
+        if frozenset(self.best_solution_parameters.items()) in self.from_fit_params_to_saved_params:
+            self.best_solution_parameters = self.from_fit_params_to_saved_params[frozenset(self.best_solution_parameters.items())]
 
         writeLog("BayesianSearch: Best config is: Config {}, {} value is {:.4f}\n".format(
             self.best_solution_parameters, metric, self.best_solution_val), self.logFile)
@@ -146,9 +158,18 @@ class BayesianSearch(AbstractClassSearch):
         #     writeLog("BayesianSearch: Saving model in {}\n".format(folderPath), self.logFile)
         #     self.runSingleCase_param_parsed(dictionary, metric, self.best_solution_parameters, folderPath = folderPath, namePrefix = namePrefix)
 
-
         return self.best_solution_parameters.copy()
 
+    def initLogger(self, loggerPath):
+        loggerFilePath = loggerPath + "bayesian_optimizer_logs.json"
+        writeLog("BayesianSearch: Saving logs to {}".format(loggerFilePath), self.logFile)
+        logger = JSONLogger(path=loggerFilePath)
+        self.bayesian_optimizer.subscribe(Events.OPTMIZATION_STEP, logger)
+
+    def loadLogs(self, loadLogsPath):
+        loadLogsFilePath = loadLogsPath + "bayesian_optimizer_logs.json"
+        writeLog("BayesianSearch: Loading logs from {}".format(loadLogsFilePath), self.logFile)
+        load_logs(self.bayesian_optimizer, logs=[loadLogsFilePath])
 
     #
     # def evaluate_on_test(self):

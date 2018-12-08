@@ -488,12 +488,12 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
         if recommender_class is UserSLIM_BPR_Cython:
 
             hyperparamethers_range_dictionary = {}
-            hyperparamethers_range_dictionary["topK"] = [10, 50, 100, 200, 300, 400, 500, 600, 700, 800]
+            hyperparamethers_range_dictionary["topK"] = [50, 100, 200, 300, 400, 500, 600, 700, 800]
             hyperparamethers_range_dictionary["epochs"] = [5, 20, 30, 50, 90, 100, 200, 300, 400, 600, 1000]
             hyperparamethers_range_dictionary["sgd_mode"] = ["adagrad", "adam", "sgd", "rmsprop"]
             hyperparamethers_range_dictionary["lambda_i"] = [1e-1, 1e-3, 1e-6, 1e-9]
             hyperparamethers_range_dictionary["lambda_j"] = [1e-1, 1e-3, 1e-6, 1e-9]
-            hyperparamethers_range_dictionary["learning_rate"] = [0.5, 1e-1, 1e-2, 1e-4]
+            hyperparamethers_range_dictionary["learning_rate"] = [0.5, 1e-1, 1e-2]
 
             recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train],
                                      DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {'train_with_sparse_weights': True,
@@ -625,7 +625,6 @@ if __name__ == '__main__':
     seed = 0
     # ratings holdout
     # URM_train, URM_test_pred = train_test_holdout(URM_all, train_perc=0.8, seed=seed)
-    # URM_valid=URM_test_pred
     # URM_test_known = None
 
     # user holdout
@@ -692,10 +691,10 @@ if __name__ == '__main__':
                                                        evaluator_test=evaluator_test,
                                                        output_root_path=output_root_path,
                                                        parallelizeKNN=(not parallel),
-                                                       init_points=5,
-                                                       n_cases=30,
+                                                       init_points=0,
+                                                       n_cases=10,
                                                        loggerPath=output_root_path,
-                                                       # loadLogsPath=None
+                                                       loadLogsPath="result_experiments/tuning_20181208113322/"
                                                        )
 
     # If used with only one class of recommenders, at the end of the optimization parameterSearch can be accessed from

@@ -1,0 +1,1 @@
+On recommender <class 'SLIM_BPR.Cython.UserSLIM_BPR_Cython.UserSLIM_BPR_Cython'> Exception list indices must be integers or slices, not str

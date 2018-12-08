@@ -1,0 +1,12 @@
+SLIM_BPR_Recommender: Epoch 340 of 2000. Elapsed time 96.35 min
+Fast Evaluator
+Elapsed time (CompleteEval of 49226 users) [mm:ss.fff]: 00:10.855. Users per second: 4535
+BayesianSearch: New best config found. Config: {'topK': 100, 'sgd_mode': 'adagrad', 'lambda_i': 1e-09, 'lambda_j': 0.0001, 'learning_rate': 0.01, 'epochs': 320, 'max_epochs': 320} - results: {'ROC_AUC': 0.0, 'PRECISION': 0.0, 'RECALL': 0.0, 'RECALL_TEST_LEN': 0.0, 'MAP': 0.0825701744620508, 'MRR': 0.0, 'NDCG': 0.0, 'F1': 0.0, 'HIT_RATE': 0.0, 'ARHR': 0.0, 'NOVELTY': 0.0, 'DIVERSITY_MEAN_INTER_LIST': 1.0, 'DIVERSITY_HERFINDAHL': nan, 'COVERAGE_ITEM': 0.0, 'COVERAGE_USER': 0.0, 'DIVERSITY_GINI': 0.0, 'SHANNON_ENTROPY': -0.0}
+BayesianSearch: Testing config: {'topK': 100, 'sgd_mode': 'adagrad', 'lambda_i': 1e-09, 'lambda_j': 0.0001, 'learning_rate': 0.01} - Exception [Errno 2] No such file or directory: 'result_experiments/tuning_20181207003553/SLIM_BPR_Recommender_best_parameters'
+Traceback (most recent call last):
+  File "/Users/archnnj/Development/recsys/recsys_polimi_challenge_2018/repo/src/libs/RecSys_Course_2018/ParameterTuning/BayesianSearch.py", line 258, in runSingleCase_param_parsed
+    open(self.output_root_path + "_best_parameters", "wb"),
+FileNotFoundError: [Errno 2] No such file or directory: 'result_experiments/tuning_20181207003553/SLIM_BPR_Recommender_best_parameters'
+   35 | 99m36s | -65000.00000 |     4.9823 |     0.0297 |          0.7361 |     0.0065 |    1.1084 |
+
+Ps: I had changed the folder name by mistake!
