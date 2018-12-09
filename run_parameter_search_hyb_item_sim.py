@@ -26,6 +26,7 @@ import sys
 sys.path.append('src/libs/RecSys_Course_2018')
 
 from src.recommenders.HybridLinCombItemSimilarities import HybridLinCombItemSimilarities
+from src.recommenders.HybridLinCombEstRatings import HybridLinCombEstRatings
 from Base.NonPersonalizedRecommender import TopPop, Random
 from KNN.UserKNNCFRecommender import UserKNNCFRecommender
 from KNN.ItemKNNCFRecommender import ItemKNNCFRecommender
@@ -560,13 +561,176 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             #hyperparamethers_range_dictionary["alphas0"] = range(0, 20)
             for i in range(0, N_hyb):
                 text = "alphas" + str(i)
-                hyperparamethers_range_dictionary[text] = range(0, 30)
+                hyperparamethers_range_dictionary[text] = range(0, 10)
 
             #hyperparamethers_range_dictionary["alphas1"] = range(0, 20)
             #hyperparamethers_range_dictionary["alpha"] = range(0, 2)
             #hyperparamethers_range_dictionary["normalize_similarity"] = [True, False]
 
             recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train, recsys],
+                                     DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {},
+                                     DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
+                                     DictionaryKeys.FIT_KEYWORD_ARGS: dict(),
+                                     DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
+
+
+        ##########################################################################################################
+
+
+        if recommender_class is HybridLinCombEstRatings:
+
+            print("Starting importing everything")
+
+            from src.recommenders.ItemCFKNNRecommender import ItemCFKNNRecommender
+            from src.recommenders.ItemCBFKNNRecommender import ItemCBFKNNRecommender
+            from src.recommenders.P3AlphaRecommender import P3AlphaRecommender
+            from src.recommenders.UserCFKNNRecommender import UserCFKNNRecommender
+            from src.recommenders.UserCBFKNNRecommender import UserCBFKNNRecommender
+            import src.utils.build_icm as build_icm
+            import time
+
+            JUPYTER = True
+            sys.path.append('src/data/')
+
+            # #### Load data
+            if JUPYTER:
+                # Jupyter
+                tracks_csv_file = "../../../data/tracks.csv"
+                interactions_csv_file = "../../../data/train.csv"
+                playlist_id_csv_file = "../../../data/target_playlists.csv"
+                sequential_csv_file = "../../../data/train_sequential.csv"
+            else:
+                # PyCharm
+                tracks_csv_file = "data/tracks.csv"
+                interactions_csv_file = "data/train.csv"
+                playlist_id_csv_file = "data/target_playlists.csv"
+                sequential_csv_file = "data/train_sequential.csv"
+
+            tracks_df = pd.read_csv(tracks_csv_file)
+            interactions_df = pd.read_csv(interactions_csv_file)
+            playlist_id_df = pd.read_csv(playlist_id_csv_file)
+            train_sequential_df = pd.read_csv(sequential_csv_file)
+            userList = interactions_df["playlist_id"]
+            itemList = interactions_df["track_id"]
+            ratingList = np.ones(interactions_df.shape[0])
+            targetsList = playlist_id_df["playlist_id"]
+            targetsListOrdered = targetsList[:5000].tolist()
+            targetsListCasual = targetsList[5000:].tolist()
+            userList_unique = pd.unique(userList)
+            itemList_unique = tracks_df["track_id"]
+            numUsers = len(userList_unique)
+            numItems = len(itemList_unique)
+            numberInteractions = interactions_df.size
+
+            ICM_all = build_icm.build_icm(tracks_df)
+
+            IDF_ENABLED = True
+
+            if IDF_ENABLED:
+                num_tot_items = ICM_all.shape[0]
+                # let's count how many items have a certain feature
+                items_per_feature = (ICM_all > 0).sum(axis=0)
+                IDF = np.array(np.log(num_tot_items / items_per_feature))[0]
+                ICM_idf = ICM_all.copy()
+                # compute the number of non-zeros in each col
+                # NOTE: this works only if X is instance of sparse.csc_matrix
+                col_nnz = np.diff(sps.csc_matrix(ICM_idf).indptr)
+                # then normalize the values in each col
+                ICM_idf.data *= np.repeat(IDF, col_nnz)
+                ICM_all = ICM_idf  # use IDF features
+
+            print("Starting initing the single recsys")
+
+            N_cbf = 3
+            N_cf = 15
+            N_p3a = 2
+            N_ucf = 8
+            N_ucbf = 4
+            N_rp3b = 3
+            N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b
+            recsys = []
+            for i in range(N_cbf):
+                recsys.append(ItemCBFKNNRecommender(URM_train, ICM_all))
+            for i in range(N_cf):
+                recsys.append(ItemCFKNNRecommender(URM_train))
+            for i in range(N_p3a):
+                recsys.append(P3AlphaRecommender(URM_train))
+            for i in range(N_ucf):
+                recsys.append(UserCFKNNRecommender(URM_train))
+            for i in range(N_ucbf):
+                recsys.append(UserCBFKNNRecommender(URM_train, ICM_all))
+            for i in range(N_rp3b):
+                recsys.append(RP3betaRecommender(URM_train))
+
+
+            recsys_params = list(zip(np.linspace(10, 120, N_cbf).tolist(), [4] * N_cbf))
+            recsys_params2 = list((zip(np.linspace(5, 600, N_cf).tolist(), [12] * N_cf)))
+            recsys_params3 = list((zip(np.linspace(90, 110, N_p3a).tolist(), [1] * N_p3a)))
+            recsys_params4 = list((zip(np.linspace(10, 400, N_ucf).tolist(), [2] * N_ucf)))
+            recsys_params5 = list((zip(np.linspace(50, 200, N_ucbf).tolist(), [5] * N_ucbf)))
+            recsys_params6 = list((zip(np.linspace(80, 120, N_rp3b).tolist(), [0] * N_rp3b)))
+
+            print("Starting fitting single recsys")
+            t = time.time()
+            for i in range(N_cbf):
+                # print("Training system {:d}...".format(i))
+                topK = recsys_params[i][0]
+                shrink = recsys_params[i][1]
+                recsys[i].fit(topK=topK, shrink=shrink, type="tanimoto")
+            for i in range(N_cf):
+                # print("Training system {:d}...".format(i+N_cbf))
+                topK = recsys_params2[i][0]
+                shrink = recsys_params2[i][1]
+                recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.3)
+            for i in range(N_p3a):
+                # print("Training system {:d}...".format(i+N_cbf))
+                topK = recsys_params3[i][0]
+                shrink = recsys_params3[i][1]
+                recsys[i + N_cbf + N_cf].fit(topK=topK, shrink=shrink, alpha=0.31)
+            for i in range(N_ucf):
+                # print("Training system {:d}...".format(i+N_cbf))
+                topK = recsys_params4[i][0]
+                shrink = recsys_params4[i][1]
+                recsys[i + N_cbf + N_cf + N_p3a].fit(topK=topK, shrink=shrink, type="jaccard")
+            for i in range(N_ucbf):
+                # print("Training system {:d}...".format(i+N_cbf))b
+                topK = recsys_params5[i][0]
+                shrink = recsys_params5[i][1]
+                recsys[i + N_cbf + N_cf + N_p3a + N_ucf].fit(topK=topK, shrink=shrink, type="tanimoto")
+            for i in range(N_rp3b):
+                # print("Training system {:d}...".format(i+N_cbf))b
+                topK = int(recsys_params6[i][0])
+                shrink = recsys_params6[i][1]
+                recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.5927789387679869, beta=0.009260542392306892)
+            el_t = time.time() - t
+            print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+
+
+            print("Starting recommending the est_ratings")
+            t2 = time.time()
+            recsys_est_ratings = []
+            for i in range(0, N_hyb):
+                if i >= N_cbf + N_cf + N_p3a + N_ucf + N_ucbf:
+                    recsys_est_ratings.append(recsys[i].compute_item_score(userList_unique, 160))
+                else:
+                    recsys_est_ratings.append(recsys[i].estimate_ratings(userList_unique, 160))
+
+            el_t = time.time() - t2
+            print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+
+
+            print("Starting hopefully the tuning")
+            hyperparamethers_range_dictionary = {}
+            #hyperparamethers_range_dictionary["alphas0"] = range(0, 20)
+            for i in range(0, N_hyb):
+                text = "alphas" + str(i)
+                hyperparamethers_range_dictionary[text] = range(0, 15)
+
+            #hyperparamethers_range_dictionary["alphas1"] = range(0, 20)
+            #hyperparamethers_range_dictionary["alpha"] = range(0, 2)
+            #hyperparamethers_range_dictionary["normalize_similarity"] = [True, False]
+
+            recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train, recsys_est_ratings],
                                      DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {},
                                      DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
                                      DictionaryKeys.FIT_KEYWORD_ARGS: dict(),
@@ -710,7 +874,8 @@ def read_data_split_and_search(parallel=False):
         # SLIM_BPR_Cython,
         # SLIMElasticNetRecommender,
         #MatrixFactorization_BPR_Theano
-        HybridLinCombItemSimilarities
+        #HybridLinCombItemSimilarities
+        HybridLinCombEstRatings
     ]
 
 

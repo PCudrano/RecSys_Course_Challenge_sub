@@ -42,11 +42,11 @@ class SimilarityMatrixRecommender(object):
     #         relevant_weights = self.W[user_profile]
     #         return relevant_weights.T.dot(user_ratings)
 
-    def compute_score_item_based(self, user_id):
+    def compute_score_item_based(self, user_id, k = 160):
 
         if self.sparse_weights:
             user_profile = self.URM_train[user_id]
-            est_ratings = dot_product.dot_product(user_profile, self.W_sparse, k=160)
+            est_ratings = dot_product.dot_product(user_profile, self.W_sparse, k=k)
             #return user_profile.dot(self.W_sparse).toarray()
             return est_ratings.tocsr()
 
@@ -65,16 +65,20 @@ class SimilarityMatrixRecommender(object):
 
 
 
-    def compute_score_user_based(self, user_id):
+    def compute_score_user_based(self, user_id, k = 160):
 
         if self.sparse_weights:
             # assert False
-            #TODO change dot_product to a serious one
-            return self.W_sparse[user_id].dot(self.URM_train) # .toarray()
+            #return self.W_sparse[user_id].dot(self.URM_train) # .toarray()
+
+            est_ratings = dot_product.dot_product(self.W_sparse.T, self.URM_train, k=k)
+            est_ratings = est_ratings.tocsr()
+            return est_ratings[user_id]
 
         else:
             # Numpy dot does not recognize sparse matrices, so we must
             # invoke the dot function on the sparse one
+            assert False
             return self.URM_train.T.dot(self.W[user_id])
 
 
