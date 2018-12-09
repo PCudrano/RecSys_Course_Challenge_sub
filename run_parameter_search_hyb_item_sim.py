@@ -641,14 +641,14 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
 
             print("Starting initing the single recsys")
 
-            N_cbf = 2
-            #N_cf = 15
-            N_cf = 2
+            N_cbf = 3
+            N_cf = 15
             N_p3a = 2
-            N_ucf = 2
-            N_ucbf = 2
-            N_rp3b = 2
-            N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b
+            N_ucf = 8
+            N_ucbf = 4
+            N_rp3b = 3
+            N_slim = 1
+            N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim
             recsys = []
             for i in range(N_cbf):
                 recsys.append(ItemCBFKNNRecommender(URM_train, ICM_all))
@@ -662,14 +662,14 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                 recsys.append(UserCBFKNNRecommender(URM_train, ICM_all))
             for i in range(N_rp3b):
                 recsys.append(RP3betaRecommender(URM_train))
+            recsys.append(SLIM_BPR_Cython(URM_train))
 
-
-            recsys_params = list(zip(np.linspace(10, 20, N_cbf).tolist(), [5] * N_cbf))
-            recsys_params2 = list((zip(np.linspace(10, 190, N_cf).tolist(), [12] * N_cf)))
-            recsys_params3 = list((zip(np.linspace(20, 110, N_p3a).tolist(), [1] * N_p3a)))
-            recsys_params4 = list((zip(np.linspace(10, 190, N_ucf).tolist(), [3] * N_ucf)))
-            recsys_params5 = list((zip(np.linspace(10, 200, N_ucbf).tolist(), [5] * N_ucbf)))
-            recsys_params6 = list((zip(np.linspace(30, 110, N_rp3b).tolist(), [0] * N_rp3b)))
+            recsys_params = list(zip(np.linspace(10, 120, N_cbf).tolist(), [4] * N_cbf))
+            recsys_params2 = list((zip(np.linspace(5, 600, N_cf).tolist(), [12] * N_cf)))
+            recsys_params3 = list((zip(np.linspace(90, 110, N_p3a).tolist(), [1] * N_p3a)))
+            recsys_params4 = list((zip(np.linspace(10, 400, N_ucf).tolist(), [2] * N_ucf)))
+            recsys_params5 = list((zip(np.linspace(50, 200, N_ucbf).tolist(), [5] * N_ucbf)))
+            recsys_params6 = list((zip(np.linspace(80, 120, N_rp3b).tolist(), [0] * N_rp3b)))
 
             print("Starting fitting single recsys")
             t = time.time()
@@ -703,6 +703,10 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                 topK = int(recsys_params6[i][0])
                 shrink = recsys_params6[i][1]
                 recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.5927789387679869, beta=0.009260542392306892)
+
+            # load slim bpr
+            recsys[-1].loadModel("result_experiments/tuning_20181206151851_good/", "SLIM_BPR_Recommender_best_model")
+            print("Load complete of slim bpr")
             el_t = time.time() - t
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
@@ -715,7 +719,6 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                     recsys_est_ratings.append(recsys[i].compute_item_score(userList_unique, 160))
                 else:
                     recsys_est_ratings.append(recsys[i].estimate_ratings(userList_unique, 160))
-
             el_t = time.time() - t2
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
@@ -899,7 +902,7 @@ def read_data_split_and_search(parallel=False):
                                                        evaluator_test=evaluator_test,
                                                        output_root_path=output_root_path,
                                                        parallelizeKNN=(not parallel),
-                                                       n_cases=50
+                                                       n_cases=100
                                                        )
 
     if parallel:
