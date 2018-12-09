@@ -641,12 +641,13 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
 
             print("Starting initing the single recsys")
 
-            N_cbf = 3
-            N_cf = 15
+            N_cbf = 2
+            #N_cf = 15
+            N_cf = 2
             N_p3a = 2
-            N_ucf = 8
-            N_ucbf = 4
-            N_rp3b = 3
+            N_ucf = 2
+            N_ucbf = 2
+            N_rp3b = 2
             N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b
             recsys = []
             for i in range(N_cbf):
@@ -663,12 +664,12 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                 recsys.append(RP3betaRecommender(URM_train))
 
 
-            recsys_params = list(zip(np.linspace(10, 120, N_cbf).tolist(), [4] * N_cbf))
-            recsys_params2 = list((zip(np.linspace(5, 600, N_cf).tolist(), [12] * N_cf)))
-            recsys_params3 = list((zip(np.linspace(90, 110, N_p3a).tolist(), [1] * N_p3a)))
-            recsys_params4 = list((zip(np.linspace(10, 400, N_ucf).tolist(), [2] * N_ucf)))
-            recsys_params5 = list((zip(np.linspace(50, 200, N_ucbf).tolist(), [5] * N_ucbf)))
-            recsys_params6 = list((zip(np.linspace(80, 120, N_rp3b).tolist(), [0] * N_rp3b)))
+            recsys_params = list(zip(np.linspace(10, 20, N_cbf).tolist(), [5] * N_cbf))
+            recsys_params2 = list((zip(np.linspace(10, 190, N_cf).tolist(), [12] * N_cf)))
+            recsys_params3 = list((zip(np.linspace(20, 110, N_p3a).tolist(), [1] * N_p3a)))
+            recsys_params4 = list((zip(np.linspace(10, 190, N_ucf).tolist(), [3] * N_ucf)))
+            recsys_params5 = list((zip(np.linspace(10, 200, N_ucbf).tolist(), [5] * N_ucbf)))
+            recsys_params6 = list((zip(np.linspace(30, 110, N_rp3b).tolist(), [0] * N_rp3b)))
 
             print("Starting fitting single recsys")
             t = time.time()
@@ -724,7 +725,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             #hyperparamethers_range_dictionary["alphas0"] = range(0, 20)
             for i in range(0, N_hyb):
                 text = "alphas" + str(i)
-                hyperparamethers_range_dictionary[text] = range(0, 15)
+                hyperparamethers_range_dictionary[text] = range(0, 20)
 
             #hyperparamethers_range_dictionary["alphas1"] = range(0, 20)
             #hyperparamethers_range_dictionary["alpha"] = range(0, 2)
@@ -898,7 +899,7 @@ def read_data_split_and_search(parallel=False):
                                                        evaluator_test=evaluator_test,
                                                        output_root_path=output_root_path,
                                                        parallelizeKNN=(not parallel),
-                                                       n_cases=100
+                                                       n_cases=50
                                                        )
 
     if parallel:
