@@ -47,7 +47,7 @@ from src.recommenders.UserCBFKNNRecommender import UserCBFKNNRecommender
 import src.utils.build_icm as build_icm
 import time
 
-from src.utils.evaluation import evaluate_algorithm
+from src.utils.evaluation import evaluate_algorithm, evaluate_algorithm_targets
 
 
 from FW_Similarity.CFW_D_Similarity_Linalg import CFW_D_Similarity_Linalg
@@ -99,6 +99,7 @@ if __name__ == '__main__':
     numUsers = len(userList_unique)
     numItems = len(itemList_unique)
     numberInteractions = interactions_df.size
+    targetsListList = targetsList.tolist()
 
     # #### Build URM
 
@@ -107,7 +108,7 @@ if __name__ == '__main__':
 
     # #### Train/test split: ratings and user holdout
 
-    seed = 7
+    seed = 0
     # ratings holdout
     # URM_train, URM_test_pred = train_test_holdout(URM_all, train_perc=0.8, seed=seed)
     # URM_test_known = None
@@ -116,7 +117,7 @@ if __name__ == '__main__':
     # URM_train, URM_test_known, URM_test_pred = train_test_user_holdout(URM_all, user_perc=0.8, train_perc=0.8, seed=seed)
 
     # row holdout
-    URM_train, URM_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df, train_perc=0.8, seed=seed, targetsListOrdered=targetsListOrdered, nnz_threshold=1)
+    #URM_train, URM_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df, train_perc=0.8, seed=seed, targetsListOrdered=targetsListOrdered, nnz_threshold=1)
     URM_test_known = None
 
     # row holdout - validation
@@ -125,6 +126,16 @@ if __name__ == '__main__':
     #                                                       nnz_threshold=10)
     # URM_train, URM_valid = train_test_holdout(URM_train_val, train_perc=0.7, seed=seed)
     # URM_test_known = None
+    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, targetsListList, train_sequential_df, train_perc=0.6,
+                                                          seed=seed, targetsListOrdered=targetsListOrdered,
+                                                          nnz_threshold=2)
+    URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, targetsListList, train_sequential_df,
+                                                            train_perc=0.5,
+                                                            seed=seed, targetsListOrdered=targetsListOrdered,
+                                                            nnz_threshold=1)
+    URM_train = URM_train
+    URM_validation = URM_valid
+    URM_test = URM_test_pred
 
 
     #URM_train = URM_all.tocsr()
@@ -173,13 +184,20 @@ if __name__ == '__main__':
 
         print("Starting initing the single recsys")
 
-        N_cbf = 3
-        N_cf = 15
-        N_p3a = 2
-        N_ucf = 8
-        N_ucbf = 4
-        N_rp3b = 3
+        N_cbf = 1
+        N_cf = 1
+        N_p3a = 1
+        N_ucf = 1
+        N_ucbf = 1
+        N_rp3b = 1
         N_slim = 1
+        # N_cbf = 3
+        # N_cf = 15
+        # N_p3a = 2
+        # N_ucf = 8
+        # N_ucbf = 4
+        # N_rp3b = 3
+        # N_slim = 1
         N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim
         recsys = []
         for i in range(N_cbf):
@@ -238,8 +256,8 @@ if __name__ == '__main__':
                                                                   beta=0.009260542392306892)
 
         # load slim bpr
-        recsys[-1].loadModel("result_experiments/tuning_20181206151851_good/", "slim_bpr_model_submission")
-        #recsys[-1].loadModel("result_experiments/tuning_20181206151851_good/", "SLIM_BPR_Recommender_best_model")
+        #recsys[-1].loadModel("result_experiments/tuning_20181206151851_good/", "slim_bpr_model_submission")
+        recsys[-1].loadModel("result_experiments/tuning_20181206151851_good/", "SLIM_BPR_Recommender_best_model")
         print("Load complete of slim bpr")
         el_t = time.time() - t
         print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
@@ -257,7 +275,12 @@ if __name__ == '__main__':
 
         print("Building the alphas")
 
-        a = {'alphas0': 19.485713591551153, 'alphas1': 4.71319435578388, 'alphas10': 2.2227435851035993, 'alphas11': 1.9716421945640317, 'alphas12': 7.5238841058329875, 'alphas13': 0.4108412788439586, 'alphas14': 4.526224503200407, 'alphas15': 13.576966307999559, 'alphas16': 0.642187854373879, 'alphas17': 5.275515473418448, 'alphas18': 0.34228595410624507, 'alphas19': 0.34191569651452536, 'alphas2': 5.900450505346193, 'alphas20': 6.980737750232469, 'alphas21': 11.130807458091677, 'alphas22': 9.31624459508006, 'alphas23': 4.321048654234952, 'alphas24': 1.1310553103741783, 'alphas25': 9.604200085107115, 'alphas26': 0.5368035241482083, 'alphas27': 3.0960069679180546, 'alphas28': 3.864988337641473, 'alphas29': 16.706157748846, 'alphas3': 16.320530250453828, 'alphas30': 0.9494730681150165, 'alphas31': 0.7654428335341734, 'alphas32': 13.390283773301505, 'alphas33': 19.218172572103484, 'alphas34': 1.4466507699578846, 'alphas35': 19.8594906640407, 'alphas4': 6.6763597060138675, 'alphas5': 10.575281828871317, 'alphas6': 3.7900979297179593, 'alphas7': 4.420167469234189, 'alphas8': 13.929403030269114, 'alphas9': 1.3122328787554016}
+        #a = {'alphas0': 19.485713591551153, 'alphas1': 4.71319435578388, 'alphas10': 2.2227435851035993, 'alphas11': 1.9716421945640317, 'alphas12': 7.5238841058329875, 'alphas13': 0.4108412788439586, 'alphas14': 4.526224503200407, 'alphas15': 13.576966307999559, 'alphas16': 0.642187854373879, 'alphas17': 5.275515473418448, 'alphas18': 0.34228595410624507, 'alphas19': 0.34191569651452536, 'alphas2': 5.900450505346193, 'alphas20': 6.980737750232469, 'alphas21': 11.130807458091677, 'alphas22': 9.31624459508006, 'alphas23': 4.321048654234952, 'alphas24': 1.1310553103741783, 'alphas25': 9.604200085107115, 'alphas26': 0.5368035241482083, 'alphas27': 3.0960069679180546, 'alphas28': 3.864988337641473, 'alphas29': 16.706157748846, 'alphas3': 16.320530250453828, 'alphas30': 0.9494730681150165, 'alphas31': 0.7654428335341734, 'alphas32': 13.390283773301505, 'alphas33': 19.218172572103484, 'alphas34': 1.4466507699578846, 'alphas35': 19.8594906640407, 'alphas4': 6.6763597060138675, 'alphas5': 10.575281828871317, 'alphas6': 3.7900979297179593, 'alphas7': 4.420167469234189, 'alphas8': 13.929403030269114, 'alphas9': 1.3122328787554016}
+        #new
+        #a = {'alphas0': 16.9431042554559, 'alphas1': 4.644099562164927, 'alphas10': 9.790511891561398, 'alphas11': 6.128048426612316, 'alphas12': 9.53514404239681, 'alphas13': 9.902211129673606, 'alphas14': 15.455991038784067, 'alphas15': 0.7580787143633927, 'alphas16': 12.700059220322498, 'alphas17': 9.101615923590032, 'alphas18': 1.695541719218232, 'alphas19': 0.4503896520008954, 'alphas2': 1.58112207469844, 'alphas20': 14.468724241787374, 'alphas21': 3.690624747092459, 'alphas22': 9.836989886324046, 'alphas23': 14.492757157503558, 'alphas24': 3.0100555297168197, 'alphas25': 0.3267319282889791, 'alphas26': 4.445374260353121, 'alphas27': 2.280310105876955, 'alphas28': 3.337896350619496, 'alphas29': 0.3619126735978462, 'alphas3': 18.82246365026546, 'alphas30': 1.9871216544044223, 'alphas31': 1.4645937717755753, 'alphas32': 15.805123493865317, 'alphas33': 15.954066854241688, 'alphas34': 17.551287337467674, 'alphas35': 17.77998159521204, 'alphas4': 1.3959735370043913, 'alphas5': 13.537903382766192, 'alphas6': 3.905416743981318, 'alphas7': 5.468378132839908, 'alphas8': 3.981393478813855, 'alphas9': 2.1708067917427343}
+        a = {'alphas0': 1, 'alphas1': 1, 'alphas2': 1, 'alphas3': 1, 'alphas4': 1, 'alphas5': 1, 'alphas6': 16.46166558659779}
+
+
 
         print("Init recsys")
         recommender = recommender_class(URM_train, recsys_est_ratings)
@@ -265,9 +288,19 @@ if __name__ == '__main__':
         recommender.fit(**a)
         print("Hopefully done")
 
-        result_dict = evaluate_algorithm(URM_test_pred, recommender, at=10, ours=False)
+        users_excluded_targets = [u for u in userList_unique if u not in targetsListList]
+        result_dict = evaluate_algorithm_targets(URM_validation, recommender, targets=targetsListList, at=10, ours=False)
+        result_dict = evaluate_algorithm_targets(URM_test, recommender, targets=targetsListList, at=10, ours=False)
+        # from Base.Evaluation.Evaluator import FastEvaluator
+        #
+        # users_excluded_targets = [u for u in userList_unique if u not in targetsListList]
+        # evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1,
+        #                                                    exclude_seen=True, ignore_users=users_excluded_targets)
+        # evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True,
+        #                                ignore_users=users_excluded_targets)
 
-
+        #print(evaluator_validation_earlystopping(recommender))
+        #print(evaluator_test(recommender))
         #recommender = recommender_class(URM_train, positive_threshold=0.5, URM_validation = None,
         #         recompile_cython = False, final_model_sparse_weights = True, train_with_sparse_weights = False,
         #         symmetric = True)
