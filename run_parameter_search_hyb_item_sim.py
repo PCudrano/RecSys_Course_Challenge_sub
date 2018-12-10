@@ -641,12 +641,12 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
 
             print("Starting initing the single recsys")
 
-            N_cbf = 3
-            N_cf = 15
-            N_p3a = 2
-            N_ucf = 8
-            N_ucbf = 4
-            N_rp3b = 3
+            N_cbf = 1
+            N_cf = 1
+            N_p3a = 1
+            N_ucf = 1
+            N_ucbf = 1
+            N_rp3b = 1
             N_slim = 1
             N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim
             recsys = []
@@ -816,6 +816,7 @@ def read_data_split_and_search(parallel=False):
     itemList = interactions_df["track_id"]
     ratingList = np.ones(interactions_df.shape[0])
     targetsList = playlist_id_df["playlist_id"]
+    targetsListList = targetsList.tolist()
     targetsListOrdered = targetsList[:5000].tolist()
     targetsListCasual = targetsList[5000:].tolist()
     userList_unique = pd.unique(userList)
@@ -831,7 +832,7 @@ def read_data_split_and_search(parallel=False):
 
     # #### Train/test split: ratings and user holdout
 
-    seed = 7
+    seed = 0
     # ratings holdout
     # URM_train, URM_test_pred = train_test_holdout(URM_all, train_perc=0.8, seed=seed)
     # URM_test_known = None
@@ -844,10 +845,17 @@ def read_data_split_and_search(parallel=False):
     # URM_test_known = None
 
     # row holdout - validation
-    URM_train_val, URM_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df, train_perc=0.8,
+    # URM_train_val, URM_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df, train_perc=0.8,
+    #                                                       seed=seed, targetsListOrdered=targetsListOrdered,
+    #                                                       nnz_threshold=1)
+    # URM_train, URM_valid = train_test_holdout(URM_train_val, train_perc=0.7, seed=seed)
+    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, targetsListList, train_sequential_df, train_perc=0.6,
                                                           seed=seed, targetsListOrdered=targetsListOrdered,
-                                                          nnz_threshold=1)
-    URM_train, URM_valid = train_test_holdout(URM_train_val, train_perc=0.7, seed=seed)
+                                                          nnz_threshold=2)
+    URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, targetsListList, train_sequential_df,
+                                                            train_perc=0.5,
+                                                            seed=seed, targetsListOrdered=targetsListOrdered,
+                                                            nnz_threshold=1)
     URM_test_known = None
 
 
@@ -887,8 +895,10 @@ def read_data_split_and_search(parallel=False):
     from Base.Evaluation.Evaluator import FastEvaluator
 
     # FIXME maybe minRatingsPerUser in valid is too much? too few users?
-    evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
-    evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
+    users_excluded_targets = [u for u in userList_unique if u not in targetsListList]
+
+    evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
+    evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
 
 
     evaluator_validation = EvaluatorWrapper(evaluator_validation_earlystopping)
@@ -902,7 +912,7 @@ def read_data_split_and_search(parallel=False):
                                                        evaluator_test=evaluator_test,
                                                        output_root_path=output_root_path,
                                                        parallelizeKNN=(not parallel),
-                                                       n_cases=100
+                                                       n_cases=1
                                                        )
 
     if parallel:
