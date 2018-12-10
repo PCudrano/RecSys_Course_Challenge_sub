@@ -1,0 +1,1 @@
+Algorithm: <class 'FM.FactorizationMachineRecommender.FactorizationMachineRecommender'> - Exception: 'tuple' object has no attribute 'items'

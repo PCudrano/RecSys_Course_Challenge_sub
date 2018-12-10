@@ -1,0 +1,1 @@
+Algorithm: <class 'FM.FactorizationMachineRecommender.FactorizationMachineRecommender'> - Exception: 'FactorizationMachineRecommender' object has no attribute 'get_all_tuples_dict_uip_generator'

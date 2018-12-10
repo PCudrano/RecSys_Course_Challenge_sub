@@ -1,0 +1,1 @@
+BayesianSearch: Loading logs from result_experiments/tuning_20181208131321/bayesian_optimizer_logs.jsonBayesianSearch: Saving logs to result_experiments/tuning_20181209105624/bayesian_optimizer_logs.json
