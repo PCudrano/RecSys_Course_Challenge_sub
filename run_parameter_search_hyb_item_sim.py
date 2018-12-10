@@ -831,7 +831,7 @@ def read_data_split_and_search(parallel=False):
 
     # #### Train/test split: ratings and user holdout
 
-    seed = 0
+    seed = 7
     # ratings holdout
     # URM_train, URM_test_pred = train_test_holdout(URM_all, train_perc=0.8, seed=seed)
     # URM_test_known = None
