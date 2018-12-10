@@ -1,0 +1,1 @@
+Algorithm: <class 'SLIM_ElasticNet.SLIMElasticNetRecommender.SLIMElasticNetRecommender'> - Exception: 'module' object is not callable

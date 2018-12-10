@@ -1,0 +1,1 @@
+Algorithm: <class 'FM.FactorizationMachineRecommender.FactorizationMachineRecommender'> - Exception: __init__() got multiple values for argument 'shape'

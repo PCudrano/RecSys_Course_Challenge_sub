@@ -1,0 +1,1 @@
+Algorithm: <class 'FM.FactorizationMachineRecommender.FactorizationMachineRecommender'> - Exception: invalid shape
