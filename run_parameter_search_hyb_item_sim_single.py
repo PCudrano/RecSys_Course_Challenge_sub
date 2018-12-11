@@ -641,19 +641,13 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
 
             print("Starting initing the single recsys")
 
-            # N_cbf = 6
-            # N_cf = 40
-            # N_p3a = 3
-            # N_ucf = 20
-            # N_ucbf = 8
-            # N_rp3b = 3
-            N_cbf = 3
-            N_cf = 15
-            N_p3a = 2
-            N_ucf = 8
-            N_ucbf = 4
-            N_rp3b = 3
-            N_slim = 1
+            N_cbf = 1
+            N_cf = 1
+            N_p3a = 1
+            N_ucf = 1
+            N_ucbf = 1
+            N_rp3b = 1
+            N_slim = 0
             N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim
             recsys = []
             for i in range(N_cbf):
@@ -668,13 +662,13 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                 recsys.append(UserCBFKNNRecommender(URM_train, ICM_all))
             for i in range(N_rp3b):
                 recsys.append(RP3betaRecommender(URM_train))
-            recsys.append(SLIM_BPR_Cython(URM_train))
+            #recsys.append(SLIM_BPR_Cython(URM_train))
 
             recsys_params = list(zip(np.linspace(10, 120, N_cbf).tolist(), [4] * N_cbf))
-            recsys_params2 = list((zip(np.linspace(5, 800, N_cf).tolist(), [12] * N_cf)))
+            recsys_params2 = list((zip(np.linspace(5, 600, N_cf).tolist(), [12] * N_cf)))
             recsys_params3 = list((zip(np.linspace(90, 110, N_p3a).tolist(), [1] * N_p3a)))
-            recsys_params4 = list((zip(np.linspace(5, 600, N_ucf).tolist(), [2] * N_ucf)))
-            recsys_params5 = list((zip(np.linspace(20, 300, N_ucbf).tolist(), [5] * N_ucbf)))
+            recsys_params4 = list((zip(np.linspace(10, 400, N_ucf).tolist(), [2] * N_ucf)))
+            recsys_params5 = list((zip(np.linspace(50, 200, N_ucbf).tolist(), [5] * N_ucbf)))
             recsys_params6 = list((zip(np.linspace(80, 120, N_rp3b).tolist(), [0] * N_rp3b)))
 
             print("Starting fitting single recsys")
@@ -711,8 +705,8 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                 recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.5927789387679869, beta=0.009260542392306892)
 
             # load slim bpr
-            recsys[-1].loadModel("result_experiments/tuning_20181206151851_good/", "SLIM_BPR_Recommender_best_model")
-            print("Load complete of slim bpr")
+            #recsys[-1].loadModel("result_experiments/tuning_20181206151851_good/", "SLIM_BPR_Recommender_best_model")
+            #print("Load complete of slim bpr")
             el_t = time.time() - t
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
@@ -732,11 +726,9 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             print("Starting hopefully the tuning")
             hyperparamethers_range_dictionary = {}
             #hyperparamethers_range_dictionary["alphas0"] = range(0, 20)
-            for i in range(0, N_hyb-1):
+            for i in range(0, N_hyb):
                 text = "alphas" + str(i)
                 hyperparamethers_range_dictionary[text] = range(0, 20)
-            text = "alphas" + str(N_hyb-1)
-            hyperparamethers_range_dictionary[text] = range(0, 2)
 
             #hyperparamethers_range_dictionary["alphas1"] = range(0, 20)
             #hyperparamethers_range_dictionary["alpha"] = range(0, 2)
@@ -840,7 +832,7 @@ def read_data_split_and_search(parallel=False):
 
     # #### Train/test split: ratings and user holdout
 
-    seed = 11
+    seed = 0
     # ratings holdout
     # URM_train, URM_test_pred = train_test_holdout(URM_all, train_perc=0.8, seed=seed)
     # URM_test_known = None
