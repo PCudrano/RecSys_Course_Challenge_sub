@@ -183,7 +183,7 @@ def runParameterSearch_Content(recommender_class, URM_train, ICM_object, ICM_nam
 def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_optimize = "PRECISION",
                                      evaluator_validation= None, evaluator_test=None, evaluator_validation_earlystopping = None,
                                      output_root_path ="result_experiments/", parallelizeKNN = True, init_points=5, n_cases = 30,
-                                     parameterSearch=None, **kwargs):
+                                     parameterSearch=None, loop_param=None, **kwargs):
 
 
     from ParameterTuning.AbstractClassSearch import DictionaryKeys
@@ -458,8 +458,8 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             #                                                            "validation_metric": metric_to_optimize},
             #                          DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
             hyperparamethers_range_dictionary = {}
-            hyperparamethers_range_dictionary["topK"] = [50, 100, 200, 300, 400, 500, 600, 700, 800]
-            hyperparamethers_range_dictionary["epochs"] = [5, 20, 30, 50, 90, 100, 200, 300, 400, 600, 1000]
+            # hyperparamethers_range_dictionary["topK"] = [50, 100, 200, 300, 400, 500, 600, 700, 800]
+            # hyperparamethers_range_dictionary["epochs"] = [5, 20, 30, 50, 90, 100, 200, 300, 400, 600, 1000]
             hyperparamethers_range_dictionary["sgd_mode"] = ["adagrad", "adam", "sgd", "rmsprop"]
             hyperparamethers_range_dictionary["lambda_i"] = [1e-1, 1e-3, 1e-6, 1e-9]
             hyperparamethers_range_dictionary["lambda_j"] = [1e-1, 1e-3, 1e-6, 1e-9]
@@ -470,16 +470,17 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                                                                                'symmetric': False,
                                                                                'positive_threshold': 0.5},
                                      DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
-                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"batch_size": 1000, "validation_every_n": 1000,
-                                                                       "stop_on_validation": False,
-                                                                       "evaluator_object": evaluator_validation,
-                                                                       "lower_validatons_allowed": 1000,
+                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"topK": loop_param,
+                                                                       "epochs": 1000, "batch_size": 1000,
+                                                                       "validation_every_n": 10,  # 10,
+                                                                       "stop_on_validation": True,
+                                                                       "evaluator_object": evaluator_validation_earlystopping,
+                                                                       "lower_validatons_allowed": 3,  # 3,
                                                                        "validation_metric": metric_to_optimize},
-                                     # DictionaryKeys.FIT_KEYWORD_ARGS: {"epochs": 2000, "batch_size": 1000,
-                                     #                                   "validation_every_n": 10,  # 10,
-                                     #                                   "stop_on_validation": True,
-                                     #                                   "evaluator_object": evaluator_validation_earlystopping,
-                                     #                                   "lower_validatons_allowed": 2,  # 3,
+                                     # DictionaryKeys.FIT_KEYWORD_ARGS: {"batch_size": 1000, "validation_every_n": 1000,
+                                     #                                   "stop_on_validation": False,
+                                     #                                   "evaluator_object": evaluator_validation,
+                                     #                                   "lower_validatons_allowed": 1000,
                                      #                                   "validation_metric": metric_to_optimize},
                                      DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
 
@@ -720,6 +721,8 @@ if __name__ == '__main__':
         # MatrixFactorization_BPR_Theano
     ]
 
+    param_list = [10, 30, 50, 100, 200, 400, 500, 750, 900]
+
 
     from ParameterTuning.AbstractClassSearch import EvaluatorWrapper
     from Base.Evaluation.Evaluator import SequentialEvaluator, CompleteEvaluator, FastEvaluator
@@ -742,10 +745,10 @@ if __name__ == '__main__':
                                                        output_root_path=output_root_path,
                                                        parallelizeKNN=None,
                                                        init_points=5,
-                                                       n_cases=30,
+                                                       n_cases=15,
                                                        loggerPath=output_root_path,
                                                        loadLogsPath=None,
-                                                       kappa=2,
+                                                       kappa=3,
                                                        #acq='ei',  # acq='ucb', #
                                                        #xi=0.005, # xi=0.0 #,
                                                        )
@@ -763,31 +766,36 @@ if __name__ == '__main__':
     else:
 
         for recommender_class in collaborative_algorithm_list:
-            try:
-                output_root_path_recsys = output_root_path + "{}/".format(recommender_class.RECOMMENDER_NAME if recommender_class.RECOMMENDER_NAME is not None else recommender_class)
-                parameterSearch = BayesianSearch(recommender_class, evaluator_validation=evaluator_validation,
-                                                 evaluator_test=evaluator_test)
-                if recommender_class != ItemKNNCBFRecommender:
-                    runParameterSearch_Collaborative_partial(recommender_class, parameterSearch=parameterSearch,
-                                                             output_root_path=output_root_path_recsys,
-                                                             loggerPath=output_root_path_recsys)
-                else:
-                    runParameterSearch_Content(recommender_class, ICM_object=ICM_all, ICM_name="icm_spl800_al1ar05d01", parameterSearch=parameterSearch,
-                                               URM_train=URM_train,
-                                               metric_to_optimize="MAP",
-                                               evaluator_validation=evaluator_validation,
-                                               evaluator_test=evaluator_test,
-                                               output_root_path=output_root_path_recsys,
-                                               parallelizeKNN=False,
-                                               init_points=5,
-                                               n_cases=30,
-                                               loggerPath=output_root_path_recsys,
-                                               loadLogsPath=None,
-                                               kappa=2,
-                                               #acq='ei',  # acq='ucb', #
-                                               #xi=0.005, # xi=0.0 #,
-                                               )
-            except Exception as e:
-                print("On recommender {} Exception {}".format(recommender_class, str(e)))
-                traceback.print_exc()
+            for param in param_list:
+                try:
+                    output_root_path_recsys = output_root_path + "{}_k{}/".format(
+                        recommender_class.RECOMMENDER_NAME if recommender_class.RECOMMENDER_NAME is not None else recommender_class,
+                        param)
+                    parameterSearch = BayesianSearch(recommender_class, evaluator_validation=evaluator_validation,
+                                                     evaluator_test=evaluator_test)
+                    if recommender_class != ItemKNNCBFRecommender:
+                        runParameterSearch_Collaborative_partial(recommender_class, parameterSearch=parameterSearch,
+                                                                 output_root_path=output_root_path_recsys,
+                                                                 loggerPath=output_root_path_recsys,
+                                                                 loop_param = param)
+                    else:
+                        runParameterSearch_Content(recommender_class, ICM_object=ICM_all, ICM_name="icm_spl800_al1ar05d01", parameterSearch=parameterSearch,
+                                                   URM_train=URM_train,
+                                                   metric_to_optimize="MAP",
+                                                   evaluator_validation=evaluator_validation,
+                                                   evaluator_test=evaluator_test,
+                                                   output_root_path=output_root_path_recsys,
+                                                   parallelizeKNN=False,
+                                                   init_points=5,
+                                                   n_cases=30,
+                                                   loggerPath=output_root_path_recsys,
+                                                   loadLogsPath=None,
+                                                   loop_param = param,
+                                                   kappa=2,
+                                                   #acq='ei',  # acq='ucb', #
+                                                   #xi=0.005, # xi=0.0 #,
+                                                   )
+                except Exception as e:
+                    print("On recommender {} Exception {}".format(recommender_class, str(e)))
+                    traceback.print_exc()
 

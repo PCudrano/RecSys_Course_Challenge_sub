@@ -9,7 +9,7 @@ Created on 22/11/17
 import numpy as np
 import pandas as pd
 # import matplotlib.pyplot as pyplot
-import src.utils.build_icm as build_icm
+# import src.utils.build_icm as build_icm
 import scipy.sparse as sps
 from src.utils.data_splitter import train_test_holdout, train_test_user_holdout, train_test_row_holdout
 # from src.utils.evaluation import evaluate_algorithm, evaluate_algorithm_recommendations
@@ -28,7 +28,6 @@ sys.path.append('src/libs/RecSys_Course_2018')
 from Base.NonPersonalizedRecommender import TopPop, Random
 from KNN.UserKNNCFRecommender import UserKNNCFRecommender
 from KNN.ItemKNNCFRecommender import ItemKNNCFRecommender
-from KNN.ItemKNNCBFRecommender import ItemKNNCBFRecommender
 from SLIM_BPR.Cython.SLIM_BPR_Cython import SLIM_BPR_Cython
 from SLIM_BPR.Cython.UserSLIM_BPR_Cython import UserSLIM_BPR_Cython
 from SLIM_ElasticNet.SLIMElasticNetRecommender import SLIMElasticNetRecommender
@@ -183,7 +182,7 @@ def runParameterSearch_Content(recommender_class, URM_train, ICM_object, ICM_nam
 def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_optimize = "PRECISION",
                                      evaluator_validation= None, evaluator_test=None, evaluator_validation_earlystopping = None,
                                      output_root_path ="result_experiments/", parallelizeKNN = True, init_points=5, n_cases = 30,
-                                     parameterSearch=None, **kwargs):
+                                     parameterSearch=None, loop_param=None, **kwargs):
 
 
     from ParameterTuning.AbstractClassSearch import DictionaryKeys
@@ -458,8 +457,8 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             #                                                            "validation_metric": metric_to_optimize},
             #                          DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
             hyperparamethers_range_dictionary = {}
-            hyperparamethers_range_dictionary["topK"] = [50, 100, 200, 300, 400, 500, 600, 700, 800]
-            hyperparamethers_range_dictionary["epochs"] = [5, 20, 30, 50, 90, 100, 200, 300, 400, 600, 1000]
+            # hyperparamethers_range_dictionary["topK"] = [50, 100, 200, 300, 400, 500, 600, 700, 800]
+            # hyperparamethers_range_dictionary["epochs"] = [5, 20, 30, 50, 90, 100, 200, 300, 400, 600, 1000]
             hyperparamethers_range_dictionary["sgd_mode"] = ["adagrad", "adam", "sgd", "rmsprop"]
             hyperparamethers_range_dictionary["lambda_i"] = [1e-1, 1e-3, 1e-6, 1e-9]
             hyperparamethers_range_dictionary["lambda_j"] = [1e-1, 1e-3, 1e-6, 1e-9]
@@ -470,17 +469,18 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                                                                                'symmetric': False,
                                                                                'positive_threshold': 0.5},
                                      DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
-                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"batch_size": 1000, "validation_every_n": 1000,
-                                                                       "stop_on_validation": False,
-                                                                       "evaluator_object": evaluator_validation,
-                                                                       "lower_validatons_allowed": 1000,
-                                                                       "validation_metric": metric_to_optimize},
-                                     # DictionaryKeys.FIT_KEYWORD_ARGS: {"epochs": 2000, "batch_size": 1000,
-                                     #                                   "validation_every_n": 10,  # 10,
-                                     #                                   "stop_on_validation": True,
-                                     #                                   "evaluator_object": evaluator_validation_earlystopping,
-                                     #                                   "lower_validatons_allowed": 2,  # 3,
+                                     # DictionaryKeys.FIT_KEYWORD_ARGS: {"batch_size": 1000, "validation_every_n": 1000,
+                                     #                                   "stop_on_validation": False,
+                                     #                                   "evaluator_object": evaluator_validation,
+                                     #                                   "lower_validatons_allowed": 1000,
                                      #                                   "validation_metric": metric_to_optimize},
+                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"topK": loop_param,
+                                                                       "epochs": 1000, "batch_size": 1000,
+                                                                       "validation_every_n": 10,  # 10,
+                                                                       "stop_on_validation": True,
+                                                                       "evaluator_object": evaluator_validation_earlystopping,
+                                                                       "lower_validatons_allowed": 3,
+                                                                       "validation_metric": metric_to_optimize},
                                      DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
 
 
@@ -544,7 +544,6 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                                                  n_cases = n_cases,
                                                  output_root_path = output_root_path_rec_name,
                                                  metric = metric_to_optimize,
-                                                 save_model="best", # "all"
                                                  **kwargs)
 
 
@@ -622,25 +621,6 @@ if __name__ == '__main__':
     numItems = len(itemList_unique)
     numberInteractions = interactions_df.size
 
-    # Build ICM
-    ICM_all = build_icm.build_icm(tracks_df, split_duration_lenght=800,
-                              feature_weights={'albums': 1, 'artists': 0.5, 'durations': 0.1})
-
-    # IDF_ENABLED = False
-    #
-    # if IDF_ENABLED:
-    #     num_tot_items = ICM_all.shape[0]
-    #     # let's count how many items have a certain feature
-    #     items_per_feature = (ICM_all > 0).sum(axis=0)
-    #     IDF = np.array(np.log(num_tot_items / items_per_feature))[0]
-    #     ICM_idf = ICM_all.copy()
-    #     # compute the number of non-zeros in each col
-    #     # NOTE: this works only if X is instance of sparse.csc_matrix
-    #     col_nnz = np.diff(sps.csc_matrix(ICM_idf).indptr)
-    #     # then normalize the values in each col
-    #     ICM_idf.data *= np.repeat(IDF, col_nnz)
-    #     ICM_all = ICM_idf  # use IDF features
-
     # #### Build URM
 
     URM_all = sps.coo_matrix((ratingList, (userList, itemList)))
@@ -667,11 +647,11 @@ if __name__ == '__main__':
     #                                                       nnz_threshold=10)
     # URM_train, URM_valid = train_test_holdout(URM_train_val, train_perc=0.7, seed=seed)
     # URM_test_known = None
-    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, targetsListOrdered, train_sequential_df,
+    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, targetsListList, train_sequential_df,
                                                             train_perc=0.6,
                                                             seed=seed, targetsListOrdered=targetsListOrdered,
                                                             nnz_threshold=2)
-    URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, targetsListOrdered, train_sequential_df,
+    URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, targetsListList, train_sequential_df,
                                                       train_perc=0.5,
                                                       seed=seed, targetsListOrdered=targetsListOrdered,
                                                       nnz_threshold=1)
@@ -683,21 +663,8 @@ if __name__ == '__main__':
 
     # URM_train.data = 15 * URM_train.data
 
-    ## Cut URM to only sequential users
 
-    URM_all_csr = URM_all_csr[targetsListOrdered]
-    URM_all = URM_all_csr.tocoo()
-    URM_train = URM_train[targetsListOrdered]
-    URM_validation = URM_validation[targetsListOrdered]
-    URM_test = URM_test[targetsListOrdered]
-    userList_unique = list(range(len(targetsListOrdered))) # is this ok? or does it break stuff?
-    targetsList = userList_unique
-    targetsListOrdered = userList_unique
-    targetsListCasual = []
-    numUsers = len(userList_unique)
-    numberInteractions = URM_all.nnz
-
-    output_root_path = "result_experiments/tuning_{date:%Y%m%d%H%M%S}_seq/".format(date=datetime.datetime.now())
+    output_root_path = "result_experiments/tuning_{date:%Y%m%d%H%M%S}/".format(date=datetime.datetime.now())
 
     # If directory does not exist, create
     if not os.path.exists(output_root_path):
@@ -710,7 +677,6 @@ if __name__ == '__main__':
         # RP3betaRecommender,
         # ItemKNNCFRecommender,
         # UserKNNCFRecommender,
-        # ItemKNNCBFRecommender,
         # MatrixFactorization_BPR_Cython,
         # MatrixFactorization_FunkSVD_Cython,
         # PureSVDRecommender,
@@ -720,15 +686,18 @@ if __name__ == '__main__':
         # MatrixFactorization_BPR_Theano
     ]
 
+    param_list = [10, 30, 50, 100, 200, 400, 500, 750, 900]
+
 
     from ParameterTuning.AbstractClassSearch import EvaluatorWrapper
     from Base.Evaluation.Evaluator import SequentialEvaluator, CompleteEvaluator, FastEvaluator
 
     # FIXME maybe minRatingsPerUser in valid is too much? too few users?
 
-    users_excluded_targets = []
+    users_excluded_targets = [u for u in userList_unique if u not in targetsListList]
     evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
     evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
+
 
     evaluator_validation = EvaluatorWrapper(evaluator_validation_earlystopping)
     evaluator_test = EvaluatorWrapper(evaluator_test)
@@ -740,12 +709,12 @@ if __name__ == '__main__':
                                                        evaluator_validation=evaluator_validation,
                                                        evaluator_test=evaluator_test,
                                                        output_root_path=output_root_path,
-                                                       parallelizeKNN=None,
+                                                       parallelizeKNN=(not parallel),
                                                        init_points=5,
-                                                       n_cases=30,
+                                                       n_cases=15,
                                                        loggerPath=output_root_path,
                                                        loadLogsPath=None,
-                                                       kappa=2,
+                                                       kappa=3,
                                                        #acq='ei',  # acq='ucb', #
                                                        #xi=0.005, # xi=0.0 #,
                                                        )
@@ -763,31 +732,19 @@ if __name__ == '__main__':
     else:
 
         for recommender_class in collaborative_algorithm_list:
-            try:
-                output_root_path_recsys = output_root_path + "{}/".format(recommender_class.RECOMMENDER_NAME if recommender_class.RECOMMENDER_NAME is not None else recommender_class)
-                parameterSearch = BayesianSearch(recommender_class, evaluator_validation=evaluator_validation,
-                                                 evaluator_test=evaluator_test)
-                if recommender_class != ItemKNNCBFRecommender:
+            for param in param_list:
+                try:
+                    output_root_path_recsys = output_root_path + "{}_k{}/".format(
+                        recommender_class.RECOMMENDER_NAME if recommender_class.RECOMMENDER_NAME is not None else recommender_class,
+                        param)
+                    parameterSearch = BayesianSearch(recommender_class, evaluator_validation=evaluator_validation,
+                                                     evaluator_test=evaluator_test)
                     runParameterSearch_Collaborative_partial(recommender_class, parameterSearch=parameterSearch,
                                                              output_root_path=output_root_path_recsys,
-                                                             loggerPath=output_root_path_recsys)
-                else:
-                    runParameterSearch_Content(recommender_class, ICM_object=ICM_all, ICM_name="icm_spl800_al1ar05d01", parameterSearch=parameterSearch,
-                                               URM_train=URM_train,
-                                               metric_to_optimize="MAP",
-                                               evaluator_validation=evaluator_validation,
-                                               evaluator_test=evaluator_test,
-                                               output_root_path=output_root_path_recsys,
-                                               parallelizeKNN=False,
-                                               init_points=5,
-                                               n_cases=30,
-                                               loggerPath=output_root_path_recsys,
-                                               loadLogsPath=None,
-                                               kappa=2,
-                                               #acq='ei',  # acq='ucb', #
-                                               #xi=0.005, # xi=0.0 #,
-                                               )
-            except Exception as e:
-                print("On recommender {} Exception {}".format(recommender_class, str(e)))
-                traceback.print_exc()
+                                                             loggerPath=output_root_path_recsys,
+                                                             loop_param = param
+                                                             )
+                except Exception as e:
+                    print("On recommender {} Exception {}".format(recommender_class, str(e)))
+                    traceback.print_exc()
 
