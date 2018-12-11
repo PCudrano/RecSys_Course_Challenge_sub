@@ -607,6 +607,7 @@ if __name__ == '__main__':
     itemList = interactions_df["track_id"]
     ratingList = np.ones(interactions_df.shape[0])
     targetsList = playlist_id_df["playlist_id"]
+    targetsListList = targetsList.tolist()
     targetsListOrdered = targetsList[:5000].tolist()
     targetsListCasual = targetsList[5000:].tolist()
     userList_unique = pd.unique(userList)
@@ -636,11 +637,19 @@ if __name__ == '__main__':
     # URM_test_known = None
 
     # row holdout - validation
-    URM_train_val, URM_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df, train_perc=0.8,
-                                                          seed=seed, targetsListOrdered=targetsListOrdered,
-                                                          nnz_threshold=10)
-    URM_train, URM_valid = train_test_holdout(URM_train_val, train_perc=0.7, seed=seed)
-    URM_test_known = None
+    # URM_train_val, URM_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df, train_perc=0.8,
+    #                                                       seed=seed, targetsListOrdered=targetsListOrdered,
+    #                                                       nnz_threshold=10)
+    # URM_train, URM_valid = train_test_holdout(URM_train_val, train_perc=0.7, seed=seed)
+    # URM_test_known = None
+    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, targetsListList, train_sequential_df,
+                                                            train_perc=0.6,
+                                                            seed=seed, targetsListOrdered=targetsListOrdered,
+                                                            nnz_threshold=2)
+    URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, targetsListList, train_sequential_df,
+                                                      train_perc=0.5,
+                                                      seed=seed, targetsListOrdered=targetsListOrdered,
+                                                      nnz_threshold=1)
 
 
     URM_train = URM_train
@@ -677,8 +686,10 @@ if __name__ == '__main__':
     from Base.Evaluation.Evaluator import SequentialEvaluator, CompleteEvaluator, FastEvaluator
 
     # FIXME maybe minRatingsPerUser in valid is too much? too few users?
-    evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
-    evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
+
+    users_excluded_targets = [u for u in userList_unique if u not in targetsListList]
+    evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
+    evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
 
 
     evaluator_validation = EvaluatorWrapper(evaluator_validation_earlystopping)
@@ -693,9 +704,12 @@ if __name__ == '__main__':
                                                        output_root_path=output_root_path,
                                                        parallelizeKNN=(not parallel),
                                                        init_points=5,
-                                                       n_cases=30,
+                                                       n_cases=15,
                                                        loggerPath=output_root_path,
-                                                       # loadLogsPath=None
+                                                       loadLogsPath=None,
+                                                       kappa=2,
+                                                       #acq='ei',  # acq='ucb', #
+                                                       #xi=0.005, # xi=0.0 #,
                                                        )
 
     # If used with only one class of recommenders, at the end of the optimization parameterSearch can be accessed from
@@ -712,9 +726,14 @@ if __name__ == '__main__':
 
         for recommender_class in collaborative_algorithm_list:
             try:
+                output_root_path_recsys = output_root_path + "{}/".format(
+                    recommender_class.RECOMMENDER_NAME if recommender_class.RECOMMENDER_NAME is not None else recommender_class)
                 parameterSearch = BayesianSearch(recommender_class, evaluator_validation=evaluator_validation,
                                                  evaluator_test=evaluator_test)
-                runParameterSearch_Collaborative_partial(recommender_class, parameterSearch=parameterSearch)
+                runParameterSearch_Collaborative_partial(recommender_class, parameterSearch=parameterSearch,
+                                                         output_root_path=output_root_path_recsys,
+                                                         loggerPath=output_root_path_recsys
+                                                         )
             except Exception as e:
                 print("On recommender {} Exception {}".format(recommender_class, str(e)))
                 traceback.print_exc()
