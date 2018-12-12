@@ -460,8 +460,8 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             # hyperparamethers_range_dictionary["topK"] = [50, 100, 200, 300, 400, 500, 600, 700, 800]
             # hyperparamethers_range_dictionary["epochs"] = [5, 20, 30, 50, 90, 100, 200, 300, 400, 600, 1000]
             hyperparamethers_range_dictionary["sgd_mode"] = ["adagrad", "adam", "sgd", "rmsprop"]
-            hyperparamethers_range_dictionary["lambda_i"] = [1e-1, 1e-3, 1e-6, 1e-9]
-            hyperparamethers_range_dictionary["lambda_j"] = [1e-1, 1e-3, 1e-6, 1e-9]
+            hyperparamethers_range_dictionary["lambda_i"] = [1e-1, 1e-3, 1e-6, 1e-9, 1e-10]
+            hyperparamethers_range_dictionary["lambda_j"] = [1e-1, 1e-3, 1e-6, 1e-9, 1e-10]
             hyperparamethers_range_dictionary["learning_rate"] = [0.5, 1e-1, 1e-2]
 
             recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train],
@@ -686,7 +686,8 @@ if __name__ == '__main__':
         # MatrixFactorization_BPR_Theano
     ]
 
-    param_list = [10, 30, 50, 100, 200, 400, 500, 750, 900]
+    # param_list = [10, 30, 50, 100, 200, 400, 500, 750, 900]
+    param_list = [100, 500]
 
 
     from ParameterTuning.AbstractClassSearch import EvaluatorWrapper
@@ -710,11 +711,11 @@ if __name__ == '__main__':
                                                        evaluator_test=evaluator_test,
                                                        output_root_path=output_root_path,
                                                        parallelizeKNN=(not parallel),
-                                                       init_points=5,
-                                                       n_cases=15,
+                                                       init_points=3,
+                                                       n_cases=5,
                                                        loggerPath=output_root_path,
                                                        loadLogsPath=None,
-                                                       kappa=3,
+                                                       kappa=2,
                                                        #acq='ei',  # acq='ucb', #
                                                        #xi=0.005, # xi=0.0 #,
                                                        )

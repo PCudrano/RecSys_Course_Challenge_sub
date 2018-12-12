@@ -122,7 +122,7 @@ if __name__ == '__main__':
 
 
     URM_train = URM_train.tocsr()
-    # URM_validation = URM_valid
+    URM_validation = URM_valid
     URM_test = URM_test_pred.tocsr()
 
     # def get_all_tuples_uip_generator(URM):
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     # # valid_data_u_ip = list(get_all_tuples_uip_generator(URM_valid))
     # test_data_u_ip = list(get_all_tuples_uip_generator(URM_test))
 
-    recommender_class = RP3betaRecommender # SLIMElasticNetRecommender
+    recommender_class = SLIM_BPR_Cython # SLIMElasticNetRecommender
 
     from Base.Evaluation.Evaluator import SequentialEvaluator, CompleteEvaluator, FastEvaluator
 
@@ -161,6 +161,9 @@ if __name__ == '__main__':
                                         ignore_users=users_excluded_targetsOrdered)
     evaluator_random = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True,
                                          ignore_users=users_excluded_targetsCasual)
+
+    evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1,
+                                                       exclude_seen=True, ignore_users=users_excluded_targets)
 
 
     output_root_path = "result_experiments/"
@@ -186,7 +189,12 @@ if __name__ == '__main__':
         # print("alpha: {}, l1_ratio: {}".format(alpha, l1_ratio))
 
         # recommender.fit(l1_ratio=l1_ratio, positive_only=False, topK = 200, alpha=alpha, max_iter=100, selection="random", tol=1e-2)
-        recommender.fit(alpha=0.13816102768095773, beta=0.006448891019063874, normalize_similarity=True, topK=100)
+        # recommender.fit(alpha=0.13816102768095773, beta=0.006448891019063874, normalize_similarity=True, topK=100)
+        recommender.fit(epochs=1000, logFile=logFile,
+            batch_size = 1000, lambda_i = 1e-12, lambda_j = 1e-12, learning_rate = 0.1, topK = 500,
+            sgd_mode='adam',
+            stop_on_validation = True, lower_validatons_allowed = 2, validation_metric = "MAP",
+            evaluator_object = evaluator_validation_earlystopping, validation_every_n = 10)
 
         results_run, results_run_string = evaluator.evaluateRecommender(recommender)
 
