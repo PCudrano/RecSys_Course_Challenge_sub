@@ -1,0 +1,1 @@
+On recommender <class 'KNN.ItemKNNCFRecommender.ItemKNNCFRecommender'> Exception group argument must be None for now
