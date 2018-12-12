@@ -125,4 +125,5 @@ ENV/
 result_experiments/**/*
 !result_experiments/**/*/
 result_experiments/**/*/*
-!result_experiments/**/*.txt
+!result_experiments/**/*/*.txt
+!result_experiments/**/*/*.json
