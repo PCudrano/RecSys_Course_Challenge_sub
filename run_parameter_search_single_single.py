@@ -167,17 +167,12 @@ def runParameterSearch_Content(recommender_class, URM_train, ICM_object, ICM_nam
 
 
 
-def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_optimize="PRECISION",
-                                         evaluator_validation=None, evaluator_test=None,
-                                         evaluator_validation_earlystopping=None,
-                                         output_root_path="result_experiments/", parallelizeKNN=False, init_points=5,
-                                         n_cases=30,
-                                         parameterSearch=None, loop_param=None, **kwargs):
 
 
-# def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_optimize = "PRECISION",
-#                                      evaluator_validation= None, evaluator_test=None, evaluator_validation_earlystopping = None,
-#                                      output_root_path ="result_experiments/", parallelizeKNN = False, n_cases = 30):
+
+def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_optimize = "PRECISION",
+                                     evaluator_validation= None, evaluator_test=None, evaluator_validation_earlystopping = None,
+                                     output_root_path ="result_experiments/", parallelizeKNN = False, n_cases = 30):
 
 
     from ParameterTuning.AbstractClassSearch import DictionaryKeys
@@ -526,7 +521,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             print("Starting initing the single recsys")
 
             N_cbf = 3
-            N_cf = 30
+            N_cf = 24
             N_p3a = 3
             N_hyb = N_cbf + N_cf + N_p3a
             recsys = []
@@ -562,17 +557,11 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
             print("Starting hopefully the tuning")
-            alphas1 = [1] + [20] + [15]
-            alphas2 = [((500) / (p[0])) for p in recsys_params2]
-            alphas3 = [3] + [3] + [1]
-            alphas = alphas1 + alphas2 + alphas3
-
-
             hyperparamethers_range_dictionary = {}
             #hyperparamethers_range_dictionary["alphas0"] = range(0, 20)
             for i in range(0, N_hyb):
                 text = "alphas" + str(i)
-                hyperparamethers_range_dictionary[text] = alphas[i]
+                hyperparamethers_range_dictionary[text] = range(0, 10)
 
             #hyperparamethers_range_dictionary["alphas1"] = range(0, 20)
             #hyperparamethers_range_dictionary["alpha"] = range(0, 2)
@@ -581,13 +570,8 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train, recsys],
                                      DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {},
                                      DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
-                                     DictionaryKeys.FIT_KEYWORD_ARGS: hyperparamethers_range_dictionary,
-                                     DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: {"aa": range(0,1)}}
-            # recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train, recsys],
-            #                          DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {},
-            #                          DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
-            #                          DictionaryKeys.FIT_KEYWORD_ARGS: dict(),
-            #                          DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
+                                     DictionaryKeys.FIT_KEYWORD_ARGS: dict(),
+                                     DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
 
 
         ##########################################################################################################
@@ -657,19 +641,13 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
 
             print("Starting initing the single recsys")
 
-            # N_cbf = 6
-            # N_cf = 40
-            # N_p3a = 3
-            # N_ucf = 20
-            # N_ucbf = 8
-            # N_rp3b = 3
-            N_cbf = 3
-            N_cf = 15
-            N_p3a = 2
-            N_ucf = 8
-            N_ucbf = 4
-            N_rp3b = 3
-            N_slim = 4
+            N_cbf = 0
+            N_cf = 1
+            N_p3a = 0
+            N_ucf = 0
+            N_ucbf = 0
+            N_rp3b = 0
+            N_slim = 0
             N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim
             recsys = []
             for i in range(N_cbf):
@@ -684,14 +662,13 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                 recsys.append(UserCBFKNNRecommender(URM_train, ICM_all))
             for i in range(N_rp3b):
                 recsys.append(RP3betaRecommender(URM_train))
-            for i in range(N_slim):
-                recsys.append(SLIM_BPR_Cython(URM_train))
+            #recsys.append(SLIM_BPR_Cython(URM_train))
 
             recsys_params = list(zip(np.linspace(10, 120, N_cbf).tolist(), [4] * N_cbf))
-            recsys_params2 = list((zip(np.linspace(5, 800, N_cf).tolist(), [12] * N_cf)))
+            recsys_params2 = list((zip(np.linspace(5, 600, N_cf).tolist(), [12] * N_cf)))
             recsys_params3 = list((zip(np.linspace(90, 110, N_p3a).tolist(), [1] * N_p3a)))
-            recsys_params4 = list((zip(np.linspace(5, 600, N_ucf).tolist(), [2] * N_ucf)))
-            recsys_params5 = list((zip(np.linspace(20, 300, N_ucbf).tolist(), [5] * N_ucbf)))
+            recsys_params4 = list((zip(np.linspace(10, 400, N_ucf).tolist(), [2] * N_ucf)))
+            recsys_params5 = list((zip(np.linspace(50, 200, N_ucbf).tolist(), [5] * N_ucbf)))
             recsys_params6 = list((zip(np.linspace(80, 120, N_rp3b).tolist(), [0] * N_rp3b)))
 
             print("Starting fitting single recsys")
@@ -705,7 +682,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params2[i][0]
                 shrink = recsys_params2[i][1]
-                recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.3)
+                recsys[i + N_cbf].fit(topK=172, shrink=12, type="cosine", alpha=0.35)
             for i in range(N_p3a):
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params3[i][0]
@@ -728,12 +705,8 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                 recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.5927789387679869, beta=0.009260542392306892)
 
             # load slim bpr
-            slims_dir = "result_experiments/hyb_est_ratings_1/"
-            recsys[-4].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_10")
-            recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_30")
-            recsys[-2].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_750")
-            recsys[-1].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_900")
-            print("Load complete of slim bpr")
+            #recsys[-1].loadModel("result_experiments/tuning_20181206151851_good/", "SLIM_BPR_Recommender_best_model")
+            #print("Load complete of slim bpr")
             el_t = time.time() - t
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
@@ -756,8 +729,6 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             for i in range(0, N_hyb):
                 text = "alphas" + str(i)
                 hyperparamethers_range_dictionary[text] = range(0, 20)
-            #text = "alphas" + str(N_hyb-1)
-            #hyperparamethers_range_dictionary[text] = range(0, 2)
 
             #hyperparamethers_range_dictionary["alphas1"] = range(0, 20)
             #hyperparamethers_range_dictionary["alpha"] = range(0, 2)
@@ -774,11 +745,9 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
 
         ## Final step, after the hyperparameter range has been defined for each type of algorithm
         best_parameters = parameterSearch.search(recommenderDictionary,
-                                                 init_points=init_points,
                                                  n_cases = n_cases,
                                                  output_root_path = output_root_path_rec_name,
-                                                 metric = metric_to_optimize,
-                                                 **kwargs)
+                                                 metric = metric_to_optimize)
 
 
 
@@ -917,8 +886,8 @@ def read_data_split_and_search(parallel=False):
         # SLIM_BPR_Cython,
         # SLIMElasticNetRecommender,
         #MatrixFactorization_BPR_Theano
-        HybridLinCombItemSimilarities
-        #HybridLinCombEstRatings
+        #HybridLinCombItemSimilarities
+        HybridLinCombEstRatings
     ]
 
 
@@ -942,14 +911,8 @@ def read_data_split_and_search(parallel=False):
                                                        evaluator_validation=evaluator_validation,
                                                        evaluator_test=evaluator_test,
                                                        output_root_path=output_root_path,
-                                                       parallelizeKNN=(not parallel),
-                                                       init_points=10,
-                                                       n_cases=50,
-                                                       loggerPath=output_root_path,
-                                                       loadLogsPath=None,
-                                                       kappa=3,
-                                                       #acq='ei',  # acq='ucb', #
-                                                       #xi=0.005, # xi=0.0 #,
+                                                       parallelizeKNN=False,
+                                                       n_cases=100
                                                        )
 
     if parallel:

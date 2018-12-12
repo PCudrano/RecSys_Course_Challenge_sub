@@ -526,7 +526,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             print("Starting initing the single recsys")
 
             N_cbf = 3
-            N_cf = 30
+            N_cf = 24
             N_p3a = 3
             N_hyb = N_cbf + N_cf + N_p3a
             recsys = []
@@ -562,17 +562,11 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
             print("Starting hopefully the tuning")
-            alphas1 = [1] + [20] + [15]
-            alphas2 = [((500) / (p[0])) for p in recsys_params2]
-            alphas3 = [3] + [3] + [1]
-            alphas = alphas1 + alphas2 + alphas3
-
-
             hyperparamethers_range_dictionary = {}
             #hyperparamethers_range_dictionary["alphas0"] = range(0, 20)
             for i in range(0, N_hyb):
                 text = "alphas" + str(i)
-                hyperparamethers_range_dictionary[text] = alphas[i]
+                hyperparamethers_range_dictionary[text] = range(0, 10)
 
             #hyperparamethers_range_dictionary["alphas1"] = range(0, 20)
             #hyperparamethers_range_dictionary["alpha"] = range(0, 2)
@@ -581,13 +575,8 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train, recsys],
                                      DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {},
                                      DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
-                                     DictionaryKeys.FIT_KEYWORD_ARGS: hyperparamethers_range_dictionary,
-                                     DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: {"aa": range(0,1)}}
-            # recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train, recsys],
-            #                          DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {},
-            #                          DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
-            #                          DictionaryKeys.FIT_KEYWORD_ARGS: dict(),
-            #                          DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
+                                     DictionaryKeys.FIT_KEYWORD_ARGS: dict(),
+                                     DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
 
 
         ##########################################################################################################
@@ -663,12 +652,12 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             # N_ucf = 20
             # N_ucbf = 8
             # N_rp3b = 3
-            N_cbf = 3
-            N_cf = 15
-            N_p3a = 2
-            N_ucf = 8
-            N_ucbf = 4
-            N_rp3b = 3
+            N_cbf = 2
+            N_cf = 2
+            N_p3a = 0
+            N_ucf = 0
+            N_ucbf = 0
+            N_rp3b = 0
             N_slim = 4
             N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim
             recsys = []
@@ -687,8 +676,8 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             for i in range(N_slim):
                 recsys.append(SLIM_BPR_Cython(URM_train))
 
-            recsys_params = list(zip(np.linspace(10, 120, N_cbf).tolist(), [4] * N_cbf))
-            recsys_params2 = list((zip(np.linspace(5, 800, N_cf).tolist(), [12] * N_cf)))
+            recsys_params = list(zip(np.linspace(10, 20, N_cbf).tolist(), [5] * N_cbf))
+            recsys_params2 = list((zip(np.linspace(5, 180, N_cf).tolist(), [1,12])))
             recsys_params3 = list((zip(np.linspace(90, 110, N_p3a).tolist(), [1] * N_p3a)))
             recsys_params4 = list((zip(np.linspace(5, 600, N_ucf).tolist(), [2] * N_ucf)))
             recsys_params5 = list((zip(np.linspace(20, 300, N_ucbf).tolist(), [5] * N_ucbf)))
@@ -755,7 +744,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             #hyperparamethers_range_dictionary["alphas0"] = range(0, 20)
             for i in range(0, N_hyb):
                 text = "alphas" + str(i)
-                hyperparamethers_range_dictionary[text] = range(0, 20)
+                hyperparamethers_range_dictionary[text] = range(0, 40)
             #text = "alphas" + str(N_hyb-1)
             #hyperparamethers_range_dictionary[text] = range(0, 2)
 
@@ -917,8 +906,8 @@ def read_data_split_and_search(parallel=False):
         # SLIM_BPR_Cython,
         # SLIMElasticNetRecommender,
         #MatrixFactorization_BPR_Theano
-        HybridLinCombItemSimilarities
-        #HybridLinCombEstRatings
+        #HybridLinCombItemSimilarities
+        HybridLinCombEstRatings
     ]
 
 

@@ -10,6 +10,8 @@ import scipy.sparse as sps
 import time
 import os
 
+from src.libs.similarity import dot_product
+
 def check_matrix(X, format='csc', dtype=np.float32):
     if format == 'csc' and not isinstance(X, sps.csc_matrix):
         return X.tocsc().astype(dtype)
@@ -55,6 +57,51 @@ def similarityMatrixTopK(item_weights, forceSparseOutput = True, k=100, verbose 
     sparse_weights = not isinstance(item_weights, np.ndarray)
 
     if not sparse_weights:
+        # start_index = 0
+        # end_index = 2000
+        # print("Building from index {} to index {}".format(start_index, end_index))
+        # idx_sorted = np.argsort(item_weights[start_index:end_index], axis=0)  # sort data inside each column
+        # not_top_k = idx_sorted[:-k, :]
+        # item_weights[not_top_k, np.arange(start_index, end_index)] = 0.0
+        # w_sparse_mine = sps.csr_matrix(item_weights[start_index:end_index], shape=(2000, nitems))
+        # print(w_sparse_mine)
+        # w_sparse_mine.eliminate_zeros()
+        # print(w_sparse_mine)
+        # for i in range(1,10):
+        #     start_index = i * 1000
+        #     end_index = (i+1) * 1000
+        #     print("Building from index {} to index {}".format(start_index, end_index))
+        #     inc_sparse_mine = sps.csr_matrix(item_weights[start_index:end_index], shape=(2000, nitems))
+        #     inc_sparse_mine.eliminate_zeros()
+        #     w_sparse_mine = sps.vstack([w_sparse_mine, inc_sparse_mine])
+        # start_index = 20000
+        # print("Building from index {} to index {}".format(start_index, 7))
+        # inc_sparse_mine = sps.csr_matrix(item_weights[start_index:], shape=(635, nitems))
+        # inc_sparse_mine.eliminate_zeros()
+        # w_sparse_mine = sps.vstack([w_sparse_mine, inc_sparse_mine])
+        # print("Matrix complete")
+        # print(w_sparse_mine)
+        # return w_sparse_mine
+
+        # print("Starting bad magic func")
+        # W_sparse_mine1 = sps.csr_matrix(item_weights[:5000,:])
+        # print("a")
+        # ident = sps.identity(W_sparse_mine1.shape[1], format="csr")
+        # print("Starting dot_product")
+        # W_sparse_new1 = dot_product.dot_product(W_sparse_mine1, ident, k=k)
+        # print("end of product")
+        #
+        # print("Starting bad magic func2")
+        # W_sparse_mine2 = sps.csc_matrix(item_weights[5000:,:])
+        # print("a")
+        # #ident = sps.identity(5000, format="csr")
+        # print("Starting dot_product")
+        # W_sparse_new2 = dot_product.dot_product(W_sparse_mine2, ident, k=k)
+        # print("end of product")
+        #
+        # vstack = sps.vstack([W_sparse_new1, W_sparse_new2])
+        #
+        # return vstack
 
         idx_sorted = np.argsort(item_weights, axis=0)  # sort data inside each column
 

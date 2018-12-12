@@ -1,0 +1,1 @@
+On recommender <class 'src.recommenders.HybridLinCombItemSimilarities.HybridLinCombItemSimilarities'> Exception BayesianSearch: for every parameter a range may be specified either by a 'range' object or by a list.Provided object type for parameter 'alphas0' was '<class 'int'>'

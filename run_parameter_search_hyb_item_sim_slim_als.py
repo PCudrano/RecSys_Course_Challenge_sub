@@ -602,6 +602,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             from src.recommenders.P3AlphaRecommender import P3AlphaRecommender
             from src.recommenders.UserCFKNNRecommender import UserCFKNNRecommender
             from src.recommenders.UserCBFKNNRecommender import UserCBFKNNRecommender
+            from src.recommenders.ImplicitALSRecommender import ImplicitALSRecommender
             import src.utils.build_icm as build_icm
             import time
 
@@ -669,8 +670,9 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             N_ucf = 8
             N_ucbf = 4
             N_rp3b = 3
-            N_slim = 4
-            N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim
+            N_slim = 1
+            N_als = 1
+            N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_als
             recsys = []
             for i in range(N_cbf):
                 recsys.append(ItemCBFKNNRecommender(URM_train, ICM_all))
@@ -686,6 +688,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                 recsys.append(RP3betaRecommender(URM_train))
             for i in range(N_slim):
                 recsys.append(SLIM_BPR_Cython(URM_train))
+            recsys.append(ImplicitALSRecommender(URM_train))
 
             recsys_params = list(zip(np.linspace(10, 120, N_cbf).tolist(), [4] * N_cbf))
             recsys_params2 = list((zip(np.linspace(5, 800, N_cf).tolist(), [12] * N_cf)))
@@ -728,27 +731,28 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                 recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.5927789387679869, beta=0.009260542392306892)
 
             # load slim bpr
-            slims_dir = "result_experiments/hyb_est_ratings_1/"
-            recsys[-4].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_10")
-            recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_30")
-            recsys[-2].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_750")
-            recsys[-1].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_900")
+            slims_dir = "result_experiments/tuning_20181212155744/SLIM_BPR_Recommender_k200/"
+            recsys[-2].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model")
             print("Load complete of slim bpr")
             el_t = time.time() - t
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
+            print("Starting fitting als")
+            recsys[-1].fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
+            print("Ended fitting als")
 
             print("Starting recommending the est_ratings")
             t2 = time.time()
             recsys_est_ratings = []
-            for i in range(0, N_hyb):
+            for i in range(0, N_hyb-1):
                 if i >= N_cbf + N_cf + N_p3a + N_ucf + N_ucbf:
                     recsys_est_ratings.append(recsys[i].compute_item_score(userList_unique, 160))
                 else:
                     recsys_est_ratings.append(recsys[i].estimate_ratings(userList_unique, 160))
             el_t = time.time() - t2
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
-
+            print("Recommending als")
+            recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
 
             print("Starting hopefully the tuning")
             hyperparamethers_range_dictionary = {}
@@ -917,8 +921,8 @@ def read_data_split_and_search(parallel=False):
         # SLIM_BPR_Cython,
         # SLIMElasticNetRecommender,
         #MatrixFactorization_BPR_Theano
-        HybridLinCombItemSimilarities
-        #HybridLinCombEstRatings
+        #HybridLinCombItemSimilarities
+        HybridLinCombEstRatings
     ]
 
 
@@ -944,7 +948,7 @@ def read_data_split_and_search(parallel=False):
                                                        output_root_path=output_root_path,
                                                        parallelizeKNN=(not parallel),
                                                        init_points=10,
-                                                       n_cases=50,
+                                                       n_cases=100,
                                                        loggerPath=output_root_path,
                                                        loadLogsPath=None,
                                                        kappa=3,
