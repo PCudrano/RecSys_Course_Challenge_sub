@@ -1,0 +1,1 @@
+BayesianSearch: Saving logs to result_experiments/tuning_20181211195346/SLIM_BPR_Recommender_k900/bayesian_optimizer_logs.jsonBayesianSearch: Testing config: {'lambda_i': 0.1, 'lambda_j': 0.1, 'learning_rate': 0.1, 'sgd_mode': 'adagrad'} - Exception 
