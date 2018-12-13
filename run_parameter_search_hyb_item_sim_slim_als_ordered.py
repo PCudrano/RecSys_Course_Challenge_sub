@@ -666,12 +666,12 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             # N_rp3b = 3
             N_cbf = 3
             N_cf = 15
-            N_p3a = 2
+            N_p3a = 3
             N_ucf = 8
             N_ucbf = 4
             N_rp3b = 3
             N_slim = 2
-            N_als = 1
+            N_als = 0
             N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_als
             recsys = []
             for i in range(N_cbf):
@@ -688,11 +688,11 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                 recsys.append(RP3betaRecommender(URM_train))
             for i in range(N_slim):
                 recsys.append(SLIM_BPR_Cython(URM_train))
-            recsys.append(ImplicitALSRecommender(URM_train))
+            #recsys.append(ImplicitALSRecommender(URM_train))
 
             recsys_params = list(zip(np.linspace(10, 120, N_cbf).tolist(), [4] * N_cbf))
             recsys_params2 = list((zip(np.linspace(5, 800, N_cf).tolist(), [12] * N_cf)))
-            recsys_params3 = list((zip(np.linspace(90, 110, N_p3a).tolist(), [1] * N_p3a)))
+            recsys_params3 = list((zip(np.linspace(90, 800, N_p3a).tolist(), [1] * N_p3a)))
             recsys_params4 = list((zip(np.linspace(5, 600, N_ucf).tolist(), [2] * N_ucf)))
             recsys_params5 = list((zip(np.linspace(20, 300, N_ucbf).tolist(), [5] * N_ucbf)))
             recsys_params6 = list((zip(np.linspace(80, 120, N_rp3b).tolist(), [0] * N_rp3b)))
@@ -713,7 +713,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params3[i][0]
                 shrink = recsys_params3[i][1]
-                recsys[i + N_cbf + N_cf].fit(topK=topK, shrink=shrink, alpha=0.31)
+                recsys[i + N_cbf + N_cf].fit(topK=topK, shrink=shrink, alpha=0.5)
             for i in range(N_ucf):
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params4[i][0]
@@ -728,32 +728,32 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                 # print("Training system {:d}...".format(i+N_cbf))b
                 topK = int(recsys_params6[i][0])
                 shrink = recsys_params6[i][1]
-                recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.5927789387679869, beta=0.009260542392306892)
+                recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.13816, beta=0.00644889)
 
             # load slim bpr
             slims_dir = "result_experiments/hyb_est_ratings_3/"
-            recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_100")
-            recsys[-2].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_300")
+            recsys[-2].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_seq_100")
+            recsys[-1].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_seq_500")
             print("Load complete of slim bpr")
             el_t = time.time() - t
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
-            print("Starting fitting als")
-            recsys[-1].fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
+            #print("Starting fitting als")
+            #recsys[-1].fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
             print("Ended fitting als")
 
             print("Starting recommending the est_ratings")
             t2 = time.time()
             recsys_est_ratings = []
-            for i in range(0, N_hyb-1):
+            for i in range(0, N_hyb):
                 if i >= N_cbf + N_cf + N_p3a + N_ucf + N_ucbf:
                     recsys_est_ratings.append(recsys[i].compute_item_score(userList_unique, 160))
                 else:
                     recsys_est_ratings.append(recsys[i].estimate_ratings(userList_unique, 160))
             el_t = time.time() - t2
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
-            print("Recommending als")
-            recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
+            #print("Recommending als")
+            #recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
 
             print("Starting hopefully the tuning")
             hyperparamethers_range_dictionary = {}
@@ -893,12 +893,12 @@ def read_data_split_and_search(parallel=False):
     #                                                         seed=seed, targetsListOrdered=targetsListOrdered,
     #                                                         nnz_threshold=1)
 
-    usersNonOrdered = [i for i in userList_unique if i not in targetsListOrdered]
-    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, usersNonOrdered, train_sequential_df,
+    #usersNonOrdered = [i for i in userList_unique if i not in targetsListOrdered]
+    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, targetsListOrdered, train_sequential_df,
                                                             train_perc=0.7,
                                                             seed=seed, targetsListOrdered=targetsListOrdered,
                                                             nnz_threshold=10)
-    URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, usersNonOrdered, train_sequential_df,
+    URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, targetsListOrdered, train_sequential_df,
                                                       train_perc=0.5,
                                                       seed=seed, targetsListOrdered=targetsListOrdered,
                                                       nnz_threshold=2)
@@ -942,11 +942,12 @@ def read_data_split_and_search(parallel=False):
 
     # FIXME maybe minRatingsPerUser in valid is too much? too few users?
     #users_excluded_targets = [u for u in userList_unique if u not in targetsListList]
+    users_excluded_targets = [u for u in userList_unique if u not in targetsListOrdered]
 
     #evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
     #evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
-    evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=7, exclude_seen=True, ignore_users=targetsListOrdered)
-    evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=targetsListOrdered)
+    evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=7, exclude_seen=True, ignore_users=users_excluded_targets)
+    evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
 
 
     evaluator_validation = EvaluatorWrapper(evaluator_validation_earlystopping)
@@ -961,7 +962,7 @@ def read_data_split_and_search(parallel=False):
                                                        output_root_path=output_root_path,
                                                        parallelizeKNN=(not parallel),
                                                        init_points=10,
-                                                       n_cases=60,
+                                                       n_cases=40,
                                                        loggerPath=output_root_path,
                                                        loadLogsPath=None,
                                                        kappa=3,

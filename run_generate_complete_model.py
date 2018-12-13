@@ -149,7 +149,7 @@ if __name__ == '__main__':
     # URM_validation = URM_valid
     # URM_test = URM_test_pred.tocsr()
 
-    recommender_class = ImplicitALSRecommender
+    recommender_class = SLIM_BPR_Cython
 
 
     from Base.Evaluation.Evaluator import SequentialEvaluator
@@ -171,11 +171,11 @@ if __name__ == '__main__':
         print("Algorithm: {}".format(recommender_class))
         if recommender_class is SLIM_BPR_Cython:
             recommender = recommender_class(URM_train, symmetric = False)
-            recommender.fit(epochs=200, batch_size = 1000, lambda_i = 0.001, lambda_j = 0.001, learning_rate = 0.01, topK = 200,
-                sgd_mode='adagrad', gamma=0.995, beta_1=0.9, beta_2=0.999,
+            recommender.fit(epochs=155, batch_size = 1000, lambda_i = 0.001, lambda_j = 1e-06, learning_rate = 0.001, topK = 300,
+                sgd_mode='rmsprop', gamma=0.995, beta_1=0.9, beta_2=0.999,
                 stop_on_validation = False, lower_validatons_allowed = 5, validation_metric = "MAP",
-                evaluator_object = None, validation_every_n = 100)
-            recommender.saveModel("result_experiments/est_ratings_2", file_name="SLIM_BPR_200_complete")
+                evaluator_object = None, validation_every_n = 1000)
+            recommender.saveModel("result_experiments/hyb_est_ratings_3/", file_name="SLIM_BPR_300_complete")
 
         if recommender_class is ImplicitALSRecommender:
             print("Init recsys")
