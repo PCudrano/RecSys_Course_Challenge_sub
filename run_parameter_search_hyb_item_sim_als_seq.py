@@ -5,7 +5,10 @@ Created on 22/11/17
 
 @author: Maurizio Ferrari Dacrema
 """
-
+import sys
+#sys.path.append('src/libs/RecSys_Course_2018')
+sys.path.append('/home/stefano/git/recsys/recsys_challenge/src/libs/RecSys_Course_2018')
+sys.path.append('/home/stefano/git/recsys/recsys_challenge')
 import numpy as np
 import pandas as pd
 # import matplotlib.pyplot as pyplot
@@ -22,8 +25,8 @@ from src.utils.data_splitter import train_test_holdout, train_test_user_holdout,
 import traceback, os
 import datetime
 
-import sys
-sys.path.append('src/libs/RecSys_Course_2018')
+
+
 
 from src.recommenders.HybridLinCombItemSimilarities import HybridLinCombItemSimilarities
 from src.recommenders.HybridLinCombEstRatings import HybridLinCombEstRatings
@@ -893,12 +896,12 @@ def read_data_split_and_search(parallel=False):
     #                                                         seed=seed, targetsListOrdered=targetsListOrdered,
     #                                                         nnz_threshold=1)
 
-    #usersNonOrdered = [i for i in userList_unique if i not in targetsListOrdered]
-    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df,
+    usersNonOrdered = [i for i in userList_unique if i not in targetsListOrdered]
+    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, targetsListOrdered, train_sequential_df,
                                                             train_perc=0.6,
                                                             seed=seed, targetsListOrdered=targetsListOrdered,
                                                             nnz_threshold=2)
-    URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, userList_unique, train_sequential_df,
+    URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, targetsListOrdered, train_sequential_df,
                                                       train_perc=0.5,
                                                       seed=seed, targetsListOrdered=targetsListOrdered,
                                                       nnz_threshold=1)
@@ -945,8 +948,8 @@ def read_data_split_and_search(parallel=False):
 
     #evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
     #evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
-    evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
-    evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
+    evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=usersNonOrdered)
+    evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=usersNonOrdered)
 
 
     evaluator_validation = EvaluatorWrapper(evaluator_validation_earlystopping)
