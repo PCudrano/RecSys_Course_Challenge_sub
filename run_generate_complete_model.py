@@ -171,11 +171,11 @@ if __name__ == '__main__':
         print("Algorithm: {}".format(recommender_class))
         if recommender_class is SLIM_BPR_Cython:
             recommender = recommender_class(URM_train, symmetric = False)
-            recommender.fit(epochs=155, batch_size = 1000, lambda_i = 0.001, lambda_j = 1e-06, learning_rate = 0.001, topK = 300,
-                sgd_mode='rmsprop', gamma=0.995, beta_1=0.9, beta_2=0.999,
+            recommender.fit(epochs=310, batch_size = 1000, lambda_i = 0.1, lambda_j = 0.1, learning_rate = 0.001, topK = 300,
+                sgd_mode='adagrad', gamma=0.995, beta_1=0.9, beta_2=0.999,
                 stop_on_validation = False, lower_validatons_allowed = 5, validation_metric = "MAP",
                 evaluator_object = None, validation_every_n = 1000)
-            recommender.saveModel("result_experiments/hyb_est_ratings_3/", file_name="SLIM_BPR_300_complete")
+            recommender.saveModel("result_experiments/hyb_est_ratings_4/", file_name="SLIM_BPR_300_complete")
 
         if recommender_class is ImplicitALSRecommender:
             print("Init recsys")

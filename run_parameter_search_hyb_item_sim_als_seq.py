@@ -673,7 +673,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             N_ucf = 1
             N_ucbf = 1
             N_rp3b = 1
-            N_slim = 0
+            N_slim = 1
             N_als = 1
             N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_als
             recsys = []
@@ -734,10 +734,10 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                 recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.5927789387679869, beta=0.009260542392306892)
 
             # load slim bpr
-            # slims_dir = "result_experiments/hyb_est_ratings_3/"
+            slims_dir = "result_experiments/hyb_est_ratings_4/"
             # recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_100")
-            # recsys[-2].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_300")
-            # print("Load complete of slim bpr")
+            recsys[-2].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_300")
+            print("Load complete of slim bpr")
             el_t = time.time() - t
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
@@ -964,7 +964,7 @@ def read_data_split_and_search(parallel=False):
                                                        output_root_path=output_root_path,
                                                        parallelizeKNN=(not parallel),
                                                        init_points=10,
-                                                       n_cases=150,
+                                                       n_cases=100,
                                                        loggerPath=output_root_path,
                                                        loadLogsPath=None,
                                                        kappa=3,
