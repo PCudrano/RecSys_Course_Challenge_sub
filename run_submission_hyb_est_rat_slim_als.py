@@ -282,7 +282,12 @@ if __name__ == '__main__':
         #      'alphas3': 11.342620661059287, 'alphas4': 21.98021113873687, 'alphas5': 17.255942788852753,
         #      'alphas6': 29.88989122983309, 'alphas7': 8.72323633950845, 'alphas8': 4.686190019184634,
         #      'alphas9': 27.594768586378013}
-        a = {'alphas0': 3.544225147872532, 'alphas1': 27.44921524421118, 'alphas10': 0.617428649738726, 'alphas11': 29.00229554116133, 'alphas12': 11.376291192892454, 'alphas13': 28.36240928150947, 'alphas2': 25.173270264190684, 'alphas3': 9.0758213736426, 'alphas4': 24.598877906554428, 'alphas5': 8.259136154982745, 'alphas6': 28.873950520749226, 'alphas7': 28.075650656404864, 'alphas8': 2.2383444364441796, 'alphas9': 9.88567422221024}
+        #a = {'alphas0': 3.544225147872532, 'alphas1': 27.44921524421118, 'alphas10': 0.617428649738726, 'alphas11': 29.00229554116133, 'alphas12': 11.376291192892454, 'alphas13': 28.36240928150947, 'alphas2': 25.173270264190684, 'alphas3': 9.0758213736426, 'alphas4': 24.598877906554428, 'alphas5': 8.259136154982745, 'alphas6': 28.873950520749226, 'alphas7': 28.075650656404864, 'alphas8': 2.2383444364441796, 'alphas9': 9.88567422221024}
+        a = {'alphas0': 1.7441425091763962, 'alphas1': 18.861601981864734, 'alphas10': 0.39690340580799344,
+         'alphas11': 32.88640747166991, 'alphas12': 29.289603137982077, 'alphas13': 39.119056398066405,
+         'alphas2': 39.32805056335785, 'alphas3': 4.7045728804523534, 'alphas4': 4.064355410175922,
+         'alphas5': 0.9496746014755164, 'alphas6': 11.90433246014123, 'alphas7': 26.858464136180643,
+         'alphas8': 1.3622243853537164, 'alphas9': 8.04682724814036}
 
         print("Init recsys")
         recommender = recommender_class(URM_train, recsys_est_ratings)
@@ -324,7 +329,7 @@ if __name__ == '__main__':
         print(target_df[0:5])
 
         # Custom name
-        csv_filename = "hybrid_est_ratings_11"
+        csv_filename = "hybrid_est_ratings_13"
         # Default name
         #csv_filename = "submission_{algtype:}_{date:%Y%m%d%H%M%S}".format(algtype=recommender_class, date=datetime.datetime.now())
 

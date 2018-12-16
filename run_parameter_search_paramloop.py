@@ -5,6 +5,10 @@ Created on 22/11/17
 
 @author: Maurizio Ferrari Dacrema
 """
+import sys
+#sys.path.append('src/libs/RecSys_Course_2018')
+sys.path.append('/home/stefano/git/recsys/recsys_challenge/src/libs/RecSys_Course_2018')
+sys.path.append('/home/stefano/git/recsys/recsys_challenge')
 
 import numpy as np
 import pandas as pd
@@ -22,8 +26,8 @@ from src.utils.data_splitter import train_test_holdout, train_test_user_holdout,
 import traceback, os
 import datetime
 
-import sys
-sys.path.append('src/libs/RecSys_Course_2018')
+#import sys
+#sys.path.append('src/libs/RecSys_Course_2018')
 
 from Base.NonPersonalizedRecommender import TopPop, Random
 from KNN.UserKNNCFRecommender import UserKNNCFRecommender
@@ -460,9 +464,9 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             # hyperparamethers_range_dictionary["topK"] = [50, 100, 200, 300, 400, 500, 600, 700, 800]
             # hyperparamethers_range_dictionary["epochs"] = [5, 20, 30, 50, 90, 100, 200, 300, 400, 600, 1000]
             hyperparamethers_range_dictionary["sgd_mode"] = ["adagrad", "adam", "sgd", "rmsprop"]
-            hyperparamethers_range_dictionary["lambda_i"] = [1e-1, 1e-3, 1e-6, 1e-9, 1e-10]
-            hyperparamethers_range_dictionary["lambda_j"] = [1e-1, 1e-3, 1e-6, 1e-9, 1e-10]
-            hyperparamethers_range_dictionary["learning_rate"] = [0.5, 1e-1, 1e-2]
+            hyperparamethers_range_dictionary["lambda_i"] = [1e-1, 1e-3, 1e-5]
+            hyperparamethers_range_dictionary["lambda_j"] = [1e-1, 1e-3, 1e-5]
+            hyperparamethers_range_dictionary["learning_rate"] = [1e-2, 1e-3]
 
             recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train],
                                      DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {'train_with_sparse_weights': False,
@@ -476,7 +480,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                                      #                                   "validation_metric": metric_to_optimize},
                                      DictionaryKeys.FIT_KEYWORD_ARGS: {"topK": loop_param,
                                                                        "epochs": 1000, "batch_size": 1000,
-                                                                       "validation_every_n": 10,  # 10,
+                                                                       "validation_every_n": 5,  # 10,
                                                                        "stop_on_validation": True,
                                                                        "evaluator_object": evaluator_validation_earlystopping,
                                                                        "lower_validatons_allowed": 3,
@@ -647,11 +651,12 @@ if __name__ == '__main__':
     #                                                       nnz_threshold=10)
     # URM_train, URM_valid = train_test_holdout(URM_train_val, train_perc=0.7, seed=seed)
     # URM_test_known = None
-    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, targetsListList, train_sequential_df,
+    #usersNonOrdered = [i for i in userList_unique if i not in targetsListOrdered]
+    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df,
                                                             train_perc=0.6,
                                                             seed=seed, targetsListOrdered=targetsListOrdered,
                                                             nnz_threshold=2)
-    URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, targetsListList, train_sequential_df,
+    URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, userList_unique, train_sequential_df,
                                                       train_perc=0.5,
                                                       seed=seed, targetsListOrdered=targetsListOrdered,
                                                       nnz_threshold=1)
@@ -687,7 +692,7 @@ if __name__ == '__main__':
     ]
 
     # param_list = [10, 30, 50, 100, 200, 400, 500, 750, 900]
-    param_list = [100, 500]
+    param_list = [100, 200, 300]
 
 
     from ParameterTuning.AbstractClassSearch import EvaluatorWrapper
@@ -695,9 +700,12 @@ if __name__ == '__main__':
 
     # FIXME maybe minRatingsPerUser in valid is too much? too few users?
 
-    users_excluded_targets = [u for u in userList_unique if u not in targetsListList]
-    evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
-    evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
+    #users_excluded_targets = [u for u in userList_unique if u not in targetsListOrdered]
+    # evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=7, exclude_seen=True, ignore_users=targetsListOrdered)
+    # evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=targetsListOrdered)
+    evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1,
+                                                       exclude_seen=True)
+    evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
 
 
     evaluator_validation = EvaluatorWrapper(evaluator_validation_earlystopping)
@@ -711,8 +719,8 @@ if __name__ == '__main__':
                                                        evaluator_test=evaluator_test,
                                                        output_root_path=output_root_path,
                                                        parallelizeKNN=(not parallel),
-                                                       init_points=3,
-                                                       n_cases=5,
+                                                       init_points=2,
+                                                       n_cases=2,
                                                        loggerPath=output_root_path,
                                                        loadLogsPath=None,
                                                        kappa=2,
