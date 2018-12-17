@@ -172,13 +172,13 @@ if __name__ == '__main__':
 
         print("Starting initing the single recsys")
 
-        N_cbf = 3
-        N_cf = 15
-        N_p3a = 2
-        N_ucf = 8
-        N_ucbf = 4
-        N_rp3b = 3
-        N_slim = 2
+        N_cbf = 2
+        N_cf = 6
+        N_p3a = 1
+        N_ucf = 1
+        N_ucbf = 1
+        N_rp3b = 1
+        N_slim = 1
         N_als = 1
         N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_als
         recsys = []
@@ -198,13 +198,12 @@ if __name__ == '__main__':
             recsys.append(SLIM_BPR_Cython(URM_train))
         recsys.append(ImplicitALSRecommender(URM_train))
 
-
-        recsys_params = list(zip(np.linspace(10, 120, N_cbf).tolist(), [4] * N_cbf))
+        recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
         recsys_params2 = list((zip(np.linspace(5, 800, N_cf).tolist(), [12] * N_cf)))
-        recsys_params3 = list((zip(np.linspace(90, 110, N_p3a).tolist(), [1] * N_p3a)))
-        recsys_params4 = list((zip(np.linspace(5, 600, N_ucf).tolist(), [2] * N_ucf)))
-        recsys_params5 = list((zip(np.linspace(20, 300, N_ucbf).tolist(), [5] * N_ucbf)))
-        recsys_params6 = list((zip(np.linspace(80, 120, N_rp3b).tolist(), [0] * N_rp3b)))
+        recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
+        recsys_params4 = list((zip(np.linspace(170, 180, N_ucf).tolist(), [2] * N_ucf)))
+        recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
+        recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
 
         print("Starting fitting single recsys")
         t = time.time()
@@ -241,8 +240,8 @@ if __name__ == '__main__':
                                                                   beta=0.009260542392306892)
 
         # load slim bpr
-        slims_dir = "result_experiments/hyb_est_ratings_3/"
-        recsys[-3].loadModel(slims_dir, "SLIM_BPR_100_complete")
+        slims_dir = "result_experiments/hyb_est_ratings_4/"
+        # recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_100")
         recsys[-2].loadModel(slims_dir, "SLIM_BPR_300_complete")
         print("Load complete of slim bpr")
         el_t = time.time() - t
@@ -252,17 +251,17 @@ if __name__ == '__main__':
         recsys[-1].fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
         print("Ended fitting als")
 
-
         print("Starting recommending the est_ratings")
         t2 = time.time()
         recsys_est_ratings = []
-        for i in range(0, N_hyb-1):
+        for i in range(0, N_hyb - 1):
             if i >= N_cbf + N_cf + N_p3a + N_ucf + N_ucbf:
                 recsys_est_ratings.append(recsys[i].compute_item_score(userList_unique, 160))
             else:
                 recsys_est_ratings.append(recsys[i].estimate_ratings(userList_unique, 160))
         el_t = time.time() - t2
         print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+
         print("Recommending als")
         recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
 
@@ -277,7 +276,11 @@ if __name__ == '__main__':
         #a = {'alphas0': 26.566251688696106, 'alphas1': 39.33170371797949, 'alphas2': 37.75837170002072, 'alphas3': 39.845731167478036, 'alphas4': 2.721872066155022, 'alphas5': 18.756069935719964, 'alphas6': 1.3492267973466676, 'alphas7': 37.41423593604899}
         #a = {'alphas0': 18.492065976239715, 'alphas1': 19.49580483022761, 'alphas10': 17.135227334336538, 'alphas11': 0.588217549437613, 'alphas12': 12.420886441387108, 'alphas13': 4.88160556741062, 'alphas14': 18.520096695330263, 'alphas15': 18.035041638012014, 'alphas16': 4.035762066972522, 'alphas17': 8.020746702676469, 'alphas18': 4.768031572121199, 'alphas19': 15.397020868768436, 'alphas2': 19.4015981895277, 'alphas20': 14.869113518032787, 'alphas21': 5.941433272722241, 'alphas22': 1.9282600051566878, 'alphas23': 19.211646340646674, 'alphas24': 2.1874842327868693, 'alphas25': 0.7605279804266196, 'alphas26': 6.295347442176274, 'alphas27': 8.495782331199749, 'alphas28': 1.0824912975066558, 'alphas29': 3.273585568505357, 'alphas3': 3.286716923697215, 'alphas30': 1.3350782620183033, 'alphas31': 0.5335154247882401, 'alphas32': 0.19330014778494942, 'alphas33': 5.58962659608061, 'alphas34': 0.7160633533466543, 'alphas35': 7.726210481505382, 'alphas36': 18.613828925323407, 'alphas37': 17.381410969783765, 'alphas38': 13.606899188230503, 'alphas4': 6.282866560877469, 'alphas5': 15.681784642861658, 'alphas6': 12.700047705244565, 'alphas7': 19.5181873389573, 'alphas8': 8.20262714025359, 'alphas9': 18.927557823468028}
         #a = {'alphas0': 16.46879337343726, 'alphas1': 19.290205549814253, 'alphas10': 1.3762974968040287, 'alphas11': 10.963855108672512, 'alphas12': 5.938205986436033, 'alphas13': 0.528231427181256, 'alphas14': 14.677043860326275, 'alphas15': 14.039165687639123, 'alphas16': 2.3617879772030914, 'alphas17': 18.379651193888012, 'alphas18': 6.788288622140506, 'alphas19': 8.977720747163726, 'alphas2': 14.465427418088714, 'alphas20': 19.744024874355297, 'alphas21': 4.751191262724268, 'alphas22': 19.692190431266916, 'alphas23': 8.998101265227644, 'alphas24': 9.370468528673424, 'alphas25': 19.31505596321069, 'alphas26': 3.4015057714127894, 'alphas27': 6.392417239076038, 'alphas28': 19.011413147552744, 'alphas29': 10.09581795472873, 'alphas3': 0.8411115100800259, 'alphas30': 0.18828475939425937, 'alphas31': 0.8573986471083117, 'alphas32': 2.7815518440985754, 'alphas33': 11.683353476725317, 'alphas34': 19.65902556631257, 'alphas35': 0.12931436588237144, 'alphas36': 19.461629673052958, 'alphas4': 0.498675778505524, 'alphas5': 1.9448304981920317, 'alphas6': 1.338413714039508, 'alphas7': 2.8097382168845497, 'alphas8': 5.838428989584652, 'alphas9': 16.305020660408967}
-        a = {'alphas0': 19.145931994336813, 'alphas1': 18.099563204643996, 'alphas10': 3.8420531563623617, 'alphas11': 17.453012327490537, 'alphas12': 18.911759658949627, 'alphas13': 15.897266124277767, 'alphas14': 1.9294336196813067, 'alphas15': 0.5793817497023723, 'alphas16': 9.047939477633289, 'alphas17': 0.17142365336361376, 'alphas18': 0.0807763341079526, 'alphas19': 0.5327073110882097, 'alphas2': 19.567295140139656, 'alphas20': 10.347547641112097, 'alphas21': 18.951119568911047, 'alphas22': 14.689731785665039, 'alphas23': 14.245342127720708, 'alphas24': 0.8973904411351419, 'alphas25': 11.149119115363195, 'alphas26': 0.76293120105561, 'alphas27': 1.4005529077091539, 'alphas28': 10.419671765866967, 'alphas29': 12.628139470077219, 'alphas3': 10.237307538390393, 'alphas30': 1.3141218861130932, 'alphas31': 5.801209450192147, 'alphas32': 4.634688327861789, 'alphas33': 16.85263117277938, 'alphas34': 12.330069120571006, 'alphas35': 7.934603575181707, 'alphas36': 11.43747617346692, 'alphas37': 17.641728087159514, 'alphas4': 4.226626849361608, 'alphas5': 15.415142009331475, 'alphas6': 1.2869008644285995, 'alphas7': 0.3238106965806642, 'alphas8': 2.773164137764519, 'alphas9': 17.628612037550635}
+        a = {'alphas0': 1.7441425091763962, 'alphas1': 18.861601981864734, 'alphas10': 0.39690340580799344,
+         'alphas11': 32.88640747166991, 'alphas12': 29.289603137982077, 'alphas13': 39.119056398066405,
+         'alphas2': 39.32805056335785, 'alphas3': 4.7045728804523534, 'alphas4': 4.064355410175922,
+         'alphas5': 0.9496746014755164, 'alphas6': 11.90433246014123, 'alphas7': 26.858464136180643,
+         'alphas8': 1.3622243853537164, 'alphas9': 8.04682724814036}
 
 
         print("Init recsys")
@@ -293,13 +296,13 @@ if __name__ == '__main__':
         print("Starting initing the single recsys")
 
         N_cbf = 3
-        N_cf = 15
-        N_p3a = 3
-        N_ucf = 8
-        N_ucbf = 4
-        N_rp3b = 3
-        N_slim = 2
-        N_als = 0
+        N_cf = 6
+        N_p3a = 1
+        N_ucf = 1
+        N_ucbf = 1
+        N_rp3b = 1
+        N_slim = 1
+        N_als = 1
         N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_als
         recsys = []
         for i in range(N_cbf):
@@ -316,14 +319,14 @@ if __name__ == '__main__':
             recsys.append(RP3betaRecommender(URM_train))
         for i in range(N_slim):
             recsys.append(SLIM_BPR_Cython(URM_train))
-        # recsys.append(ImplicitALSRecommender(URM_train))
+        recsys.append(ImplicitALSRecommender(URM_train))
 
-        recsys_params = list(zip(np.linspace(10, 120, N_cbf).tolist(), [4] * N_cbf))
+        recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
         recsys_params2 = list((zip(np.linspace(5, 800, N_cf).tolist(), [12] * N_cf)))
-        recsys_params3 = list((zip(np.linspace(90, 800, N_p3a).tolist(), [1] * N_p3a)))
-        recsys_params4 = list((zip(np.linspace(5, 600, N_ucf).tolist(), [2] * N_ucf)))
-        recsys_params5 = list((zip(np.linspace(20, 300, N_ucbf).tolist(), [5] * N_ucbf)))
-        recsys_params6 = list((zip(np.linspace(80, 120, N_rp3b).tolist(), [0] * N_rp3b)))
+        recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
+        recsys_params4 = list((zip(np.linspace(170, 180, N_ucf).tolist(), [2] * N_ucf)))
+        recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
+        recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
 
         print("Starting fitting single recsys")
         t = time.time()
@@ -341,7 +344,7 @@ if __name__ == '__main__':
             # print("Training system {:d}...".format(i+N_cbf))
             topK = recsys_params3[i][0]
             shrink = recsys_params3[i][1]
-            recsys[i + N_cbf + N_cf].fit(topK=topK, shrink=shrink, alpha=0.5)
+            recsys[i + N_cbf + N_cf].fit(topK=topK, shrink=shrink, alpha=0.31)
         for i in range(N_ucf):
             # print("Training system {:d}...".format(i+N_cbf))
             topK = recsys_params4[i][0]
@@ -356,32 +359,34 @@ if __name__ == '__main__':
             # print("Training system {:d}...".format(i+N_cbf))b
             topK = int(recsys_params6[i][0])
             shrink = recsys_params6[i][1]
-            recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.13816, beta=0.00644889)
+            recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.5927789387679869,
+                                                                  beta=0.009260542392306892)
 
         # load slim bpr
-        slims_dir = "result_experiments/hyb_est_ratings_3/"
-        # recsys[-3].loadModel(slims_dir, "SLIM_BPR_100_complete")
-        # recsys[-2].loadModel(slims_dir, "SLIM_BPR_300_complete")
-        recsys[-2].loadModel(slims_dir, "SLIM_BPR_seq_100_complete")
-        recsys[-1].loadModel(slims_dir, "SLIM_BPR_seq_500_complete")
+        slims_dir = "result_experiments/hyb_est_ratings_5/"
+        # recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_100")
+        recsys[-2].loadModel(slims_dir, "SLIM_BPR_complete")
         print("Load complete of slim bpr")
         el_t = time.time() - t
         print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
-        # print("Starting fitting als")
-        # recsys[-1].fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
-        #print("Ended fitting als")
+        print("Starting fitting als")
+        recsys[-1].fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
+        print("Ended fitting als")
 
         print("Starting recommending the est_ratings")
         t2 = time.time()
         recsys_est_ratings = []
-        for i in range(0, N_hyb):
+        for i in range(0, N_hyb - 1):
             if i >= N_cbf + N_cf + N_p3a + N_ucf + N_ucbf:
                 recsys_est_ratings.append(recsys[i].compute_item_score(userList_unique, 160))
             else:
                 recsys_est_ratings.append(recsys[i].estimate_ratings(userList_unique, 160))
         el_t = time.time() - t2
         print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+
+        print("Recommending als")
+        recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
 
         print("Starting hopefully the tuning")
 
@@ -406,7 +411,7 @@ if __name__ == '__main__':
         #      'alphas36': 19.461629673052958, 'alphas4': 0.498675778505524, 'alphas5': 1.9448304981920317,
         #      'alphas6': 1.338413714039508, 'alphas7': 2.8097382168845497, 'alphas8': 5.838428989584652,
         #      'alphas9': 16.305020660408967}
-        a = {'alphas0': 6.402767783903897, 'alphas1': 1.8119816654596943, 'alphas10': 18.453172178787575, 'alphas11': 14.204985554924626, 'alphas12': 19.80154048204207, 'alphas13': 0.9568638894898052, 'alphas14': 3.7348901237860233, 'alphas15': 6.357336114991017, 'alphas16': 17.01923782078876, 'alphas17': 1.4770697858096549, 'alphas18': 5.382992477802777, 'alphas19': 18.33025038048822, 'alphas2': 18.764933039998485, 'alphas20': 12.74268912484705, 'alphas21': 2.302914046038347, 'alphas22': 0.36643845564561683, 'alphas23': 18.61018480654661, 'alphas24': 18.85688220237652, 'alphas25': 17.53842319737168, 'alphas26': 14.827955906721755, 'alphas27': 1.7992896193013674, 'alphas28': 6.729256286432836, 'alphas29': 1.3979379980355766, 'alphas3': 0.395105176574686, 'alphas30': 15.931783559150867, 'alphas31': 2.5771438787802214, 'alphas32': 0.08463488935316343, 'alphas33': 17.619497934884926, 'alphas34': 0.9982727212084797, 'alphas35': 11.98842044708346, 'alphas36': 8.65059405854848, 'alphas37': 19.79276682428106, 'alphas4': 0.5630614963835767, 'alphas5': 18.03707691023809, 'alphas6': 19.430728357766828, 'alphas7': 0.2606381162913607, 'alphas8': 19.413889528528422, 'alphas9': 8.191508063637867}
+        a = {'alphas0': 8.814627313335848, 'alphas1': 12.996240235557117, 'alphas10': 15.443905913303784, 'alphas11': 0.12427478649140955, 'alphas12': 35.07847599813684, 'alphas13': 39.88377806573824, 'alphas14': 39.76188084033388, 'alphas2': 12.510659378932786, 'alphas3': 34.29617367730531, 'alphas4': 4.8165983648832045, 'alphas5': 6.31472775636551, 'alphas6': 36.24418917440833, 'alphas7': 36.444822951592116, 'alphas8': 14.23427803456455, 'alphas9': 2.755258876041684}
 
         print("Init recsys")
         recommender = recommender_class(URM_train, recsys_est_ratings)
@@ -451,7 +456,7 @@ if __name__ == '__main__':
         print(target_df[0:5])
 
         # Custom name
-        csv_filename = "hybrid_est_ratings_8"
+        csv_filename = "hybrid_est_ratings_16"
         # Default name
         #csv_filename = "submission_{algtype:}_{date:%Y%m%d%H%M%S}".format(algtype=recommender_class, date=datetime.datetime.now())
 

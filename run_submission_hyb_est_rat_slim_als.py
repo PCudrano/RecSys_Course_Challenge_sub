@@ -172,7 +172,7 @@ if __name__ == '__main__':
 
         print("Starting initing the single recsys")
 
-        N_cbf = 2
+        N_cbf = 3
         N_cf = 6
         N_p3a = 1
         N_ucf = 1
@@ -240,9 +240,9 @@ if __name__ == '__main__':
                                                                   beta=0.009260542392306892)
 
         # load slim bpr
-        slims_dir = "result_experiments/hyb_est_ratings_4/"
+        slims_dir = "result_experiments/hyb_est_ratings_5/"
         # recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_100")
-        recsys[-2].loadModel(slims_dir, "SLIM_BPR_300_complete")
+        recsys[-2].loadModel(slims_dir, "SLIM_BPR_complete")
         print("Load complete of slim bpr")
         el_t = time.time() - t
         print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
@@ -283,11 +283,7 @@ if __name__ == '__main__':
         #      'alphas6': 29.88989122983309, 'alphas7': 8.72323633950845, 'alphas8': 4.686190019184634,
         #      'alphas9': 27.594768586378013}
         #a = {'alphas0': 3.544225147872532, 'alphas1': 27.44921524421118, 'alphas10': 0.617428649738726, 'alphas11': 29.00229554116133, 'alphas12': 11.376291192892454, 'alphas13': 28.36240928150947, 'alphas2': 25.173270264190684, 'alphas3': 9.0758213736426, 'alphas4': 24.598877906554428, 'alphas5': 8.259136154982745, 'alphas6': 28.873950520749226, 'alphas7': 28.075650656404864, 'alphas8': 2.2383444364441796, 'alphas9': 9.88567422221024}
-        a = {'alphas0': 1.7441425091763962, 'alphas1': 18.861601981864734, 'alphas10': 0.39690340580799344,
-         'alphas11': 32.88640747166991, 'alphas12': 29.289603137982077, 'alphas13': 39.119056398066405,
-         'alphas2': 39.32805056335785, 'alphas3': 4.7045728804523534, 'alphas4': 4.064355410175922,
-         'alphas5': 0.9496746014755164, 'alphas6': 11.90433246014123, 'alphas7': 26.858464136180643,
-         'alphas8': 1.3622243853537164, 'alphas9': 8.04682724814036}
+        a = {'alphas0': 2.5464278757722347, 'alphas1': 23.439332957709148, 'alphas10': 11.476298758563894, 'alphas11': 0.12382681902063819, 'alphas12': 6.657152121733967, 'alphas13': 33.714077235880076, 'alphas14': 39.710154469278066, 'alphas2': 9.797793993989812, 'alphas3': 36.15432961328293, 'alphas4': 32.90845572817932, 'alphas5': 6.225401230678589, 'alphas6': 33.4546145379852, 'alphas7': 5.599982823538698, 'alphas8': 19.710320119400137, 'alphas9': 1.4746606364023407}
 
         print("Init recsys")
         recommender = recommender_class(URM_train, recsys_est_ratings)
@@ -329,7 +325,7 @@ if __name__ == '__main__':
         print(target_df[0:5])
 
         # Custom name
-        csv_filename = "hybrid_est_ratings_13"
+        csv_filename = "hybrid_est_ratings_15"
         # Default name
         #csv_filename = "submission_{algtype:}_{date:%Y%m%d%H%M%S}".format(algtype=recommender_class, date=datetime.datetime.now())
 
