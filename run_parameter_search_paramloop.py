@@ -6,9 +6,9 @@ Created on 22/11/17
 @author: Maurizio Ferrari Dacrema
 """
 import sys
-#sys.path.append('src/libs/RecSys_Course_2018')
-sys.path.append('/home/stefano/git/recsys/recsys_challenge/src/libs/RecSys_Course_2018')
-sys.path.append('/home/stefano/git/recsys/recsys_challenge')
+sys.path.append('src/libs/RecSys_Course_2018')
+#sys.path.append('/home/stefano/git/recsys/recsys_challenge/src/libs/RecSys_Course_2018')
+#sys.path.append('/home/stefano/git/recsys/recsys_challenge')
 
 import numpy as np
 import pandas as pd
@@ -464,8 +464,8 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             # hyperparamethers_range_dictionary["topK"] = [50, 100, 200, 300, 400, 500, 600, 700, 800]
             # hyperparamethers_range_dictionary["epochs"] = [5, 20, 30, 50, 90, 100, 200, 300, 400, 600, 1000]
             hyperparamethers_range_dictionary["sgd_mode"] = ["adagrad", "adam", "sgd", "rmsprop"]
-            hyperparamethers_range_dictionary["lambda_i"] = [1e-1, 1e-3, 1e-5]
-            hyperparamethers_range_dictionary["lambda_j"] = [1e-1, 1e-3, 1e-5]
+            hyperparamethers_range_dictionary["lambda_i"] = [1e-1, 1e-2, 1e-3]
+            hyperparamethers_range_dictionary["lambda_j"] = [1e-1, 1e-2, 1e-3]
             hyperparamethers_range_dictionary["learning_rate"] = [1e-2, 1e-3]
 
             recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train],
@@ -692,7 +692,7 @@ if __name__ == '__main__':
     ]
 
     # param_list = [10, 30, 50, 100, 200, 400, 500, 750, 900]
-    param_list = [100, 200, 300]
+    param_list = [300, 200, 400]
 
 
     from ParameterTuning.AbstractClassSearch import EvaluatorWrapper
@@ -720,7 +720,7 @@ if __name__ == '__main__':
                                                        output_root_path=output_root_path,
                                                        parallelizeKNN=(not parallel),
                                                        init_points=2,
-                                                       n_cases=2,
+                                                       n_cases=3,
                                                        loggerPath=output_root_path,
                                                        loadLogsPath=None,
                                                        kappa=2,
