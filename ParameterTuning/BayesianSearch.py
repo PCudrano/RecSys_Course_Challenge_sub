@@ -10,7 +10,8 @@ from ParameterTuning.AbstractClassSearch import AbstractClassSearch, DictionaryK
 from functools import partial
 import traceback, pickle
 import numpy as np
-from ParameterTuning.BayesianOptimization_master.bayes_opt.observer import JSONLogger
+from ParameterTuning.BayesianOptimization_master import bayes_opt
+from ParameterTuning.BayesianOptimization_master.bayes_opt.observer import JSONLogger, ScreenLogger
 from ParameterTuning.BayesianOptimization_master.bayes_opt.event import Events
 from ParameterTuning.BayesianOptimization_master.bayes_opt.util import load_logs
 
@@ -56,7 +57,7 @@ class BayesianSearch(AbstractClassSearch):
 
 
     def search(self, dictionary, metric ="MAP", init_points = 5, n_cases = 30, output_root_path = None, parallelPoolSize = 2, parallelize = True,
-               save_model = "best", loggerPath=None, loadLogsPath=None, **kwargs):
+               save_model = "best", loggerPath=None, loadLogsPath=None, screenLogger=True, **kwargs):
 
         # Associate the params that will be returned by BayesianOpt object to those you want to save
         # E.g. with early stopping you know which is the optimal number of epochs only afterwards
@@ -76,6 +77,8 @@ class BayesianSearch(AbstractClassSearch):
         self.categorical_mapper_dict_case_to_index = {}
         self.categorical_mapper_dict_index_to_case = {}
 
+        self.integer_dict = []
+
         # Transform range element in a list of two elements: min, max
         for key in hyperparamethers_range_dictionary.keys():
 
@@ -83,8 +86,15 @@ class BayesianSearch(AbstractClassSearch):
             current_range = hyperparamethers_range_dictionary[key]
 
             if type(current_range) is range:
+                # range for int values
                 min_val = current_range.start
                 max_val = current_range.stop
+                self.integer_dict.append(key)
+
+            elif type(current_range) is tuple and len(current_range) == 2:
+                # range for float values
+                min_val = current_range[0]
+                max_val = current_range[1]
 
             elif type(current_range) is list:
 
@@ -105,7 +115,7 @@ class BayesianSearch(AbstractClassSearch):
                 self.categorical_mapper_dict_index_to_case[key] = categorical_mapper_dict_index_to_case_current.copy()
 
             else:
-                raise TypeError("BayesianSearch: for every parameter a range may be specified either by a 'range' object or by a list."
+                raise TypeError("BayesianSearch: for every parameter a range may be specified either by a 'range' object, a 'tuple' of 2 elements or by a list."
                                 "Provided object type for parameter '{}' was '{}'".format(key, type(current_range)))
 
 
@@ -117,13 +127,16 @@ class BayesianSearch(AbstractClassSearch):
                                              dictionary = dictionary,
                                              metric = metric)
 
-        self.bayesian_optimizer = BayesianOptimization(self.runSingleCase_partial, hyperparamethers_range_dictionary)
+        self.bayesian_optimizer = BayesianOptimization(self.runSingleCase_partial, hyperparamethers_range_dictionary, verbose=2)
 
         if loadLogsPath is not None:
             self.loadLogs(loadLogsPath)
 
         if loggerPath is not None:
-            self.initLogger(loggerPath)
+            self.initJSONLogger(loggerPath)
+
+        if screenLogger:
+            self.initScreenLogger()
 
         self.best_solution_val = None
         self.best_solution_parameters = None
@@ -160,11 +173,17 @@ class BayesianSearch(AbstractClassSearch):
 
         return self.best_solution_parameters.copy()
 
-    def initLogger(self, loggerPath):
+    def initJSONLogger(self, loggerPath):
         loggerFilePath = loggerPath + "bayesian_optimizer_logs.json"
         writeLog("BayesianSearch: Saving logs to {}".format(loggerFilePath), self.logFile)
-        logger = JSONLogger(path=loggerFilePath)
-        self.bayesian_optimizer.subscribe(Events.OPTMIZATION_STEP, logger)
+        self.json_logger = JSONLogger(path=loggerFilePath)
+        self.bayesian_optimizer.subscribe(Events.OPTMIZATION_STEP, self.json_logger)
+
+    def initScreenLogger(self):
+        self.screen_logger = bayes_opt.observer._get_default_logger(verbose=2)
+        self.bayesian_optimizer.subscribe(Events.OPTMIZATION_START, self.screen_logger)
+        self.bayesian_optimizer.subscribe(Events.OPTMIZATION_STEP, self.screen_logger)
+        self.bayesian_optimizer.subscribe(Events.OPTMIZATION_END, self.screen_logger)
 
     def loadLogs(self, loadLogsPath):
         loadLogsFilePath = loadLogsPath + "bayesian_optimizer_logs.json"
@@ -215,6 +234,10 @@ class BayesianSearch(AbstractClassSearch):
 
                 paramether_dictionary[key] = categorical
 
+            if key in self.integer_dict:
+                float_value = paramether_dictionary[key]
+                int_value = int(round(float_value, 0))
+                paramether_dictionary[key] = int_value
 
         return paramether_dictionary
 
