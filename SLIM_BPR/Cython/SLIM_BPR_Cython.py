@@ -62,7 +62,7 @@ class SLIM_BPR_Cython(SimilarityMatrixRecommender, Recommender, Incremental_Trai
         self.URM_mask.data = self.URM_mask.data >= self.positive_threshold
         self.URM_mask.eliminate_zeros()
 
-        assert self.URM_mask.nnz > 0, "MatrixFactorization_Cython: URM_train_positive is empty, positive threshold is too high"
+        assert self.URM_mask.nnz > 0, "SLIM_BPR_Recommender: URM_train_positive is empty, positive threshold is too high"
 
 
         self.symmetric = symmetric
@@ -76,8 +76,6 @@ class SLIM_BPR_Cython(SimilarityMatrixRecommender, Recommender, Incremental_Trai
                 requiredGB /=2
 
             print("SLIM_BPR_Cython: Estimated memory required for similarity matrix of {} items is {:.2f} MB".format(n_items, requiredGB))
-
-
 
 
         if recompile_cython:
@@ -150,10 +148,7 @@ class SLIM_BPR_Cython(SimilarityMatrixRecommender, Recommender, Incremental_Trai
                                     algorithm_name = self.RECOMMENDER_NAME)
 
 
-
-
-
-        self.get_S_incremental_and_set_W()
+        self.set_W_to_S_best()
 
         sys.stdout.flush()
 
@@ -174,10 +169,6 @@ class SLIM_BPR_Cython(SimilarityMatrixRecommender, Recommender, Incremental_Trai
     def _run_epoch(self, num_epoch):
        self.cythonEpoch.epochIteration_Cython()
 
-
-
-
-
     def get_S_incremental_and_set_W(self):
 
         self.S_incremental = self.cythonEpoch.get_S()
@@ -190,8 +181,14 @@ class SLIM_BPR_Cython(SimilarityMatrixRecommender, Recommender, Incremental_Trai
             else:
                 self.W = self.S_incremental
 
-
-
+    def set_W_to_S_best(self):
+        if self.train_with_sparse_weights:
+            self.W_sparse = self.S_best
+        else:
+            if self.sparse_weights:
+                self.W_sparse = similarityMatrixTopK(self.S_best, k = self.topK)
+            else:
+                self.W = self.S_best
 
 
     def writeCurrentConfig(self, currentEpoch, results_run, logFile):
@@ -212,9 +209,6 @@ class SLIM_BPR_Cython(SimilarityMatrixRecommender, Recommender, Incremental_Trai
             logFile.write("Test case: {}, Results {}\n".format(current_config, results_run))
             # logFile.write("Weights: {}\n".format(str(list(self.weights))))
             logFile.flush()
-
-
-
 
 
     def runCompilationScript(self):
