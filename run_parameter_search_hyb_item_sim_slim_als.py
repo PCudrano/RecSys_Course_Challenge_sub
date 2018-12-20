@@ -763,7 +763,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             #hyperparamethers_range_dictionary["alphas0"] = range(0, 20)
             for i in range(0, N_hyb):
                 text = "alphas" + str(i)
-                hyperparamethers_range_dictionary[text] = range(0, 45)
+                hyperparamethers_range_dictionary[text] = (0.0, 50.0)
             #text = "alphas" + str(N_hyb-1)
             #hyperparamethers_range_dictionary[text] = range(0, 2)
 
@@ -963,7 +963,7 @@ def read_data_split_and_search(parallel=False):
                                                        evaluator_test=evaluator_test,
                                                        output_root_path=output_root_path,
                                                        parallelizeKNN=(not parallel),
-                                                       init_points=10,
+                                                       init_points=60,
                                                        n_cases=300,
                                                        loggerPath=output_root_path,
                                                        loadLogsPath=None,
