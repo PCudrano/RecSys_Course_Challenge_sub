@@ -1,0 +1,4 @@
+BayesianSearch: Saving logs to result_experiments/tuning_20181220014654/ImplicitALSRecommender/bayesian_optimizer_logs.jsonBayesianSearch: Testing config: {'alpha': 76.07813853640639, 'factors': 172, 'iterations': 59, 'regularization': 0.628006401308382} - Exception No CUDA extension has been built, can't train on GPU.
+BayesianSearch: Testing config: {'alpha': 37.181267262093286, 'factors': 15, 'iterations': 17, 'regularization': 0.22108299925320507} - Exception No CUDA extension has been built, can't train on GPU.
+BayesianSearch: Testing config: {'alpha': 14.813385240632604, 'factors': 786, 'iterations': 57, 'regularization': 0.9272135558807917} - Exception No CUDA extension has been built, can't train on GPU.
+BayesianSearch: Testing config: {'alpha': 86.39816825381396, 'factors': 398, 'iterations': 67, 'regularization': 0.8484613425677267} - Exception No CUDA extension has been built, can't train on GPU.

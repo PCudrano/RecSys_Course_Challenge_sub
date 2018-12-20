@@ -45,6 +45,9 @@ from Utils.PoolWithSubprocess import PoolWithSubprocess
 
 from ParameterTuning.AbstractClassSearch import DictionaryKeys
 
+from src.recommenders.ImplicitALSRecommender import ImplicitALSRecommender
+from src.recommenders.ImplicitBPRRecommender import ImplicitBPRRecommender
+
 
 
 def run_KNNCFRecommender_on_similarity_type(similarity_type, parameterSearch, URM_train, init_points, n_cases,
@@ -316,8 +319,8 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
         if recommender_class is P3alphaRecommender:
 
             hyperparamethers_range_dictionary = {}
-            hyperparamethers_range_dictionary["topK"] = [5, 10, 20, 50, 100, 150, 200, 300, 400, 500, 600, 700, 800]
-            hyperparamethers_range_dictionary["alpha"] = range(0, 2)
+            hyperparamethers_range_dictionary["topK"] = range(10,1000)
+            hyperparamethers_range_dictionary["alpha"] = (0, 2)
             hyperparamethers_range_dictionary["normalize_similarity"] = [True, False]
 
             recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train],
@@ -332,9 +335,9 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
         if recommender_class is RP3betaRecommender:
 
             hyperparamethers_range_dictionary = {}
-            hyperparamethers_range_dictionary["topK"] = [5, 10, 20, 50, 100, 150, 200, 300, 400, 500, 600, 700, 800]
-            hyperparamethers_range_dictionary["alpha"] = range(0, 2)
-            hyperparamethers_range_dictionary["beta"] = range(0, 2)
+            hyperparamethers_range_dictionary["topK"] = range(10,1000)
+            hyperparamethers_range_dictionary["alpha"] = (0, 2)
+            hyperparamethers_range_dictionary["beta"] = (0, 2)
             hyperparamethers_range_dictionary["normalize_similarity"] = [True, False]
 
             recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train],
@@ -350,19 +353,39 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
         if recommender_class is MatrixFactorization_FunkSVD_Cython:
 
             hyperparamethers_range_dictionary = {}
-            hyperparamethers_range_dictionary["sgd_mode"] = ["adagrad", "adam"]
+            hyperparamethers_range_dictionary["sgd_mode"] = ["adagrad", "adam", "sgd", "rmsprop"]
             #hyperparamethers_range_dictionary["epochs"] = [1, 5, 10, 20, 30, 50, 70, 90, 110]
-            hyperparamethers_range_dictionary["num_factors"] = [10, 20, 30, 50, 70, 90, 110, 350, 500]
-            hyperparamethers_range_dictionary["reg"] = [0.0, 1e-3, 1e-6, 1e-9]
-            hyperparamethers_range_dictionary["learning_rate"] = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
+            hyperparamethers_range_dictionary["num_factors"] = range(20, 1000)
+            hyperparamethers_range_dictionary["reg"] = (1, 1e-3)
+            hyperparamethers_range_dictionary["learning_rate"] =  (1e-2, 1e-5)
 
             recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train],
                                      DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {},
                                      DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
-                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"batch_size": 1000,
-                                                                       "validation_every_n":5, "stop_on_validation":True,
+                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"epochs": 1000, "batch_size": 1000,
+                                                                       "validation_every_n":2, "stop_on_validation":True,
                                                                        "evaluator_object":evaluator_validation_earlystopping,
-                                                                       "lower_validatons_allowed":20, "validation_metric":metric_to_optimize},
+                                                                       "lower_validatons_allowed":3, "validation_metric":metric_to_optimize},
+                                     DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
+
+        ##########################################################################################################
+
+        if recommender_class is MatrixFactorization_AsySVD_Cython:
+
+            hyperparamethers_range_dictionary = {}
+            hyperparamethers_range_dictionary["sgd_mode"] = ["adagrad", "adam", "sgd", "rmsprop"]
+            #hyperparamethers_range_dictionary["epochs"] = [1, 5, 10, 20, 30, 50, 70, 90, 110]
+            hyperparamethers_range_dictionary["num_factors"] = range(20, 1000)
+            hyperparamethers_range_dictionary["reg"] = (1, 1e-3)
+            hyperparamethers_range_dictionary["learning_rate"] =  (1e-2, 1e-5)
+
+            recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train],
+                                     DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {},
+                                     DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
+                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"epochs": 1000, "batch_size": 1000,
+                                                                       "validation_every_n":2, "stop_on_validation":True,
+                                                                       "evaluator_object":evaluator_validation_earlystopping,
+                                                                       "lower_validatons_allowed":3, "validation_metric":metric_to_optimize},
                                      DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
 
         ##########################################################################################################
@@ -397,7 +420,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
         if recommender_class is PureSVDRecommender:
 
             hyperparamethers_range_dictionary = {}
-            hyperparamethers_range_dictionary["num_factors"] = list(range(0, 500, 5))
+            hyperparamethers_range_dictionary["num_factors"] = range(10, 1000)
 
             recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train],
                                      DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {},
@@ -457,12 +480,12 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
             #                                                            "validation_metric": metric_to_optimize},
             #                          DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
             hyperparamethers_range_dictionary = {}
-            hyperparamethers_range_dictionary["topK"] = [50, 100, 200, 300, 400, 500, 600, 700, 800]
+            hyperparamethers_range_dictionary["topK"] = range(20,1000) #[50, 100, 200, 300, 400, 500, 600, 700, 800, 1000]
             # hyperparamethers_range_dictionary["epochs"] = [5, 20, 30, 50, 90, 100, 200, 300, 400, 600, 1000]
             hyperparamethers_range_dictionary["sgd_mode"] = ["adagrad", "adam", "sgd", "rmsprop"]
-            hyperparamethers_range_dictionary["lambda_i"] = [1e-1, 1e-3, 1e-6, 1e-9]
-            hyperparamethers_range_dictionary["lambda_j"] = [1e-1, 1e-3, 1e-6, 1e-9]
-            hyperparamethers_range_dictionary["learning_rate"] = [0.5, 1e-1, 1e-2]
+            hyperparamethers_range_dictionary["lambda_i"] = (1,1e-3) #[1e-1, 1e-2, 1e-3]
+            hyperparamethers_range_dictionary["lambda_j"] = (1,1e-3) #[1e-1, 1e-2, 1e-3]
+            hyperparamethers_range_dictionary["learning_rate"] = (1e-2,1e-3) # [1e-2, 1e-3]
 
             recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train],
                                      DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {'train_with_sparse_weights': False,
@@ -474,11 +497,11 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                                      #                                   "evaluator_object": evaluator_validation,
                                      #                                   "lower_validatons_allowed": 1000,
                                      #                                   "validation_metric": metric_to_optimize},
-                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"epochs": 2000, "batch_size": 1000,
-                                                                       "validation_every_n": 10,  # 10,
+                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"epochs": 1000, "batch_size": 1000,
+                                                                       "validation_every_n": 2,  # 10,
                                                                        "stop_on_validation": True,
                                                                        "evaluator_object": evaluator_validation_earlystopping,
-                                                                       "lower_validatons_allowed": 5,  # 3,
+                                                                       "lower_validatons_allowed": 3,
                                                                        "validation_metric": metric_to_optimize},
                                      DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
 
@@ -488,29 +511,29 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
         if recommender_class is UserSLIM_BPR_Cython:
 
             hyperparamethers_range_dictionary = {}
-            hyperparamethers_range_dictionary["topK"] = [10, 50, 100, 200, 300, 400, 500, 600, 700, 800]
-            hyperparamethers_range_dictionary["epochs"] = [5, 20, 30, 50, 90, 100, 200, 300, 400, 600, 1000]
+            hyperparamethers_range_dictionary["topK"] = [50, 100, 200, 300, 400, 500, 600, 700, 800]
+            # hyperparamethers_range_dictionary["epochs"] = [5, 20, 30, 50, 90, 100, 200, 300, 400] #, 600, 1000]
             hyperparamethers_range_dictionary["sgd_mode"] = ["adagrad", "adam", "sgd", "rmsprop"]
             hyperparamethers_range_dictionary["lambda_i"] = [1e-1, 1e-3, 1e-6, 1e-9]
             hyperparamethers_range_dictionary["lambda_j"] = [1e-1, 1e-3, 1e-6, 1e-9]
             hyperparamethers_range_dictionary["learning_rate"] = [0.5, 1e-1, 1e-2, 1e-4]
 
             recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train],
-                                     DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {'train_with_sparse_weights': True,
-                                                                               'symmetric': False,
+                                     DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {'train_with_sparse_weights': False,
+                                                                               'symmetric': True,
                                                                                'positive_threshold': 0.5},
                                      DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
-                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"batch_size": 1000, "validation_every_n": 1000,
-                                                                       "stop_on_validation": False,
-                                                                       "evaluator_object": evaluator_validation,
-                                                                       "lower_validatons_allowed": 1000,
-                                                                       "validation_metric": metric_to_optimize},
-                                     # DictionaryKeys.FIT_KEYWORD_ARGS: {"epochs": 2000, "batch_size": 1000,
-                                     #                                   "validation_every_n": 10,  # 10,
-                                     #                                   "stop_on_validation": True,
-                                     #                                   "evaluator_object": evaluator_validation_earlystopping,
-                                     #                                   "lower_validatons_allowed": 5,  # 3,
+                                     # DictionaryKeys.FIT_KEYWORD_ARGS: {"batch_size": 1000, "validation_every_n": 1000,
+                                     #                                   "stop_on_validation": False,
+                                     #                                   "evaluator_object": evaluator_validation,
+                                     #                                   "lower_validatons_allowed": 1000,
                                      #                                   "validation_metric": metric_to_optimize},
+                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"epochs": 500, "batch_size": 1000,
+                                                                       "validation_every_n": 10,  # 10,
+                                                                       "stop_on_validation": True,
+                                                                       "evaluator_object": evaluator_validation_earlystopping,
+                                                                       "lower_validatons_allowed": 2,  # 3,
+                                                                       "validation_metric": metric_to_optimize},
                                      DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
 
 
@@ -519,18 +542,58 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
         if recommender_class is SLIMElasticNetRecommender:
 
             hyperparamethers_range_dictionary = {}
-            hyperparamethers_range_dictionary["topK"] = [10, 20, 50, 100, 150, 200, 300, 400, 500, 600, 700, 800]
-            hyperparamethers_range_dictionary["l1_ratio"] = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
-            hyperparamethers_range_dictionary["alpha"] = [0.0, 1e-3, 1e-6, 1e-9]
+            hyperparamethers_range_dictionary["topK"] = [20, 50, 100, 200, 300, 400, 500, 600, 700, 800]
+            hyperparamethers_range_dictionary["l1_ratio"] = [.05, .1, .3, .5, .7, .95, 1]
+            hyperparamethers_range_dictionary["alpha"] = [1, 1e-1, 1e-3, 1e-6, 1e-9]
+            hyperparamethers_range_dictionary["max_iter"] = [100, 250, 500, 1000, 2000]
 
             recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train],
                                      DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {},
                                      DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
-                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"tol":1e-3, "selection": "random"},
+                                     DictionaryKeys.FIT_KEYWORD_ARGS: {#"max_iter": 1000,
+                                                                       "positive_only": False,
+                                                                       "tol":1e-4,
+                                                                       "selection": "random"},
                                      DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
 
 
+        ##########################################################################################################
 
+        if recommender_class is ImplicitALSRecommender:
+
+            hyperparamethers_range_dictionary = {}
+            hyperparamethers_range_dictionary["alpha"] = (1, 200)
+            hyperparamethers_range_dictionary["factors"] = range(10,1000) # [20, 50, 100, 200, 300, 400, 500, 600, 700, 800]
+            hyperparamethers_range_dictionary["regularization"] = (1,1e-3)
+            hyperparamethers_range_dictionary["iterations"] = range(5,100) #[10, 30, 50, 100, 180, 300, 500]
+
+            recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train],
+                                     DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {"final_model_sparse_weights": True},
+                                     DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
+                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"use_native": True,
+                                                                       "use_cg": True,
+                                                                       "num_threads": 2,
+                                                                       "calculate_training_loss": True,
+                                                                       "use_gpu": False},
+                                     DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
+
+        ##########################################################################################################
+
+        if recommender_class is ImplicitBPRRecommender:
+
+            hyperparamethers_range_dictionary = {}
+            hyperparamethers_range_dictionary["factors"] = range(10,1000) # [20, 50, 100, 200, 300, 400, 500, 600, 700, 800]
+            hyperparamethers_range_dictionary["regularization"] = (1,1e-3)
+            hyperparamethers_range_dictionary["learning_rate"] = (1e-1, 1e-4)
+            hyperparamethers_range_dictionary["iterations"] = range(10,100) #[10, 30, 50, 100, 180, 300, 500]
+
+            recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train],
+                                     DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {"final_model_sparse_weights": True},
+                                     DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
+                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"verify_negative_samples": True,
+                                                                       "num_threads": 1,
+                                                                       "use_gpu": False},
+                                     DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
        #########################################################################################################
 
         ## Final step, after the hyperparameter range has been defined for each type of algorithm
@@ -621,6 +684,21 @@ if __name__ == '__main__':
     URM_all = sps.coo_matrix((ratingList, (userList, itemList)))
     URM_all_csr = URM_all.tocsr()
 
+    URM_IDF_ENABLED = False
+
+    if URM_IDF_ENABLED:
+        num_tot_items = URM_all.shape[0]
+        # let's count how many items have a certain feature
+        items_per_feature = (URM_all > 0).sum(axis=0)
+        IDF = np.array(np.log(num_tot_items / items_per_feature))[0]
+        URM_idf = URM_all.copy()
+        # compute the number of non-zeros in each col
+        # NOTE: this works only if X is instance of sparse.csc_matrix
+        col_nnz = np.diff(sps.csc_matrix(URM_idf).indptr)
+        # then normalize the values in each col
+        URM_idf.data *= np.repeat(IDF, col_nnz)
+        URM_all = URM_idf  # use IDF features
+
     # #### Train/test split: ratings and user holdout
 
     seed = 0
@@ -642,11 +720,11 @@ if __name__ == '__main__':
     #                                                       nnz_threshold=10)
     # URM_train, URM_valid = train_test_holdout(URM_train_val, train_perc=0.7, seed=seed)
     # URM_test_known = None
-    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, targetsListList, train_sequential_df,
+    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df,
                                                             train_perc=0.6,
                                                             seed=seed, targetsListOrdered=targetsListOrdered,
                                                             nnz_threshold=2)
-    URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, targetsListList, train_sequential_df,
+    URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, userList_unique, train_sequential_df,
                                                       train_perc=0.5,
                                                       seed=seed, targetsListOrdered=targetsListOrdered,
                                                       nnz_threshold=1)
@@ -674,11 +752,14 @@ if __name__ == '__main__':
         # UserKNNCFRecommender,
         # MatrixFactorization_BPR_Cython,
         # MatrixFactorization_FunkSVD_Cython,
+        # MatrixFactorization_AsySVD_Cython,
         # PureSVDRecommender,
         # SLIM_BPR_Cython,
-        UserSLIM_BPR_Cython
+        # UserSLIM_BPR_Cython
         # SLIMElasticNetRecommender,
-        # MatrixFactorization_BPR_Theano
+        # MatrixFactorization_BPR_Theano,
+        ImplicitALSRecommender,
+        # ImplicitBPRRecommender
     ]
 
 
@@ -687,9 +768,11 @@ if __name__ == '__main__':
 
     # FIXME maybe minRatingsPerUser in valid is too much? too few users?
 
-    users_excluded_targets = [u for u in userList_unique if u not in targetsListList]
-    evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
-    evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
+    # users_excluded_targets = [u for u in userList_unique if u not in targetsListList]
+    # evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
+    # evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
+    evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
+    evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
 
 
     evaluator_validation = EvaluatorWrapper(evaluator_validation_earlystopping)
@@ -704,12 +787,13 @@ if __name__ == '__main__':
                                                        output_root_path=output_root_path,
                                                        parallelizeKNN=(not parallel),
                                                        init_points=5,
-                                                       n_cases=15,
+                                                       n_cases=25,
                                                        loggerPath=output_root_path,
-                                                       loadLogsPath=None,
-                                                       kappa=2,
-                                                       #acq='ei',  # acq='ucb', #
-                                                       #xi=0.005, # xi=0.0 #,
+                                                       loadLogsPath=None,#"result_experiments/tuning_20181217203853/SLIM_BPR_Recommender/",
+                                                       # kappa=2.576, # mean +- kappa*std --> quantile for p=0.995 of estimating right
+                                                       kappa=3.090, # mean +- kappa*std --> quantile for p=0.999 of estimating right
+                                                       # acq='ei',  # acq='ucb', #
+                                                       # xi=0.005, # xi=0.0 #,
                                                        )
 
     # If used with only one class of recommenders, at the end of the optimization parameterSearch can be accessed from
