@@ -9,8 +9,11 @@ Created on 14/06/18
 from Base.Recommender import Recommender
 from Base.Recommender_utils import check_matrix
 from Base.SimilarityMatrixRecommender import SimilarityMatrixRecommender
-
+import sys
+sys.path.append('src/libs/RecSys_Course_2018')
 from sklearn.decomposition import TruncatedSVD
+
+from src.libs.similarity import dot_product
 import scipy.sparse as sps
 
 
@@ -52,26 +55,17 @@ class PureSVDRecommender(Recommender):
         #U, s, Vt =
 
 
+    def compute_score_SVD(self, user_id_array, k=160):
 
-    def compute_score_SVD(self, user_id_array):
+        # item_weights = self.U[user_id_array, :].dot(self.s_Vt)
+        # item_weights = sps.csr_matrix(item_weights)
+        U = sps.csr_matrix(self.U[user_id_array, :])
+        V = sps.coo_matrix(self.s_Vt)
+        item_weights = dot_product.dot_product(U, V, k=k)
+        item_weights = item_weights.tocsr()
 
-        try:
-
-            item_weights = self.U[user_id_array, :].dot(self.s_Vt)
-            item_weights = sps.csr_matrix(item_weights)
-
-        except:
-            pass
 
         return item_weights
-
-
-
-
-
-
-
-
 
 
     def saveModel(self, folder_path, file_name = None):
@@ -97,5 +91,3 @@ class PureSVDRecommender(Recommender):
 
 
         print("{}: Saving complete")
-
-
