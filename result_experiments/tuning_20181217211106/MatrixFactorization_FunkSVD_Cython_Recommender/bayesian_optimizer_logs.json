@@ -1,0 +1,2 @@
+{"target": -65000.0, "params": {"learning_rate": 0.009535453257164189, "num_factors": 230.35727316266414, "reg": 0.20832670543922482, "sgd_mode": 1.4735425127547424}, "datetime": {"datetime": "2018-12-17 21:12:39", "elapsed": 0.0, "delta": 0.0}}
+{"target": -65000.0, "params": {"learning_rate": 0.003995888844558994, "num_factors": 35.93689537024157, "reg": 0.1959594076415625, "sgd_mode": 1.831149842087684}, "datetime": {"datetime": "2018-12-17 21:13:09", "elapsed": 29.728834, "delta": 29.728834}}

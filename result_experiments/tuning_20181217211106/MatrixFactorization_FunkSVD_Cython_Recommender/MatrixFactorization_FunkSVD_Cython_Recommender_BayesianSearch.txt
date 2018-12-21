@@ -1,0 +1,2 @@
+BayesianSearch: Saving logs to result_experiments/tuning_20181217211106/MatrixFactorization_FunkSVD_Cython_Recommender/bayesian_optimizer_logs.jsonBayesianSearch: Testing config: {'learning_rate': 0.009535453257164189, 'num_factors': 230, 'reg': 0.20832670543922482, 'sgd_mode': 'adam'} - Exception module 'scipy' has no attribute 'csr_matrix'
+BayesianSearch: Testing config: {'learning_rate': 0.003995888844558994, 'num_factors': 36, 'reg': 0.1959594076415625, 'sgd_mode': 'sgd'} - Exception module 'scipy' has no attribute 'csr_matrix'
