@@ -1,2 +1,0 @@
-{"target": 0.00019481279893403765, "params": {"factors": 574.7085451554294, "iterations": 20.568056551755795, "learning_rate": 0.02023187516285717, "regularization": 0.6068888650730284}, "datetime": {"datetime": "2018-12-20 16:21:15", "elapsed": 0.0, "delta": 0.0}}
-{"target": 6.548498766662741e-05, "params": {"factors": 123.16649688246162, "iterations": 56.377193686543166, "learning_rate": 0.05589159840840002, "regularization": 0.5722875269979475}, "datetime": {"datetime": "2018-12-20 16:24:32", "elapsed": 196.567408, "delta": 196.567408}}
