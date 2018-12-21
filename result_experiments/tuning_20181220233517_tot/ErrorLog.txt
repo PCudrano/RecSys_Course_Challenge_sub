@@ -1,0 +1,1 @@
+On recommender <class 'src.recommenders.HybridLinCombEstRatings.HybridLinCombEstRatings'> Exception 'SLIM_BPR_Cython' object has no attribute 'estimate_ratings'
