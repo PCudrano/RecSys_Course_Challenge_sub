@@ -712,20 +712,20 @@ if __name__ == '__main__':
                                                        evaluator_validation = evaluator_validation,
                                                        evaluator_test = evaluator_test,
                                                        output_folder_path = output_root_path,
-                                                       optimizer="gbrt", # "forest", "gbrt"
+                                                       optimizer="bayesian", # "forest", "gbrt", "bayesian"
                                                        # params
-                                                       n_calls=70,
-                                                       n_random_starts=20,
+                                                       n_calls=30, # 70,
+                                                       n_random_starts= 5, #20,
                                                        n_points=10000,
                                                        n_jobs=1,
                                                        noise='gaussian',  # only bayesian
-                                                       acq_func='EI', # 'gp_hedge' only for bayesian, use EI or LCB otherwise
-                                                       # acq_optimizer='auto', # only bayesian and gbrt
+                                                       acq_func='gp_hedge', # 'gp_hedge' only for bayesian, use EI or LCB otherwise
+                                                       acq_optimizer='auto', # only bayesian and gbrt
                                                        random_state=None,
                                                        verbose=True,
                                                        n_restarts_optimizer=10,  # only bayesian
                                                        xi=0.01,
-                                                       kappa=1.96,
+                                                       kappa=2, # 1.96,
                                                        x0=None,
                                                        y0=None,
                                                        )
