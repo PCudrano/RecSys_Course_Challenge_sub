@@ -8,10 +8,10 @@ Created on 14/12/18
 
 import pickle
 
-from skopt import gp_minimize
+from skopt import gp_minimize, gbrt_minimize, forest_minimize
 from skopt.space import Real, Integer, Categorical
 
-from ParameterTuning.AbstractClassSearch import AbstractClassSearch, DictionaryKeys, writeLog
+from ParameterTuning.AbstractClassSearch_new import AbstractClassSearch, DictionaryKeys, writeLog
 
 
 
@@ -42,7 +42,8 @@ class BayesianSkoptSearch(AbstractClassSearch):
                          xi = 0.01,
                          kappa = 1.96,
                          x0 = None,
-                         y0 = None):
+                         y0 = None,
+                         optimizer="bayesian"):
         """
         wrapper to change the params of the bayesian optimizator.
         for further details:
@@ -63,6 +64,7 @@ class BayesianSkoptSearch(AbstractClassSearch):
         self.noise = noise
         self.x0 = x0
         self.y0 = y0
+        self.optimizer = optimizer
 
 
 
@@ -73,15 +75,14 @@ class BayesianSkoptSearch(AbstractClassSearch):
                output_folder_path = None,
                output_file_name_root = None,
                parallelize = False,
-               save_model = "best"
-               ):
+               save_model = "best",
+               **kwargs):
 
         assert save_model in ["no", "all", "best"], "BayesianSkoptSearch: parameter save_model must be in '['no', 'all', 'best']', provided was '{}'.".format(save_model)
         self.save_model = save_model
 
 
-
-        self.set_skopt_params()    ### default parameters are set here
+        self.set_skopt_params(**kwargs)    ### default parameters are set here --> use kwargs to override
 
         # Associate the params that will be returned by BayesianOpt object to those you want to save
         # E.g. with early stopping you know which is the optimal number of epochs only afterwards
@@ -126,25 +127,58 @@ class BayesianSkoptSearch(AbstractClassSearch):
                 raise ValueError("BayesianSkoptSearch: Unexpected paramether type:"+" "+str(name)+" "+str(hyperparam))
 
 
-
-        self.result = gp_minimize(self.__objective_function,
-                                  self.hyperparams_values,
-                                  base_estimator=None,
-                                  n_calls=self.n_calls,
-                                  n_random_starts=self.n_random_starts,
-                                  acq_func=self.acq_func,
-                                  acq_optimizer=self.acq_optimizer,
-                                  x0=self.x0,
-                                  y0=self.y0,
-                                  random_state=self.random_state,
-                                  verbose=self.verbose,
-                                  callback=None,
-                                  n_points=self.n_point,
-                                  n_restarts_optimizer=self.n_restarts_optimizer,
-                                  xi=self.xi,
-                                  kappa=self.kappa,
-                                  noise=self.noise,
-                                  n_jobs=self.n_jobs)
+        if self.optimizer == "bayesian":
+            self.result = gp_minimize(self.__objective_function,
+                                      self.hyperparams_values,
+                                      base_estimator=None,
+                                      n_calls=self.n_calls,
+                                      n_random_starts=self.n_random_starts,
+                                      acq_func=self.acq_func,
+                                      acq_optimizer=self.acq_optimizer,
+                                      x0=self.x0,
+                                      y0=self.y0,
+                                      random_state=self.random_state,
+                                      verbose=self.verbose,
+                                      callback=None,
+                                      n_points=self.n_point,
+                                      n_restarts_optimizer=self.n_restarts_optimizer,
+                                      xi=self.xi,
+                                      kappa=self.kappa,
+                                      noise=self.noise,
+                                      n_jobs=self.n_jobs)
+        elif self.optimizer == "forest":
+            self.result = forest_minimize(self.__objective_function,
+                                          self.hyperparams_values,
+                                          base_estimator=None,
+                                          n_calls=self.n_calls,
+                                          n_random_starts=self.n_random_starts,
+                                          acq_func=self.acq_func,
+                                          x0=self.x0,
+                                          y0=self.y0,
+                                          random_state=self.random_state,
+                                          verbose=self.verbose,
+                                          callback=None,
+                                          n_points=self.n_point,
+                                          xi=self.xi,
+                                          kappa=self.kappa,
+                                          n_jobs=self.n_jobs)
+        elif self.optimizer == "gbrt":
+            self.result = gbrt_minimize(self.__objective_function,
+                                        self.hyperparams_values,
+                                        base_estimator=None,
+                                        n_calls=self.n_calls,
+                                        n_random_starts=self.n_random_starts,
+                                        acq_func=self.acq_func,
+                                        acq_optimizer=self.acq_optimizer,
+                                        x0=self.x0,
+                                        y0=self.y0,
+                                        random_state=self.random_state,
+                                        verbose=self.verbose,
+                                        callback=None,
+                                        n_points=self.n_point,
+                                        xi=self.xi,
+                                        kappa=self.kappa,
+                                        n_jobs=self.n_jobs)
 
 
 
