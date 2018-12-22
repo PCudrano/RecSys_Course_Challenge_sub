@@ -17,7 +17,9 @@ from Base.Recommender_utils import check_matrix
 from scipy.sparse import linalg
 import time, sys
 import numpy as np
+from scipy import sparse as sps
 
+from src.utils.similarity_wrapper import compute_similarity
 
 
 class CFW_D_Similarity_Linalg(SimilarityMatrixRecommender, Recommender):
@@ -75,10 +77,10 @@ class CFW_D_Similarity_Linalg(SimilarityMatrixRecommender, Recommender):
 
 
         # Here is important only the structure
-        self.similarity = Compute_Similarity(self.ICM.T, shrink=0, topK=self.topK, normalize=False)
-        S_matrix_contentKNN = self.similarity.compute_similarity()
+        # self.similarity = Compute_Similarity(self.ICM.T, shrink=0, topK=self.topK, normalize=False)
+        # S_matrix_contentKNN = # self.similarity.compute_similarity()
+        S_matrix_contentKNN = compute_similarity(type="cosine", matrix=self.ICM, k=self.topK, shrink=0)
         S_matrix_contentKNN = check_matrix(S_matrix_contentKNN, "csr")
-
 
         self._writeLog(self.RECOMMENDER_NAME + ": Collaborative S density: {:.2E}, nonzero cells {}".format(
             self.S_matrix_target.nnz/self.S_matrix_target.shape[0]**2, self.S_matrix_target.nnz))
@@ -96,6 +98,7 @@ class CFW_D_Similarity_Linalg(SimilarityMatrixRecommender, Recommender):
 
 
         num_common_coordinates = 0
+
 
         estimated_n_samples = int(S_matrix_contentKNN.nnz*(1+self.add_zeros_quota)*1.2)
 

@@ -9,7 +9,7 @@ Created on 22/11/17
 import numpy as np
 import pandas as pd
 # import matplotlib.pyplot as pyplot
-# import src.utils.build_icm as build_icm
+import src.utils.build_icm as build_icm
 import scipy.sparse as sps
 from src.utils.data_splitter import train_test_holdout, train_test_user_holdout, train_test_row_holdout
 # from src.utils.evaluation import evaluate_algorithm, evaluate_algorithm_recommendations
@@ -35,6 +35,8 @@ from GraphBased.P3alphaRecommender import P3alphaRecommender
 from GraphBased.RP3betaRecommender import RP3betaRecommender
 from MatrixFactorization.Cython.MatrixFactorization_Cython import MatrixFactorization_BPR_Cython, MatrixFactorization_FunkSVD_Cython, MatrixFactorization_AsySVD_Cython
 from MatrixFactorization.PureSVD import PureSVDRecommender
+from FW_Similarity.CFW_D_Similarity_Linalg import CFW_D_Similarity_Linalg
+from LightFM.LightFMRecommender import LightFMRecommender
 
 from src.recommenders.ImplicitALSRecommender import ImplicitALSRecommender
 from src.recommenders.ImplicitBPRRecommender import ImplicitBPRRecommender
@@ -194,7 +196,7 @@ def runParameterSearch_Content(recommender_class, URM_train, ICM_object, ICM_nam
 
 
 
-def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_optimize = "PRECISION",
+def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None, metric_to_optimize = "PRECISION",
                                      evaluator_validation = None, evaluator_test = None, evaluator_validation_earlystopping = None,
                                      output_folder_path ="result_experiments/", parallelizeKNN = True, n_cases = 30,
                                      parameterSearch=None, **kwargs):
@@ -518,6 +520,58 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, metric_to_opt
                                                                        "use_gpu": False},
                                      DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
 
+
+        ##########################################################################################################
+
+        if recommender_class is CFW_D_Similarity_Linalg:
+
+            # train CF
+            cf_rec = ItemKNNCFRecommender(URM_train)
+            cf_rec.fit(topK=50, shrink=10, similarity='cosine', normalize=True)
+
+            hyperparamethers_range_dictionary = {}
+            hyperparamethers_range_dictionary["topK"] = Integer(10, 1000)
+            # hyperparamethers_range_dictionary["damp_coeff"] = Real(low=0.0, high=1.0, prior='uniform')
+            # hyperparamethers_range_dictionary["add_zeros_quota"] = Real(low=0.0, high=1.0, prior='uniform')
+            hyperparamethers_range_dictionary["normalize_similarity"] = Categorical([True,False])
+
+            recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train, ICM_all, cf_rec.W_sparse],
+                                     DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {},
+                                     DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
+                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"show_max_performance": True,
+                                                                       #"loss_tolerance": None, # 1e-6
+                                                                       #"iteration_limit": None, # 50000
+                                                                       },
+                                     DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
+
+
+        ##########################################################################################################
+
+        if recommender_class is LightFMRecommender:
+
+            hyperparamethers_range_dictionary = {}
+            # hyperparamethers_range_dictionary["epochs"] = Integer(10, 1000)
+            hyperparamethers_range_dictionary["num_components"] = Integer(10,1000)
+            hyperparamethers_range_dictionary["alpha"] = Real(low=1e-16, high=1.0, prior='log-uniform') # reg
+            # hyperparamethers_range_dictionary["learning_rate"] = Real(low=5e-4, high=5e-2, prior='log-uniform')  # reg
+            hyperparamethers_range_dictionary["learning_schedule"] = Categorical(["adadelta"])#"adagrad"
+
+            recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train], # ICM_all
+                                     DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {"add_identity_features": True},
+                                     DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
+                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"loss": "warp", # 'logistic', 'bpr', 'warp', 'warp-kos'
+                                                                       "max_sampled": 100, # 10
+                                                                       "learning_rate": 5e-3, # for adagrad learning schedule
+                                                                       "rho": 0.99, "epsilon": 1e-08, # for adadelta learning schedule
+                                                                       "epochs": 2000,
+                                                                       "validation_every_n": 10,
+                                                                       "stop_on_validation": True,
+                                                                       "evaluator_object": evaluator_validation_earlystopping,
+                                                                       "lower_validatons_allowed": 2,
+                                                                       "validation_metric": metric_to_optimize
+                                                                       },
+                                     DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
+
        #########################################################################################################
 
 
@@ -613,6 +667,24 @@ if __name__ == '__main__':
     numItems = len(itemList_unique)
     numberInteractions = interactions_df.size
 
+    # Build ICM
+    ICM_all = build_icm.build_icm(tracks_df, split_duration_lenght=800, feature_weights={'albums': 1, 'artists': 0.5, 'durations': 0.1})
+
+    IDF_ENABLED = True
+
+    if IDF_ENABLED:
+        num_tot_items = ICM_all.shape[0]
+        # let's count how many items have a certain feature
+        items_per_feature = (ICM_all > 0).sum(axis=0)
+        IDF = np.array(np.log(num_tot_items / items_per_feature))[0]
+        ICM_idf = ICM_all.copy()
+        # compute the number of non-zeros in each col
+        # NOTE: this works only if X is instance of sparse.csc_matrix
+        col_nnz = np.diff(sps.csc_matrix(ICM_idf).indptr)
+        # then normalize the values in each col
+        ICM_idf.data *= np.repeat(IDF, col_nnz)
+        ICM_all = ICM_idf  # use IDF features
+
     # #### Build URM
 
     URM_all = sps.coo_matrix((ratingList, (userList, itemList)))
@@ -684,13 +756,15 @@ if __name__ == '__main__':
         # MatrixFactorization_BPR_Cython,
         # MatrixFactorization_FunkSVD_Cython,
         # MatrixFactorization_AsySVD_Cython,
-        PureSVDRecommender,
+        # PureSVDRecommender,
         # SLIM_BPR_Cython,
         # UserSLIM_BPR_Cython
         # SLIMElasticNetRecommender,
         # MatrixFactorization_BPR_Theano,
         # ImplicitALSRecommender,
-        # ImplicitBPRRecommender
+        # ImplicitBPRRecommender,
+        # CFW_D_Similarity_Linalg,
+        LightFMRecommender
     ]
 
 
@@ -706,13 +780,14 @@ if __name__ == '__main__':
 
     runParameterSearch_Collaborative_partial = partial(runParameterSearch_Collaborative,
                                                        URM_train = URM_train,
+                                                       ICM_all = ICM_all,
                                                        metric_to_optimize = "MAP",
                                                        n_cases = 20,
                                                        evaluator_validation_earlystopping = evaluator_validation,
                                                        evaluator_validation = evaluator_validation,
                                                        evaluator_test = evaluator_test,
                                                        output_folder_path = output_root_path,
-                                                       optimizer="bayesian", # "forest", "gbrt", "bayesian"
+                                                           optimizer="bayesian", # "forest", "gbrt", "bayesian"
                                                        # params
                                                        n_calls=30, # 70,
                                                        n_random_starts= 5, #20,
