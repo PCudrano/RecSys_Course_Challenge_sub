@@ -782,20 +782,19 @@ if __name__ == '__main__':
                                                        URM_train = URM_train,
                                                        ICM_all = ICM_all,
                                                        metric_to_optimize = "MAP",
-                                                       n_cases = 20,
                                                        evaluator_validation_earlystopping = evaluator_validation,
                                                        evaluator_validation = evaluator_validation,
                                                        evaluator_test = evaluator_test,
                                                        output_folder_path = output_root_path,
-                                                           optimizer="bayesian", # "forest", "gbrt", "bayesian"
+                                                       optimizer="bayesian",  # "forest", "gbrt", "bayesian"
                                                        # params
-                                                       n_calls=30, # 70,
-                                                       n_random_starts= 5, #20,
-                                                       n_points=10000,
-                                                       n_jobs=1,
+                                                       n_random_starts=5,  # 20,
+                                                       n_calls=30,  # 20
+                                                       n_points=10000,  # for acq_optimizer = 'sampling'
+                                                       n_jobs=1,  # -1 for all cores
                                                        noise='gaussian',  # only bayesian
-                                                       acq_func='gp_hedge', # 'gp_hedge' only for bayesian, use EI or LCB otherwise
-                                                       acq_optimizer='auto', # only bayesian and gbrt
+                                                       acq_func='LCB',  # 'gp_hedge' only for bayesian, use EI or LCB otherwise
+                                                       acq_optimizer='auto',  # 'auto', 'sampling', 'lbfgs'; only for bayesian and gbrt
                                                        random_state=None,
                                                        verbose=True,
                                                        n_restarts_optimizer=10,  # only bayesian

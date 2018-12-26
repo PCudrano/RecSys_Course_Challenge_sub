@@ -70,8 +70,6 @@ class BayesianSkoptSearch(AbstractClassSearch):
 
     def search(self, recommender_constructor_dict,
                metric_to_optimize = "MAP",
-               n_cases = 20,
-               n_random_starts = 5,
                output_folder_path = None,
                output_file_name_root = None,
                parallelize = False,
