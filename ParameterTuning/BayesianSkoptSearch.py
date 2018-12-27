@@ -91,8 +91,6 @@ class BayesianSkoptSearch(AbstractClassSearch):
         self.metric_to_optimize = metric_to_optimize
         self.output_root_path = output_folder_path
         self.output_file_name_root = output_file_name_root
-        self.n_random_starts = n_random_starts
-        self.n_calls = n_cases
 
 
         self.log_file = open(self.output_root_path + self.output_file_name_root + "_BayesianSkoptSearch.txt", "a")

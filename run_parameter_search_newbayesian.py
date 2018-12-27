@@ -62,7 +62,7 @@ from functools import partial
 
 
 def run_KNNCFRecommender_on_similarity_type(similarity_type, parameterSearch,
-                                            URM_train, n_cases,
+                                            URM_train,
                                             output_folder_path,
                                             output_file_name_root,
                                             metric_to_optimize,
@@ -93,7 +93,6 @@ def run_KNNCFRecommender_on_similarity_type(similarity_type, parameterSearch,
                              DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
 
     best_parameters = parameterSearch.search(recommenderDictionary,
-                                             n_cases = n_cases,
                                              output_folder_path = output_folder_path,
                                              output_file_name_root = output_file_name_root + "_" + similarity_type,
                                              metric_to_optimize = metric_to_optimize,
@@ -104,7 +103,7 @@ def run_KNNCFRecommender_on_similarity_type(similarity_type, parameterSearch,
 
 
 def run_KNNCBFRecommender_on_similarity_type(similarity_type, parameterSearch,
-                                            URM_train, ICM_train, n_cases,
+                                            URM_train, ICM_train,
                                             output_folder_path,
                                             output_file_name_root,
                                             metric_to_optimize,
@@ -138,7 +137,6 @@ def run_KNNCBFRecommender_on_similarity_type(similarity_type, parameterSearch,
 
 
     best_parameters = parameterSearch.search(recommenderDictionary,
-                                             n_cases = n_cases,
                                              output_folder_path = output_folder_path,
                                              output_file_name_root = output_file_name_root + "_" + similarity_type,
                                              metric_to_optimize = metric_to_optimize,
@@ -148,7 +146,7 @@ def run_KNNCBFRecommender_on_similarity_type(similarity_type, parameterSearch,
 
 
 
-def runParameterSearch_Content(recommender_class, URM_train, ICM_object, ICM_name, n_cases = 30,
+def runParameterSearch_Content(recommender_class, URM_train, ICM_object, ICM_name,
                              evaluator_validation= None, evaluator_test=None, metric_to_optimize = "PRECISION",
                              output_root_path ="result_experiments/", parallelizeKNN = False, parameterSearch=None,
                              **kwargs):
@@ -173,7 +171,6 @@ def runParameterSearch_Content(recommender_class, URM_train, ICM_object, ICM_nam
                                                    parameterSearch = parameterSearch,
                                                    URM_train = URM_train,
                                                    ICM_train = ICM_object,
-                                                   n_cases = n_cases,
                                                    output_root_path = this_output_root_path,
                                                    metric_to_optimize = metric_to_optimize,
                                                    **kwargs)
@@ -198,7 +195,7 @@ def runParameterSearch_Content(recommender_class, URM_train, ICM_object, ICM_nam
 
 def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None, metric_to_optimize = "PRECISION",
                                      evaluator_validation = None, evaluator_test = None, evaluator_validation_earlystopping = None,
-                                     output_folder_path ="result_experiments/", parallelizeKNN = True, n_cases = 30,
+                                     output_folder_path ="result_experiments/", parallelizeKNN = True,
                                      parameterSearch=None, **kwargs):
 
 
@@ -254,7 +251,6 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             run_KNNCFRecommender_on_similarity_type_partial = partial(run_KNNCFRecommender_on_similarity_type,
                                                            parameterSearch = parameterSearch,
                                                            URM_train = URM_train,
-                                                           n_cases = n_cases,
                                                            output_folder_path = output_folder_path,
                                                            output_file_name_root = output_file_name_root,
                                                            metric_to_optimize = metric_to_optimize,
@@ -285,7 +281,6 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             run_KNNCFRecommender_on_similarity_type_partial = partial(run_KNNCFRecommender_on_similarity_type,
                                                            parameterSearch = parameterSearch,
                                                            URM_train = URM_train,
-                                                           n_cases = n_cases,
                                                            output_folder_path = output_folder_path,
                                                            output_file_name_root = output_file_name_root,
                                                            metric_to_optimize = metric_to_optimize,
@@ -577,7 +572,6 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
 
         ## Final step, after the hyperparameter range has been defined for each type of algorithm
         best_parameters = parameterSearch.search(recommenderDictionary,
-                                                 n_cases = n_cases,
                                                  output_folder_path = output_folder_path,
                                                  output_file_name_root = output_file_name_root,
                                                  metric_to_optimize = metric_to_optimize,
