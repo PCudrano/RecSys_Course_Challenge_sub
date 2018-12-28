@@ -1,0 +1,1 @@
+On recommender <class 'LightFM.LightFMRecommender.LightFMRecommender'> Exception set_skopt_params() got an unexpected keyword argument 'n_cases'
