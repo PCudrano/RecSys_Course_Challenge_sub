@@ -639,8 +639,8 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             # N_rp3b = 3
             N_cbf = 2
             N_cf = 6
-            N_p3a = 1
-            N_ucf = 1
+            N_p3a = 0
+            N_ucf = 2
             N_ucbf = 1
             N_rp3b = 1
             N_slim = 1
@@ -675,9 +675,9 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             # recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
             # recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
             recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
-            recsys_params2 = list((zip(np.linspace(5, 800, N_cf).tolist(), [12] * N_cf)))
+            recsys_params2 = list((zip(np.linspace(5, 400, N_cf).tolist(), [12] * N_cf)))
             recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
-            recsys_params4 = list((zip(np.linspace(170, 180, N_ucf).tolist(), [2] * N_ucf)))
+            recsys_params4 = list((zip(np.linspace(10, 180, N_ucf).tolist(), [2] * N_ucf)))
             recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
             recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
             # today
@@ -1008,7 +1008,7 @@ if __name__ == '__main__':
     # URM_validation = URM_valid
     # URM_test = URM_test_pred
 
-    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}_seq/".format(date=datetime.datetime.now())
+    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}_seq2/".format(date=datetime.datetime.now())
 
     # If directory does not exist, create
     if not os.path.exists(output_root_path):
