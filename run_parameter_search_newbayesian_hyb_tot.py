@@ -956,8 +956,12 @@ if __name__ == '__main__':
     # URM_test_known = None
     URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df,
                                                             train_perc=0.8,
-                                                            seed=seed, targetsListOrdered=targetsListOrdered,
+                                                            seed=seed, targetsListOrdered=[],
                                                             nnz_threshold=2)
+    # URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df,
+    #                                                         train_perc=0.8,
+    #                                                         seed=seed, targetsListOrdered=targetsListOrdered,
+    #                                                         nnz_threshold=2)
     # URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, userList_unique, train_sequential_df,
     #                                                   train_perc=0.8,
     #                                                   seed=seed, targetsListOrdered=targetsListOrdered,

@@ -365,10 +365,9 @@ if __name__ == '__main__':
         #  'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 8.154073887230249, 'alphas7': 0.0, 'alphas8': 0.8295610784074946,
         #  'alphas9': 5.518591900686005, 'alphas10': 0.0, 'alphas11': 24.182221122003007, 'alphas12': 40.0,
         #  'alphas13': 40.0}
-        a = {'alphas0': 2.2468146039931365, 'alphas1': 7.872116972313684, 'alphas2': 27.849216243785317,
-         'alphas3': 3.3363324013034203, 'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 0.0, 'alphas7': 0.0,
-         'alphas8': 16.16783527070275, 'alphas9': 5.107232142917228, 'alphas10': 0.0, 'alphas11': 59.9978347177951,
-         'alphas12': 50.83272029856043, 'alphas13': 60.0}
+        a = {'alphas0': 3.4223184467148253, 'alphas1': 4.136829085705012, 'alphas2': 7.896271551707693, 'alphas3': 0.0,
+         'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 0.0, 'alphas7': 0.0, 'alphas8': 11.235027692726607, 'alphas9': 0.0,
+         'alphas10': 0.0, 'alphas11': 13.245416679360408, 'alphas12': 60.0, 'alphas13': 60.0}
 
         print("Init recsys")
         recommender = recommender_class(URM_train, recsys_est_ratings)
@@ -538,7 +537,7 @@ if __name__ == '__main__':
         print(target_df[0:5])
 
         # Custom name
-        csv_filename = "hybrid_est_ratings_29"
+        csv_filename = "hybrid_est_ratings_30"
         # Default name
         #csv_filename = "submission_{algtype:}_{date:%Y%m%d%H%M%S}".format(algtype=recommender_class, date=datetime.datetime.now())
 
