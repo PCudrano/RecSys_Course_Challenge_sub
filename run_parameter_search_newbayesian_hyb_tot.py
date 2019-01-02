@@ -956,7 +956,7 @@ if __name__ == '__main__':
     # URM_test_known = None
     URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df,
                                                             train_perc=0.8,
-                                                            seed=seed, targetsListOrdered=[],
+                                                            seed=seed, targetsListOrdered=targetsListOrdered,
                                                             nnz_threshold=2)
     # URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df,
     #                                                         train_perc=0.8,
@@ -1009,7 +1009,7 @@ if __name__ == '__main__':
     # users_excluded_targets = [u for u in userList_unique if u not in targetsListList]
     # evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
     # evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
-    evaluator_validation = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
+    evaluator_validation = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=targetsListOrdered)
     # evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
 
     runParameterSearch_Collaborative_partial = partial(runParameterSearch_Collaborative,

@@ -365,10 +365,13 @@ if __name__ == '__main__':
         #  'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 8.154073887230249, 'alphas7': 0.0, 'alphas8': 0.8295610784074946,
         #  'alphas9': 5.518591900686005, 'alphas10': 0.0, 'alphas11': 24.182221122003007, 'alphas12': 40.0,
         #  'alphas13': 40.0}
-        a = {'alphas0': 3.4223184467148253, 'alphas1': 4.136829085705012, 'alphas2': 7.896271551707693, 'alphas3': 0.0,
-         'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 0.0, 'alphas7': 0.0, 'alphas8': 11.235027692726607, 'alphas9': 0.0,
-         'alphas10': 0.0, 'alphas11': 13.245416679360408, 'alphas12': 60.0, 'alphas13': 60.0}
-
+        # a = {'alphas0': 4.5124854548474325, 'alphas1': 8.47517330961923, 'alphas2': 60.0, 'alphas3': 0.0, 'alphas4': 0.0,
+        #  'alphas5': 2.934211938863597, 'alphas6': 0.0, 'alphas7': 0.0, 'alphas8': 33.89244968795839,
+        #  'alphas9': 7.472486990402197, 'alphas10': 0.0, 'alphas11': 60.0, 'alphas12': 60.0, 'alphas13': 60.0}
+        a = {'alphas0': 2.2468146039931365, 'alphas1': 7.872116972313684, 'alphas2': 27.849216243785317,
+         'alphas3': 3.3363324013034203, 'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 0.0, 'alphas7': 0.0,
+         'alphas8': 16.16783527070275, 'alphas9': 5.107232142917228, 'alphas10': 0.0, 'alphas11': 59.9978347177951,
+         'alphas12': 50.83272029856043, 'alphas13': 60.0}
         print("Init recsys")
         recommender = recommender_class(URM_train, recsys_est_ratings)
         print("Fitting recsys")
@@ -382,7 +385,7 @@ if __name__ == '__main__':
         print("Starting initing the single recsys")
 
         N_cbf = 2
-        N_cf = 6
+        N_cf = 4
         N_p3a = 0
         N_ucf = 2
         N_ucbf = 1
@@ -408,7 +411,7 @@ if __name__ == '__main__':
         recsys.append(ImplicitALSRecommender(URM_train))
 
         recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
-        recsys_params2 = list((zip(np.linspace(5, 400, N_cf).tolist(), [12] * N_cf)))
+        recsys_params2 = list((zip(np.linspace(5, 200, N_cf).tolist(), [12] * N_cf)))
         recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
         recsys_params4 = list((zip(np.linspace(10, 180, N_ucf).tolist(), [2] * N_ucf)))
         recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
@@ -490,10 +493,13 @@ if __name__ == '__main__':
         # best so far # a = {'alphas0': 0.0, 'alphas1': 40.0, 'alphas2': 40.0, 'alphas3': 40.0, 'alphas4': 40.0, 'alphas5': 40.0,
         #  'alphas6': 23.960436176277238, 'alphas7': 21.725866752522446, 'alphas8': 5.464415290150711, 'alphas9': 40.0,
         #  'alphas10': 0.0, 'alphas11': 16.500911764879305, 'alphas12': 40.0, 'alphas13': 40.0}
-        a = {'alphas0': 34.911326584505346, 'alphas1': 13.831283494529938, 'alphas2': 60.0, 'alphas3': 60.0,
-         'alphas4': 60.0, 'alphas5': 1.0902144703511967, 'alphas6': 60.0, 'alphas7': 0.0, 'alphas8': 60.0,
-         'alphas9': 35.4356726344163, 'alphas10': 0.0, 'alphas11': 0.0, 'alphas12': 19.743538083994164,
-         'alphas13': 60.0}
+        # a = {'alphas0': 34.911326584505346, 'alphas1': 13.831283494529938, 'alphas2': 60.0, 'alphas3': 60.0,
+        #  'alphas4': 60.0, 'alphas5': 1.0902144703511967, 'alphas6': 60.0, 'alphas7': 0.0, 'alphas8': 60.0,
+        #  'alphas9': 35.4356726344163, 'alphas10': 0.0, 'alphas11': 0.0, 'alphas12': 19.743538083994164,
+        #  'alphas13': 60.0}
+        a = {'alphas0': 0.0, 'alphas1': 24.028226002886004, 'alphas2': 25.43086190359092, 'alphas3': 0.0, 'alphas4': 60.0,
+         'alphas5': 60.0, 'alphas6': 0.0, 'alphas7': 21.17810567974564, 'alphas8': 0.0, 'alphas9': 38.1896725392094,
+         'alphas10': 53.8009903761918, 'alphas11': 60.0}
         print("Init recsys")
         recommender = recommender_class(URM_train, recsys_est_ratings)
         print("Fitting recsys")
@@ -537,7 +543,7 @@ if __name__ == '__main__':
         print(target_df[0:5])
 
         # Custom name
-        csv_filename = "hybrid_est_ratings_30"
+        csv_filename = "hybrid_est_ratings_32"
         # Default name
         #csv_filename = "submission_{algtype:}_{date:%Y%m%d%H%M%S}".format(algtype=recommender_class, date=datetime.datetime.now())
 
