@@ -244,10 +244,10 @@ if __name__ == '__main__':
         # recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
 
         N_cbf = 2
-        N_cf = 4
+        N_cf = 6
         N_p3a = 0
         N_ucf = 2
-        N_ucbf = 0
+        N_ucbf = 1
         N_rp3b = 1
         N_slim = 1
         N_als = 1
@@ -274,8 +274,14 @@ if __name__ == '__main__':
         for i in range(N_pure_svd):
             recsys.append(PureSVDRecommender(URM_train))
 
+        # recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
+        # recsys_params2 = list((zip(np.linspace(5, 800, N_cf).tolist(), [12] * N_cf)))
+        # recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
+        # recsys_params4 = list((zip(np.linspace(170, 180, N_ucf).tolist(), [2] * N_ucf)))
+        # recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
+        # recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
         recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
-        recsys_params2 = list((zip(np.linspace(5, 200, N_cf).tolist(), [12] * N_cf)))
+        recsys_params2 = list((zip(np.linspace(5, 400, N_cf).tolist(), [12] * N_cf)))
         recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
         recsys_params4 = list((zip(np.linspace(10, 180, N_ucf).tolist(), [2] * N_ucf)))
         recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
@@ -362,9 +368,10 @@ if __name__ == '__main__':
         # a = {'alphas0': 4.5124854548474325, 'alphas1': 8.47517330961923, 'alphas2': 60.0, 'alphas3': 0.0, 'alphas4': 0.0,
         #  'alphas5': 2.934211938863597, 'alphas6': 0.0, 'alphas7': 0.0, 'alphas8': 33.89244968795839,
         #  'alphas9': 7.472486990402197, 'alphas10': 0.0, 'alphas11': 60.0, 'alphas12': 60.0, 'alphas13': 60.0}
-        a = {'alphas0': 5.802542621278499, 'alphas1': 8.81751064446703, 'alphas2': 42.79739955226521, 'alphas3': 0.0,
-         'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 36.46781607912204, 'alphas7': 6.766693640941726, 'alphas8': 100.0,
-         'alphas9': 90.77029319778482, 'alphas10': 100.0}
+        a = {'alphas0': 2.2468146039931365, 'alphas1': 7.872116972313684, 'alphas2': 27.849216243785317,
+         'alphas3': 3.3363324013034203, 'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 0.0, 'alphas7': 0.0,
+         'alphas8': 16.16783527070275, 'alphas9': 5.107232142917228, 'alphas10': 0.0, 'alphas11': 59.9978347177951,
+         'alphas12': 50.83272029856043, 'alphas13': 60.0}
         print("Init recsys")
         recommender = recommender_class(URM_train, recsys_est_ratings)
         print("Fitting recsys")
@@ -376,6 +383,22 @@ if __name__ == '__main__':
         print("second") ##########################################################################################################
         ############################# seq
         print("Starting initing the single recsys")
+
+        targetsListOrderedOr = targetsList[:5000].tolist()
+        URM_train_or = URM_train.copy()
+        ## Cut URM to only sequential users
+        # URM_train_or = URM_train.copy()
+        # URM_all_csr = URM_all_csr[targetsListOrdered]
+        # URM_all = URM_all_csr.tocoo()
+        URM_train = URM_train[targetsListOrdered]
+        #URM_validation = URM_validation[targetsListOrdered]
+        # URM_test = URM_test[targetsListOrdered]
+        userList_unique = list(range(len(targetsListOrdered)))  # is this ok? or does it break stuff?
+        targetsList = userList_unique
+        targetsListOrdered = userList_unique
+        targetsListCasual = []
+        numUsers = len(userList_unique)
+        numberInteractions = URM_all.nnz
 
         N_cbf = 2
         N_cf = 6
@@ -400,7 +423,7 @@ if __name__ == '__main__':
         for i in range(N_rp3b):
             recsys.append(RP3betaRecommender(URM_train))
         for i in range(N_slim):
-            recsys.append(SLIM_BPR_Cython(URM_train))
+                recsys.append(SLIM_BPR_Cython(URM_train_or))
         recsys.append(ImplicitALSRecommender(URM_train))
 
         recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
@@ -458,13 +481,14 @@ if __name__ == '__main__':
         print("Starting recommending the est_ratings")
         t2 = time.time()
         recsys_est_ratings = []
-        for i in range(0, N_hyb - 1):
+        for i in range(0, N_hyb - 2):
             if i >= N_cbf + N_cf + N_p3a + N_ucf + N_ucbf:
                 recsys_est_ratings.append(recsys[i].compute_item_score(userList_unique, 160))
             else:
                 recsys_est_ratings.append(recsys[i].estimate_ratings(userList_unique, 160))
         el_t = time.time() - t2
         print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+        recsys_est_ratings.append(recsys[-2].compute_item_score(targetsListOrderedOr, 160))
 
         print("Recommending als")
         t2 = time.time()
@@ -490,10 +514,9 @@ if __name__ == '__main__':
         #  'alphas4': 60.0, 'alphas5': 1.0902144703511967, 'alphas6': 60.0, 'alphas7': 0.0, 'alphas8': 60.0,
         #  'alphas9': 35.4356726344163, 'alphas10': 0.0, 'alphas11': 0.0, 'alphas12': 19.743538083994164,
         #  'alphas13': 60.0}
-        a = {'alphas0': 34.911326584505346, 'alphas1': 13.831283494529938, 'alphas2': 60.0, 'alphas3': 60.0,
-         'alphas4': 60.0, 'alphas5': 1.0902144703511967, 'alphas6': 60.0, 'alphas7': 0.0, 'alphas8': 60.0,
-         'alphas9': 35.4356726344163, 'alphas10': 0.0, 'alphas11': 0.0, 'alphas12': 19.743538083994164,
-         'alphas13': 60.0}
+        a = {'alphas0': 5.637257970064362, 'alphas1': 11.250150450736367, 'alphas2': 60.0, 'alphas3': 0.0, 'alphas4': 0.0,
+         'alphas5': 0.0, 'alphas6': 0.0, 'alphas7': 8.37302469996567, 'alphas8': 19.413082335795686, 'alphas9': 60.0,
+         'alphas10': 0.0, 'alphas11': 0.0, 'alphas12': 60.0, 'alphas13': 0.0}
         print("Init recsys")
         recommender = recommender_class(URM_train, recsys_est_ratings)
         print("Fitting recsys")
@@ -537,7 +560,7 @@ if __name__ == '__main__':
         print(target_df[0:5])
 
         # Custom name
-        csv_filename = "hybrid_est_ratings_34"
+        csv_filename = "hybrid_est_ratings_33"
         # Default name
         #csv_filename = "submission_{algtype:}_{date:%Y%m%d%H%M%S}".format(algtype=recommender_class, date=datetime.datetime.now())
 

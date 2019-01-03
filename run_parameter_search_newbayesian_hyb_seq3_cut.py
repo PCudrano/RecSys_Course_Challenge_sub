@@ -189,7 +189,7 @@ def runParameterSearch_Content(recommender_class, URM_train, ICM_object, ICM_nam
             run_KNNCBFRecommender_on_similarity_type_partial(similarity_type)
 
 
-def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None, metric_to_optimize = "PRECISION",
+def runParameterSearch_Collaborative(recommender_class, URM_train, URM_train_or, ICM_all=None, metric_to_optimize = "PRECISION",
                                      evaluator_validation = None, evaluator_test = None, evaluator_validation_earlystopping = None,
                                      output_folder_path ="result_experiments/", parallelizeKNN = True,
                                      parameterSearch=None, **kwargs):
@@ -604,13 +604,20 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             itemList = interactions_df["track_id"]
             ratingList = np.ones(interactions_df.shape[0])
             targetsList = playlist_id_df["playlist_id"]
-            targetsListOrdered = targetsList[:5000].tolist()
+            targetsListOrderedOr = targetsList[:5000].tolist()
             targetsListCasual = targetsList[5000:].tolist()
             userList_unique = pd.unique(userList)
             itemList_unique = tracks_df["track_id"]
             numUsers = len(userList_unique)
             numItems = len(itemList_unique)
             numberInteractions = interactions_df.size
+
+            userList_unique = list(range(len(targetsListOrderedOr)))  # is this ok? or does it break stuff?
+            targetsList = userList_unique
+            targetsListOrdered = userList_unique
+            targetsListCasual = []
+            numUsers = len(userList_unique)
+            numberInteractions = URM_all.nnz
 
             # ICM_all = build_icm.build_icm(tracks_df)
             #
@@ -638,10 +645,10 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             # N_ucbf = 8
             # N_rp3b = 3
             N_cbf = 2
-            N_cf = 4
+            N_cf = 6
             N_p3a = 0
             N_ucf = 2
-            N_ucbf = 0
+            N_ucbf = 1
             N_rp3b = 1
             N_slim = 1
             N_als = 1
@@ -662,7 +669,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             for i in range(N_rp3b):
                 recsys.append(RP3betaRecommender(URM_train))
             for i in range(N_slim):
-                recsys.append(SLIM_BPR_Cython(URM_train))
+                recsys.append(SLIM_BPR_Cython(URM_train_or))
             for i in range(N_als):
                 recsys.append(ImplicitALSRecommender(URM_train))
             for i in range(N_pure_svd):
@@ -675,7 +682,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             # recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
             # recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
             recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
-            recsys_params2 = list((zip(np.linspace(5, 200, N_cf).tolist(), [12] * N_cf)))
+            recsys_params2 = list((zip(np.linspace(5, 400, N_cf).tolist(), [12] * N_cf)))
             recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
             recsys_params4 = list((zip(np.linspace(10, 180, N_ucf).tolist(), [2] * N_ucf)))
             recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
@@ -723,6 +730,44 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             # recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
             # recsys_params4 = list((zip(np.linspace(10, 180, N_ucf).tolist(), [2] * N_ucf)))
             # recsys_params5 = list((zip(np.linspace(10, 180, N_ucbf).tolist(), [5] * N_ucbf)))
+            # recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
+
+            # N_cbf = 2
+            # N_cf = 6
+            # N_p3a = 1
+            # N_ucf = 1
+            # N_ucbf = 1
+            # N_rp3b = 1
+            # N_slim = 1
+            # N_als = 1
+            # N_hyb_item_sim = 0
+            # N_pure_svd = 0
+            # N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_als + N_hyb_item_sim + N_pure_svd
+            # recsys = []
+            # for i in range(N_cbf):
+            #     recsys.append(ItemCBFKNNRecommender(URM_train, ICM_all))
+            # for i in range(N_cf):
+            #     recsys.append(ItemCFKNNRecommender(URM_train))
+            # for i in range(N_p3a):
+            #     recsys.append(P3AlphaRecommender(URM_train))
+            # for i in range(N_ucf):
+            #     recsys.append(UserCFKNNRecommender(URM_train))
+            # for i in range(N_ucbf):
+            #     recsys.append(UserCBFKNNRecommender(URM_train, ICM_all))
+            # for i in range(N_rp3b):
+            #     recsys.append(RP3betaRecommender(URM_train))
+            # for i in range(N_slim):
+            #     recsys.append(SLIM_BPR_Cython(URM_train))
+            # for i in range(N_als):
+            #     recsys.append(ImplicitALSRecommender(URM_train))
+            # for i in range(N_pure_svd):
+            #     recsys.append(PureSVDRecommender(URM_train))
+            #
+            # recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
+            # recsys_params2 = list((zip(np.linspace(5, 800, N_cf).tolist(), [12] * N_cf)))
+            # recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
+            # recsys_params4 = list((zip(np.linspace(170, 180, N_ucf).tolist(), [2] * N_ucf)))
+            # recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
             # recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
 
             print("Starting fitting single recsys")
@@ -782,13 +827,14 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             print("Starting recommending the est_ratings")
             t2 = time.time()
             recsys_est_ratings = []
-            for i in range(0, N_hyb - 1):
+            for i in range(0, N_hyb - 2):
                 if i >= N_cbf + N_cf + N_p3a + N_ucf + N_ucbf:
                     recsys_est_ratings.append(recsys[i].compute_item_score(userList_unique, 160))
                 else:
                     recsys_est_ratings.append(recsys[i].estimate_ratings(userList_unique, 160))
             el_t = time.time() - t2
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+            recsys_est_ratings.append(recsys[-2].compute_item_score(targetsListOrderedOr, 160))
             print("Recommending als")
             recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
             # print("Recommending hyb item sim")
@@ -800,7 +846,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             for i in range(0, N_hyb):
                 text = "alphas" + str(i)
                 #hyperparamethers_range_dictionary[text] = Real(low = 0.0, high = 40.0, prior = 'uniform')
-                hyperparamethers_range_dictionary[text] = Real(low=0.0, high=100.0)
+                hyperparamethers_range_dictionary[text] = Real(low=0.0, high=60.0)
             # text = "alphas" + str(N_hyb-1)
             # hyperparamethers_range_dictionary[text] = range(0, 2)
 
@@ -954,25 +1000,37 @@ if __name__ == '__main__':
     #                                                       nnz_threshold=10)
     # URM_train, URM_valid = train_test_holdout(URM_train_val, train_perc=0.7, seed=seed)
     # URM_test_known = None
-    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df,
+    usersNonOrdered = [i for i in userList_unique if i not in targetsListOrdered]
+    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, targetsListOrdered, train_sequential_df,
                                                             train_perc=0.8,
                                                             seed=seed, targetsListOrdered=targetsListOrdered,
                                                             nnz_threshold=2)
-    # URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df,
-    #                                                         train_perc=0.8,
-    #                                                         seed=seed, targetsListOrdered=targetsListOrdered,
-    #                                                         nnz_threshold=2)
-    # URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, userList_unique, train_sequential_df,
-    #                                                   train_perc=0.8,
+    # URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, targetsListOrdered, train_sequential_df,
+    #                                                   train_perc=0.5,
     #                                                   seed=seed, targetsListOrdered=targetsListOrdered,
     #                                                   nnz_threshold=1)
+    URM_test_known = None
 
     URM_train = URM_train
     URM_validation = URM_valid_test_pred
     # URM_validation = URM_valid
     # URM_test = URM_test_pred
 
-    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}_tot/".format(date=datetime.datetime.now())
+    ## Cut URM to only sequential users
+    URM_train_or = URM_train.copy()
+    URM_all_csr = URM_all_csr[targetsListOrdered]
+    URM_all = URM_all_csr.tocoo()
+    URM_train = URM_train[targetsListOrdered]
+    URM_validation = URM_validation[targetsListOrdered]
+    #URM_test = URM_test[targetsListOrdered]
+    userList_unique = list(range(len(targetsListOrdered)))  # is this ok? or does it break stuff?
+    targetsList = userList_unique
+    targetsListOrdered = userList_unique
+    targetsListCasual = []
+    numUsers = len(userList_unique)
+    numberInteractions = URM_all.nnz
+
+    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}_seq3_cut/".format(date=datetime.datetime.now())
 
     # If directory does not exist, create
     if not os.path.exists(output_root_path):
@@ -1009,11 +1067,12 @@ if __name__ == '__main__':
     # users_excluded_targets = [u for u in userList_unique if u not in targetsListList]
     # evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
     # evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
-    evaluator_validation = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
-    # evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
+    evaluator_validation = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=[])
+    #evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=usersNonOrdered)
 
     runParameterSearch_Collaborative_partial = partial(runParameterSearch_Collaborative,
                                                        URM_train = URM_train,
+                                                       URM_train_or = URM_train_or,
                                                        ICM_all = ICM_all,
                                                        metric_to_optimize = "MAP",
                                                        #n_cases = 600,
@@ -1023,7 +1082,7 @@ if __name__ == '__main__':
                                                        output_folder_path = output_root_path,
                                                        optimizer="bayesian", # "forest", "gbrt", "bayesian"
                                                        # params
-                                                       n_calls=800, # 70,
+                                                       n_calls=700, # 70,
                                                        #n_random_starts= 20, #20,
                                                        n_points=10000,
                                                        n_jobs=1,
@@ -1035,7 +1094,7 @@ if __name__ == '__main__':
                                                        verbose=True,
                                                        n_restarts_optimizer=10,  # only bayesian
                                                        xi=0.01,
-                                                       kappa=4, # 1.96,
+                                                       kappa=3, # 1.96,
                                                        x0=None,
                                                        y0=None,
                                                        )
@@ -1054,7 +1113,7 @@ if __name__ == '__main__':
                 output_root_path_recsys = output_root_path + "{}/".format(
                     recommender_class.RECOMMENDER_NAME if recommender_class.RECOMMENDER_NAME is not None else recommender_class)
                 parameterSearch = BayesianSkoptSearch(recommender_class, evaluator_validation=evaluator_validation)
-                                                 #,evaluator_test=evaluator_test)
+                                                 #evaluator_test=evaluator_test)
                 runParameterSearch_Collaborative_partial(recommender_class, parameterSearch=parameterSearch,
                                                          #output_root_path=output_root_path_recsys,
                                                          #loggerPath=output_root_path_recsys
