@@ -638,9 +638,9 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             # N_ucbf = 8
             # N_rp3b = 3
             N_cbf = 2
-            N_cf = 4
+            N_cf = 2
             N_p3a = 0
-            N_ucf = 2
+            N_ucf = 3
             N_ucbf = 0
             N_rp3b = 1
             N_slim = 1
@@ -677,7 +677,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
             recsys_params2 = list((zip(np.linspace(5, 200, N_cf).tolist(), [12] * N_cf)))
             recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
-            recsys_params4 = list((zip(np.linspace(10, 180, N_ucf).tolist(), [2] * N_ucf)))
+            recsys_params4 = list((zip(np.linspace(5, 180, N_ucf).tolist(), [2] * N_ucf)))
             recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
             recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
             # today
@@ -794,15 +794,31 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             # print("Recommending hyb item sim")
             # recsys_est_ratings.append(svd_est)
 
+            # # boosting rp3b, slim and als
+            # factor = 2.0
+            # # rp3b
+            # recsys_est_ratings[-3] = recsys_est_ratings[-3] * factor
+            # # slim
+            # recsys_est_ratings[-2] = recsys_est_ratings[-2] * factor
+            # # als
+            # recsys_est_ratings[-1] = recsys_est_ratings[-1] * factor
+
             print("Starting hopefully the tuning")
             hyperparamethers_range_dictionary = {}
             # hyperparamethers_range_dictionary["alphas0"] = range(0, 20)
             for i in range(0, N_hyb):
                 text = "alphas" + str(i)
                 #hyperparamethers_range_dictionary[text] = Real(low = 0.0, high = 40.0, prior = 'uniform')
-                hyperparamethers_range_dictionary[text] = Real(low=0.0, high=100.0)
+                hyperparamethers_range_dictionary[text] = Real(low=0.0, high=1000.0)
             # text = "alphas" + str(N_hyb-1)
             # hyperparamethers_range_dictionary[text] = range(0, 2)
+            #
+            # # rp3b
+            # hyperparamethers_range_dictionary["alphas8"] = Real(low=0.0, high=500.0)
+            # # slim
+            # hyperparamethers_range_dictionary["alphas9"] = Real(low=0.0, high=500.0)
+            # # als
+            # hyperparamethers_range_dictionary["alphas10"] = Real(low=0.0, high=500.0)
 
             # hyperparamethers_range_dictionary["alphas1"] = range(0, 20)
             # hyperparamethers_range_dictionary["alpha"] = range(0, 2)
@@ -1035,7 +1051,7 @@ if __name__ == '__main__':
                                                        verbose=True,
                                                        n_restarts_optimizer=10,  # only bayesian
                                                        xi=0.01,
-                                                       kappa=4, # 1.96,
+                                                       kappa=3.5, # 1.96,
                                                        x0=None,
                                                        y0=None,
                                                        )

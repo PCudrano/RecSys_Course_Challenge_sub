@@ -244,9 +244,9 @@ if __name__ == '__main__':
         # recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
 
         N_cbf = 2
-        N_cf = 4
+        N_cf = 3
         N_p3a = 0
-        N_ucf = 2
+        N_ucf = 3
         N_ucbf = 0
         N_rp3b = 1
         N_slim = 1
@@ -277,7 +277,7 @@ if __name__ == '__main__':
         recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
         recsys_params2 = list((zip(np.linspace(5, 200, N_cf).tolist(), [12] * N_cf)))
         recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
-        recsys_params4 = list((zip(np.linspace(10, 180, N_ucf).tolist(), [2] * N_ucf)))
+        recsys_params4 = list((zip(np.linspace(5, 180, N_ucf).tolist(), [2] * N_ucf)))
         recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
         recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
 
@@ -345,6 +345,15 @@ if __name__ == '__main__':
         print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
         print("Starting hopefully the tuning")
 
+        # # boosting rp3b, slim and als
+        # factor = 2.0
+        # # rp3b
+        # recsys_est_ratings[-3] = recsys_est_ratings[-3] * factor
+        # # slim
+        # recsys_est_ratings[-2] = recsys_est_ratings[-2] * factor
+        # # als
+        # recsys_est_ratings[-1] = recsys_est_ratings[-1] * factor
+
         print("Building the alphas")
 
         #a = {'alphas0': 19.485713591551153, 'alphas1': 4.71319435578388, 'alphas10': 2.2227435851035993, 'alphas11': 1.9716421945640317, 'alphas12': 7.5238841058329875, 'alphas13': 0.4108412788439586, 'alphas14': 4.526224503200407, 'alphas15': 13.576966307999559, 'alphas16': 0.642187854373879, 'alphas17': 5.275515473418448, 'alphas18': 0.34228595410624507, 'alphas19': 0.34191569651452536, 'alphas2': 5.900450505346193, 'alphas20': 6.980737750232469, 'alphas21': 11.130807458091677, 'alphas22': 9.31624459508006, 'alphas23': 4.321048654234952, 'alphas24': 1.1310553103741783, 'alphas25': 9.604200085107115, 'alphas26': 0.5368035241482083, 'alphas27': 3.0960069679180546, 'alphas28': 3.864988337641473, 'alphas29': 16.706157748846, 'alphas3': 16.320530250453828, 'alphas30': 0.9494730681150165, 'alphas31': 0.7654428335341734, 'alphas32': 13.390283773301505, 'alphas33': 19.218172572103484, 'alphas34': 1.4466507699578846, 'alphas35': 19.8594906640407, 'alphas4': 6.6763597060138675, 'alphas5': 10.575281828871317, 'alphas6': 3.7900979297179593, 'alphas7': 4.420167469234189, 'alphas8': 13.929403030269114, 'alphas9': 1.3122328787554016}
@@ -362,9 +371,9 @@ if __name__ == '__main__':
         # a = {'alphas0': 4.5124854548474325, 'alphas1': 8.47517330961923, 'alphas2': 60.0, 'alphas3': 0.0, 'alphas4': 0.0,
         #  'alphas5': 2.934211938863597, 'alphas6': 0.0, 'alphas7': 0.0, 'alphas8': 33.89244968795839,
         #  'alphas9': 7.472486990402197, 'alphas10': 0.0, 'alphas11': 60.0, 'alphas12': 60.0, 'alphas13': 60.0}
-        a = {'alphas0': 5.802542621278499, 'alphas1': 8.81751064446703, 'alphas2': 42.79739955226521, 'alphas3': 0.0,
-         'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 36.46781607912204, 'alphas7': 6.766693640941726, 'alphas8': 100.0,
-         'alphas9': 90.77029319778482, 'alphas10': 100.0}
+        a = {'alphas0': 23.98153799693859, 'alphas1': 30.031773212017377, 'alphas2': 100.0, 'alphas3': 0.0, 'alphas4': 0.0,
+         'alphas5': 100.0, 'alphas6': 26.803618525915272, 'alphas7': 13.3017047058962, 'alphas8': 488.5240871745854,
+         'alphas9': 318.0338187901794, 'alphas10': 299.12549020619235}
         print("Init recsys")
         recommender = recommender_class(URM_train, recsys_est_ratings)
         print("Fitting recsys")
@@ -537,7 +546,7 @@ if __name__ == '__main__':
         print(target_df[0:5])
 
         # Custom name
-        csv_filename = "hybrid_est_ratings_34"
+        csv_filename = "hybrid_est_ratings_36"
         # Default name
         #csv_filename = "submission_{algtype:}_{date:%Y%m%d%H%M%S}".format(algtype=recommender_class, date=datetime.datetime.now())
 
