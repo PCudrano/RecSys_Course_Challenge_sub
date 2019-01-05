@@ -762,7 +762,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             # load slim bpr
             slims_dir = "result_experiments/hyb_est_ratings_6/"
             # recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_100")
-            recsys[-2].loadModel(slims_dir, "SLIM_BPR_rw_300")
+            recsys[-2].loadModel(slims_dir, "SLIM_BPR_valid_06_300")
             print("Load complete of slim bpr")
             el_t = time.time() - t
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))

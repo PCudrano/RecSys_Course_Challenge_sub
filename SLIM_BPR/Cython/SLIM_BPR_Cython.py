@@ -182,6 +182,12 @@ class SLIM_BPR_Cython(SimilarityMatrixRecommender, Recommender, Incremental_Trai
                 self.W = self.S_incremental
 
     def set_W_to_S_best(self):
+
+        #if self.S_best is None:
+        print("No best")
+        self.S_best = self.cythonEpoch.get_S()
+        #self.S_incremental = self.cythonEpoch.get_S()
+
         if self.train_with_sparse_weights:
             self.W_sparse = self.S_best
         else:
