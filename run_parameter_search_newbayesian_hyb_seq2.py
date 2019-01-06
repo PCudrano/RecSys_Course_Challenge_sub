@@ -797,10 +797,15 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
                 recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.5927789387679869,
                                                                       beta=0.009260542392306892)
 
+            # slims_dir_old = "result_experiments/hyb_est_ratings_4/"
+            # slims_dir = "result_experiments/hyb_est_ratings_6/"
+            # recsys[-3].loadModel(slims_dir_old, "SLIM_BPR_Recommender_best_model_300")
+            # recsys[-2].loadModel(slims_dir, "SLIM_BPR_rw_300")
+            # print("Load complete of slim bpr")
+
             # load slim bpr
-            slims_dir = "result_experiments/hyb_est_ratings_4/"
-            # recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_100")
-            recsys[-2].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_300")
+            slims_dir = "result_experiments/hyb_est_ratings_6/"
+            recsys[-2].loadModel(slims_dir, "SLIM_BPR_rw_300")
             print("Load complete of slim bpr")
             el_t = time.time() - t
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
@@ -827,6 +832,15 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
                     recsys_est_ratings.append(recsys[i].estimate_ratings(userList_unique, 160))
             el_t = time.time() - t2
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+
+            # print("Recommending als")
+            # t2 = time.time()
+            # # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
+            # recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_rw_est_rat")[0])
+            # el_t = time.time() - t2
+            # print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+
+
             print("Recommending als")
             recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
             # print("Recommending hyb item sim")
@@ -1059,7 +1073,7 @@ if __name__ == '__main__':
                                                        output_folder_path = output_root_path,
                                                        optimizer="bayesian", # "forest", "gbrt", "bayesian"
                                                        # params
-                                                       n_calls=700, # 70,
+                                                       n_calls=800, # 70,
                                                        #n_random_starts= 20, #20,
                                                        n_points=10000,
                                                        n_jobs=1,

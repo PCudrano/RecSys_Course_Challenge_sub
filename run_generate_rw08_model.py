@@ -152,7 +152,8 @@ if __name__ == '__main__':
     # URM_validation = URM_valid
     # URM_test = URM_test_pred.tocsr()
 
-    recommender_class = SLIM_BPR_Cython
+    #recommender_class = SLIM_BPR_Cython
+    recommender_class = ImplicitALSRecommender
 
 
     from Base.Evaluation.Evaluator import SequentialEvaluator
@@ -186,6 +187,8 @@ if __name__ == '__main__':
             print("Fitting recsys")
             recommender.fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
             print("Hopefully done")
+            recommender.saveEstRatings("result_experiments/hyb_est_ratings_6/", file_name="ALS_rw_est_rat", user_id_array=userList_unique, k=160)
+            print("Hopefully saved")
 
 
 
