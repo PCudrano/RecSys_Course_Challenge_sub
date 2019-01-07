@@ -631,9 +631,14 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
 
             print("Starting initing the single recsys")
 
-            N_cbf = 4
-            N_cf = 3
-            N_cf2 = 3
+            # N_cbf = 6
+            # N_cf = 40
+            # N_p3a = 3
+            # N_ucf = 20
+            # N_ucbf = 8
+            # N_rp3b = 3
+            N_cbf = 2
+            N_cf = 4
             N_p3a = 0
             N_ucf = 2
             N_ucbf = 0
@@ -642,12 +647,10 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             N_als = 1
             N_hyb_item_sim = 0
             N_pure_svd = 0
-            N_hyb = N_cbf + N_cf + N_cf2 + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_als + N_hyb_item_sim + N_pure_svd
+            N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_als + N_hyb_item_sim + N_pure_svd
             recsys = []
             for i in range(N_cbf):
                 recsys.append(ItemCBFKNNRecommender(URM_train, ICM_all))
-            for i in range(N_cf):
-                recsys.append(ItemCFKNNRecommender(URM_train))
             for i in range(N_cf):
                 recsys.append(ItemCFKNNRecommender(URM_train))
             for i in range(N_p3a):
@@ -665,14 +668,62 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             for i in range(N_pure_svd):
                 recsys.append(PureSVDRecommender(URM_train))
 
-            recsys_params = list(zip(np.linspace(5, 200, N_cbf).tolist(), [4] * N_cbf))
+            # recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
+            # recsys_params2 = list((zip(np.linspace(5, 800, N_cf).tolist(), [12] * N_cf)))
+            # recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
+            # recsys_params4 = list((zip(np.linspace(170, 180, N_ucf).tolist(), [2] * N_ucf)))
+            # recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
+            # recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
+            recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
             recsys_params2 = list((zip(np.linspace(5, 200, N_cf).tolist(), [12] * N_cf)))
-            recsys_params_cf2 = list((zip(np.linspace(5, 200, N_cf2).tolist(), [12] * N_cf2)))
             recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
             recsys_params4 = list((zip(np.linspace(10, 180, N_ucf).tolist(), [2] * N_ucf)))
             recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
             recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
-
+            # today
+            # N_cbf = 2
+            # N_cf = 4
+            # N_p3a = 0
+            # N_ucf = 2
+            # N_ucbf = 1
+            # N_rp3b = 1
+            # N_slim = 1
+            # N_als = 1
+            # N_hyb_item_sim = 0
+            # N_pure_svd = 0
+            # N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_als + N_hyb_item_sim + N_pure_svd
+            # recsys = []
+            # for i in range(N_cbf):
+            #     recsys.append(ItemCBFKNNRecommender(URM_train, ICM_all))
+            # for i in range(N_cf):
+            #     recsys.append(ItemCFKNNRecommender(URM_train))
+            # for i in range(N_p3a):
+            #     recsys.append(P3AlphaRecommender(URM_train))
+            # for i in range(N_ucf):
+            #     recsys.append(UserCFKNNRecommender(URM_train))
+            # for i in range(N_ucbf):
+            #     recsys.append(UserCBFKNNRecommender(URM_train, ICM_all))
+            # for i in range(N_rp3b):
+            #     recsys.append(RP3betaRecommender(URM_train))
+            # for i in range(N_slim):
+            #     recsys.append(SLIM_BPR_Cython(URM_train))
+            # for i in range(N_als):
+            #     recsys.append(ImplicitALSRecommender(URM_train))
+            # for i in range(N_pure_svd):
+            #     recsys.append(PureSVDRecommender(URM_train))
+            #
+            # # recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
+            # # recsys_params2 = list((zip(np.linspace(5, 800, N_cf).tolist(), [12] * N_cf)))
+            # # recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
+            # # recsys_params4 = list((zip(np.linspace(170, 180, N_ucf).tolist(), [2] * N_ucf)))
+            # # recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
+            # # recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
+            # recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
+            # recsys_params2 = list((zip(np.linspace(5, 641, N_cf).tolist(), [12] * N_cf)))
+            # recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
+            # recsys_params4 = list((zip(np.linspace(10, 180, N_ucf).tolist(), [2] * N_ucf)))
+            # recsys_params5 = list((zip(np.linspace(10, 180, N_ucbf).tolist(), [5] * N_ucbf)))
+            # recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
 
             print("Starting fitting single recsys")
             t = time.time()
@@ -685,38 +736,32 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params2[i][0]
                 shrink = recsys_params2[i][1]
-                recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.3)
-            for i in range(N_cf2):
-                # print("Training system {:d}...".format(i+N_cbf))
-                topK = recsys_params_cf2[i][0]
-                shrink = recsys_params_cf2[i][1]
-                recsys[i + N_cbf + N_cf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.5)
+                recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.1)
             for i in range(N_p3a):
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params3[i][0]
                 shrink = recsys_params3[i][1]
-                recsys[i + N_cbf + N_cf + N_cf2].fit(topK=topK, shrink=shrink, alpha=0.31)
+                recsys[i + N_cbf + N_cf].fit(topK=topK, shrink=shrink, alpha=0.31)
             for i in range(N_ucf):
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params4[i][0]
                 shrink = recsys_params4[i][1]
-                recsys[i + N_cbf + N_cf + N_cf2 + N_p3a].fit(topK=topK, shrink=shrink, type="jaccard")
+                recsys[i + N_cbf + N_cf + N_p3a].fit(topK=topK, shrink=shrink, type="jaccard")
             for i in range(N_ucbf):
                 # print("Training system {:d}...".format(i+N_cbf))b
                 topK = recsys_params5[i][0]
                 shrink = recsys_params5[i][1]
-                recsys[i + N_cbf + N_cf + N_cf2 + N_p3a + N_ucf].fit(topK=topK, shrink=shrink, type="tanimoto")
+                recsys[i + N_cbf + N_cf + N_p3a + N_ucf].fit(topK=topK, shrink=shrink, type="tanimoto")
             for i in range(N_rp3b):
                 # print("Training system {:d}...".format(i+N_cbf))b
                 topK = int(recsys_params6[i][0])
                 shrink = recsys_params6[i][1]
-                recsys[i + N_cbf + N_cf + N_cf2 + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.5927789387679869,
+                recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.5927789387679869,
                                                                       beta=0.009260542392306892)
 
             # load slim bpr
-            #slims_dir_old = "result_experiments/hyb_est_ratings_4/"
             slims_dir = "result_experiments/hyb_est_ratings_6/"
-            #recsys[-3].loadModel(slims_dir_old, "SLIM_BPR_Recommender_best_model_300")
+            # recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_100")
             recsys[-2].loadModel(slims_dir, "SLIM_BPR_rw_300")
             print("Load complete of slim bpr")
             el_t = time.time() - t
@@ -738,7 +783,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             t2 = time.time()
             recsys_est_ratings = []
             for i in range(0, N_hyb - 1):
-                if i >= N_cbf + N_cf + N_cf2 + N_p3a + N_ucf + N_ucbf:
+                if i >= N_cbf + N_cf + N_p3a + N_ucf + N_ucbf:
                     recsys_est_ratings.append(recsys[i].compute_item_score(userList_unique, 160))
                 else:
                     recsys_est_ratings.append(recsys[i].estimate_ratings(userList_unique, 160))
@@ -753,7 +798,9 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             el_t = time.time() - t2
             print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
-            #recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
+            #
+            # print("Recommending als")
+            # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
             # print("Recommending hyb item sim")
             # recsys_est_ratings.append(svd_est)
 
@@ -951,7 +998,7 @@ if __name__ == '__main__':
     # URM_validation = URM_valid
     # URM_test = URM_test_pred
 
-    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}_tot/".format(date=datetime.datetime.now())
+    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}_tot3/".format(date=datetime.datetime.now())
 
     # If directory does not exist, create
     if not os.path.exists(output_root_path):

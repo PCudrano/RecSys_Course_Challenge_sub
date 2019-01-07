@@ -222,7 +222,7 @@ if __name__ == '__main__':
             # print("Training system {:d}...".format(i+N_cbf))
             topK = recsys_params2[i][0]
             shrink = recsys_params2[i][1]
-            recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.3)
+            recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.1)
         for i in range(N_p3a):
             # print("Training system {:d}...".format(i+N_cbf))
             topK = recsys_params3[i][0]
@@ -306,9 +306,14 @@ if __name__ == '__main__':
 
         print("Building the alphas")
 
-        a = {'alphas0': 3.6427600904810937, 'alphas1': 16.31770138011057, 'alphas2': 39.90505516807647, 'alphas3': 0.0,
-         'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 42.38235266860169, 'alphas7': 0.831248647914375,
-         'alphas8': 37.86777732947048, 'alphas9': 17.83187149889025, 'alphas10': 100.0}
+        # a = {'alphas0': 5.374007050416101, 'alphas1': 12.286842283197624, 'alphas2': 51.55731289247982, 'alphas3': 0.0,
+        #  'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 37.48525138687169, 'alphas7': 3.570461023824344,
+        #  'alphas8': 57.079121233691254, 'alphas9': 15.053088685697723, 'alphas10': 100.0}
+
+        a = {'alphas0': 4.142061337738176, 'alphas1': 13.498314770949873, 'alphas2': 53.446909244830174, 'alphas3': 0.0,
+         'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 45.15053539934059, 'alphas7': 3.467604331006338,
+         'alphas8': 26.647837003732427, 'alphas9': 15.6435056678189, 'alphas10': 100.0}
+
         print("Init recsys")
         recommender = recommender_class(URM_train, recsys_est_ratings)
         print("Fitting recsys")
@@ -467,7 +472,7 @@ if __name__ == '__main__':
         print(target_df[0:5])
 
         # Custom name
-        csv_filename = "hybrid_est_ratings_40"
+        csv_filename = "hybrid_est_ratings_42"
         # Default name
         #csv_filename = "submission_{algtype:}_{date:%Y%m%d%H%M%S}".format(algtype=recommender_class, date=datetime.datetime.now())
 
