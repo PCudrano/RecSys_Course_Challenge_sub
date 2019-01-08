@@ -736,7 +736,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params2[i][0]
                 shrink = recsys_params2[i][1]
-                recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.2)
+                recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.15)
             for i in range(N_p3a):
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params3[i][0]
@@ -998,7 +998,7 @@ if __name__ == '__main__':
     # URM_validation = URM_valid
     # URM_test = URM_test_pred
 
-    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}_tot/".format(date=datetime.datetime.now())
+    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}_tot2/".format(date=datetime.datetime.now())
 
     # If directory does not exist, create
     if not os.path.exists(output_root_path):

@@ -639,9 +639,9 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             # N_rp3b = 3
             N_cbf = 2
             N_cf = 4
-            N_p3a = 0
+            N_p3a = 1
             N_ucf = 2
-            N_ucbf = 0
+            N_ucbf = 1
             N_rp3b = 1
             N_slim = 1
             N_als = 1
@@ -678,7 +678,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             recsys_params2 = list((zip(np.linspace(5, 200, N_cf).tolist(), [12] * N_cf)))
             recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
             recsys_params4 = list((zip(np.linspace(10, 180, N_ucf).tolist(), [2] * N_ucf)))
-            recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
+            recsys_params5 = list((zip(np.linspace(10, 180, N_ucbf).tolist(), [5] * N_ucbf)))
             recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
             # today
             # N_cbf = 2
@@ -736,7 +736,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params2[i][0]
                 shrink = recsys_params2[i][1]
-                recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.1)
+                recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.15)
             for i in range(N_p3a):
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params3[i][0]

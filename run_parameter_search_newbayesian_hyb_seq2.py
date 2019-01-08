@@ -774,7 +774,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params2[i][0]
                 shrink = recsys_params2[i][1]
-                recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.3)
+                recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.2)
             for i in range(N_p3a):
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params3[i][0]
@@ -810,9 +810,9 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             el_t = time.time() - t
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
-            print("Starting fitting als")
-            recsys[-1].fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
-            print("Ended fitting als")
+            # print("Starting fitting als")
+            # recsys[-1].fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
+            # print("Ended fitting als")
 
             # print("Starting fitting PureSVD")
             # recsys[-1].fit(num_factors=165)
@@ -840,9 +840,16 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             # el_t = time.time() - t2
             # print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
-
             print("Recommending als")
-            recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
+            t2 = time.time()
+            # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
+            slims_dir = "result_experiments/hyb_est_ratings_6/"
+            recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_rw_est_rat")[0])
+            el_t = time.time() - t2
+            print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+
+            # print("Recommending als")
+            # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
             # print("Recommending hyb item sim")
             # recsys_est_ratings.append(svd_est)
 
