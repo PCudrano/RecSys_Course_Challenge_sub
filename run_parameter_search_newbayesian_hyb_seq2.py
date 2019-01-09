@@ -774,7 +774,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params2[i][0]
                 shrink = recsys_params2[i][1]
-                recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.2)
+                recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.4)
             for i in range(N_p3a):
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params3[i][0]
