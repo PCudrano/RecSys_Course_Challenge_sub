@@ -621,7 +621,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             # N_ucbf = 8
             # N_rp3b = 3
             N_cbf = 2
-            N_cf = 2
+            N_cf = 4
             N_p3a = 0
             N_ucf = 2
             N_ucbf = 0
@@ -651,11 +651,11 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             for i in range(N_pure_svd):
                 recsys.append(PureSVDRecommender(URM_train))
 
-            recsys_params = list(zip(np.linspace(5, 70, N_cbf).tolist(), [4] * N_cbf))
-            recsys_params2 = list((zip(np.linspace(5, 200, N_cf).tolist(), [5] * N_cf)))
-            recsys_params3 = list((zip(np.linspace(10, 101, N_p3a).tolist(), [2] * N_p3a)))
+            recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
+            recsys_params2 = list((zip(np.linspace(5, 200, N_cf).tolist(), [12] * N_cf)))
+            recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
             recsys_params4 = list((zip(np.linspace(10, 180, N_ucf).tolist(), [2] * N_ucf)))
-            recsys_params5 = list((zip(np.linspace(10, 180, N_ucbf).tolist(), [2] * N_ucbf)))
+            recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
             recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
 
             print("Starting fitting single recsys")
