@@ -124,9 +124,12 @@ if __name__ == '__main__':
     #                                                       nnz_threshold=10)
     # URM_train, URM_valid = train_test_holdout(URM_train_val, train_perc=0.7, seed=seed)
     # URM_test_known = None
+    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df,
+                                                            train_perc=0.8,
+                                                            seed=seed, targetsListOrdered=targetsListOrdered,
+                                                            nnz_threshold=2)
 
-
-    URM_train = URM_all.tocsr()
+    #URM_train = URM_all.tocsr()
 
     ICM_all = build_icm.build_icm(tracks_df)
 
@@ -172,11 +175,11 @@ if __name__ == '__main__':
         print("Algorithm: {}".format(recommender_class))
         if recommender_class is SLIM_BPR_Cython:
             recommender = recommender_class(URM_train, symmetric = False)
-            recommender.fit(epochs=600, batch_size=1000, lambda_i=0.001, lambda_j=0.001, learning_rate=0.01, topK=300,
-                            sgd_mode='adagrad', gamma=0.995, beta_1=0.9, beta_2=0.999,
-                            stop_on_validation=False, lower_validatons_allowed=5, validation_metric="MAP",
-                            evaluator_object=None, validation_every_n=1000)
-            recommender.saveModel("result_experiments/hyb_est_ratings_6/", file_name="SLIM_BPR_complete")
+            recommender.fit(epochs=600, batch_size = 1000, lambda_i = 0.001, lambda_j = 0.001, learning_rate = 0.01, topK = 300,
+                sgd_mode='adagrad', gamma=0.995, beta_1=0.9, beta_2=0.999,
+                stop_on_validation = False, lower_validatons_allowed = 5, validation_metric = "MAP",
+                evaluator_object = None, validation_every_n = 1000)
+            recommender.saveModel("result_experiments/hyb_est_ratings_6/", file_name="SLIM_BPR_rw_300")
 
         if recommender_class is ImplicitALSRecommender:
             print("Init recsys")
@@ -184,7 +187,7 @@ if __name__ == '__main__':
             print("Fitting recsys")
             recommender.fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
             print("Hopefully done")
-            recommender.saveEstRatings("result_experiments/hyb_est_ratings_6/", file_name="ALS_complete_est_rat", user_id_array=userList_unique, k=160)
+            recommender.saveEstRatings("result_experiments/hyb_est_ratings_6/", file_name="ALS_rw_est_rat", user_id_array=userList_unique, k=160)
             print("Hopefully saved")
 
 

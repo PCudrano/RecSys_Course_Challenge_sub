@@ -189,7 +189,7 @@ def runParameterSearch_Content(recommender_class, URM_train, ICM_object, ICM_nam
             run_KNNCBFRecommender_on_similarity_type_partial(similarity_type)
 
 
-def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None, metric_to_optimize = "PRECISION",
+def runParameterSearch_Collaborative(recommender_class, URM_train, URM_train_or, ICM_all=None, metric_to_optimize = "PRECISION",
                                      evaluator_validation = None, evaluator_test = None, evaluator_validation_earlystopping = None,
                                      output_folder_path ="result_experiments/", parallelizeKNN = True,
                                      parameterSearch=None, **kwargs):
@@ -604,13 +604,20 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             itemList = interactions_df["track_id"]
             ratingList = np.ones(interactions_df.shape[0])
             targetsList = playlist_id_df["playlist_id"]
-            targetsListOrdered = targetsList[:5000].tolist()
+            targetsListOrderedOr = targetsList[:5000].tolist()
             targetsListCasual = targetsList[5000:].tolist()
             userList_unique = pd.unique(userList)
             itemList_unique = tracks_df["track_id"]
             numUsers = len(userList_unique)
             numItems = len(itemList_unique)
             numberInteractions = interactions_df.size
+
+            userList_unique = list(range(len(targetsListOrderedOr)))  # is this ok? or does it break stuff?
+            targetsList = userList_unique
+            targetsListOrdered = userList_unique
+            targetsListCasual = []
+            numUsers = len(userList_unique)
+            numberInteractions = URM_all.nnz
 
             # ICM_all = build_icm.build_icm(tracks_df)
             #
@@ -662,7 +669,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             for i in range(N_rp3b):
                 recsys.append(RP3betaRecommender(URM_train))
             for i in range(N_slim):
-                recsys.append(SLIM_BPR_Cython(URM_train))
+                recsys.append(SLIM_BPR_Cython(URM_train_or))
             for i in range(N_als):
                 recsys.append(ImplicitALSRecommender(URM_train))
             for i in range(N_pure_svd):
@@ -774,7 +781,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params2[i][0]
                 shrink = recsys_params2[i][1]
-                recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.4)
+                recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.3)
             for i in range(N_p3a):
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params3[i][0]
@@ -797,22 +804,17 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
                 recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.5927789387679869,
                                                                       beta=0.009260542392306892)
 
-            # slims_dir_old = "result_experiments/hyb_est_ratings_4/"
-            # slims_dir = "result_experiments/hyb_est_ratings_6/"
-            # recsys[-3].loadModel(slims_dir_old, "SLIM_BPR_Recommender_best_model_300")
-            # recsys[-2].loadModel(slims_dir, "SLIM_BPR_rw_300")
-            # print("Load complete of slim bpr")
-
             # load slim bpr
-            slims_dir = "result_experiments/hyb_est_ratings_6/"
-            recsys[-2].loadModel(slims_dir, "SLIM_BPR_rw_300")
+            slims_dir = "result_experiments/hyb_est_ratings_4/"
+            # recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_100")
+            recsys[-2].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_300")
             print("Load complete of slim bpr")
             el_t = time.time() - t
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
-            # print("Starting fitting als")
-            # recsys[-1].fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
-            # print("Ended fitting als")
+            print("Starting fitting als")
+            recsys[-1].fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
+            print("Ended fitting als")
 
             # print("Starting fitting PureSVD")
             # recsys[-1].fit(num_factors=165)
@@ -825,31 +827,16 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             print("Starting recommending the est_ratings")
             t2 = time.time()
             recsys_est_ratings = []
-            for i in range(0, N_hyb - 1):
+            for i in range(0, N_hyb - 2):
                 if i >= N_cbf + N_cf + N_p3a + N_ucf + N_ucbf:
                     recsys_est_ratings.append(recsys[i].compute_item_score(userList_unique, 160))
                 else:
                     recsys_est_ratings.append(recsys[i].estimate_ratings(userList_unique, 160))
             el_t = time.time() - t2
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
-
-            # print("Recommending als")
-            # t2 = time.time()
-            # # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
-            # recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_rw_est_rat")[0])
-            # el_t = time.time() - t2
-            # print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
-
+            recsys_est_ratings.append(recsys[-2].compute_item_score(targetsListOrderedOr, 160))
             print("Recommending als")
-            t2 = time.time()
-            # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
-            slims_dir = "result_experiments/hyb_est_ratings_6/"
-            recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_rw_est_rat")[0])
-            el_t = time.time() - t2
-            print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
-
-            # print("Recommending als")
-            # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
+            recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
             # print("Recommending hyb item sim")
             # recsys_est_ratings.append(svd_est)
 
@@ -1029,7 +1016,21 @@ if __name__ == '__main__':
     # URM_validation = URM_valid
     # URM_test = URM_test_pred
 
-    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}_seq2/".format(date=datetime.datetime.now())
+    ## Cut URM to only sequential users
+    URM_train_or = URM_train.copy()
+    URM_all_csr = URM_all_csr[targetsListOrdered]
+    URM_all = URM_all_csr.tocoo()
+    URM_train = URM_train[targetsListOrdered]
+    URM_validation = URM_validation[targetsListOrdered]
+    #URM_test = URM_test[targetsListOrdered]
+    userList_unique = list(range(len(targetsListOrdered)))  # is this ok? or does it break stuff?
+    targetsList = userList_unique
+    targetsListOrdered = userList_unique
+    targetsListCasual = []
+    numUsers = len(userList_unique)
+    numberInteractions = URM_all.nnz
+
+    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}_seq3_cut/".format(date=datetime.datetime.now())
 
     # If directory does not exist, create
     if not os.path.exists(output_root_path):
@@ -1066,11 +1067,12 @@ if __name__ == '__main__':
     # users_excluded_targets = [u for u in userList_unique if u not in targetsListList]
     # evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
     # evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
-    evaluator_validation = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=usersNonOrdered)
+    evaluator_validation = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=[])
     #evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=usersNonOrdered)
 
     runParameterSearch_Collaborative_partial = partial(runParameterSearch_Collaborative,
                                                        URM_train = URM_train,
+                                                       URM_train_or = URM_train_or,
                                                        ICM_all = ICM_all,
                                                        metric_to_optimize = "MAP",
                                                        #n_cases = 600,
@@ -1080,7 +1082,7 @@ if __name__ == '__main__':
                                                        output_folder_path = output_root_path,
                                                        optimizer="bayesian", # "forest", "gbrt", "bayesian"
                                                        # params
-                                                       n_calls=800, # 70,
+                                                       n_calls=700, # 70,
                                                        #n_random_starts= 20, #20,
                                                        n_points=10000,
                                                        n_jobs=1,

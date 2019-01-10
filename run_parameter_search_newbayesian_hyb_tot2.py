@@ -612,23 +612,6 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             numItems = len(itemList_unique)
             numberInteractions = interactions_df.size
 
-            # ICM_all = build_icm.build_icm(tracks_df)
-            #
-            # IDF_ENABLED = True
-            #
-            # if IDF_ENABLED:
-            #     num_tot_items = ICM_all.shape[0]
-            #     # let's count how many items have a certain feature
-            #     items_per_feature = (ICM_all > 0).sum(axis=0)
-            #     IDF = np.array(np.log(num_tot_items / items_per_feature))[0]
-            #     ICM_idf = ICM_all.copy()
-            #     # compute the number of non-zeros in each col
-            #     # NOTE: this works only if X is instance of sparse.csc_matrix
-            #     col_nnz = np.diff(sps.csc_matrix(ICM_idf).indptr)
-            #     # then normalize the values in each col
-            #     ICM_idf.data *= np.repeat(IDF, col_nnz)
-            #     ICM_all = ICM_idf  # use IDF features
-
             print("Starting initing the single recsys")
 
             # N_cbf = 6
@@ -638,10 +621,10 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             # N_ucbf = 8
             # N_rp3b = 3
             N_cbf = 2
-            N_cf = 6
+            N_cf = 2
             N_p3a = 0
             N_ucf = 2
-            N_ucbf = 1
+            N_ucbf = 0
             N_rp3b = 1
             N_slim = 1
             N_als = 1
@@ -668,100 +651,12 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             for i in range(N_pure_svd):
                 recsys.append(PureSVDRecommender(URM_train))
 
-            # recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
-            # recsys_params2 = list((zip(np.linspace(5, 800, N_cf).tolist(), [12] * N_cf)))
-            # recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
-            # recsys_params4 = list((zip(np.linspace(170, 180, N_ucf).tolist(), [2] * N_ucf)))
-            # recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
-            # recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
-            recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
-            recsys_params2 = list((zip(np.linspace(5, 400, N_cf).tolist(), [12] * N_cf)))
-            recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
+            recsys_params = list(zip(np.linspace(5, 70, N_cbf).tolist(), [4] * N_cbf))
+            recsys_params2 = list((zip(np.linspace(5, 200, N_cf).tolist(), [5] * N_cf)))
+            recsys_params3 = list((zip(np.linspace(10, 101, N_p3a).tolist(), [2] * N_p3a)))
             recsys_params4 = list((zip(np.linspace(10, 180, N_ucf).tolist(), [2] * N_ucf)))
-            recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
+            recsys_params5 = list((zip(np.linspace(10, 180, N_ucbf).tolist(), [2] * N_ucbf)))
             recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
-            # today
-            # N_cbf = 2
-            # N_cf = 4
-            # N_p3a = 0
-            # N_ucf = 2
-            # N_ucbf = 1
-            # N_rp3b = 1
-            # N_slim = 1
-            # N_als = 1
-            # N_hyb_item_sim = 0
-            # N_pure_svd = 0
-            # N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_als + N_hyb_item_sim + N_pure_svd
-            # recsys = []
-            # for i in range(N_cbf):
-            #     recsys.append(ItemCBFKNNRecommender(URM_train, ICM_all))
-            # for i in range(N_cf):
-            #     recsys.append(ItemCFKNNRecommender(URM_train))
-            # for i in range(N_p3a):
-            #     recsys.append(P3AlphaRecommender(URM_train))
-            # for i in range(N_ucf):
-            #     recsys.append(UserCFKNNRecommender(URM_train))
-            # for i in range(N_ucbf):
-            #     recsys.append(UserCBFKNNRecommender(URM_train, ICM_all))
-            # for i in range(N_rp3b):
-            #     recsys.append(RP3betaRecommender(URM_train))
-            # for i in range(N_slim):
-            #     recsys.append(SLIM_BPR_Cython(URM_train))
-            # for i in range(N_als):
-            #     recsys.append(ImplicitALSRecommender(URM_train))
-            # for i in range(N_pure_svd):
-            #     recsys.append(PureSVDRecommender(URM_train))
-            #
-            # # recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
-            # # recsys_params2 = list((zip(np.linspace(5, 800, N_cf).tolist(), [12] * N_cf)))
-            # # recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
-            # # recsys_params4 = list((zip(np.linspace(170, 180, N_ucf).tolist(), [2] * N_ucf)))
-            # # recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
-            # # recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
-            # recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
-            # recsys_params2 = list((zip(np.linspace(5, 641, N_cf).tolist(), [12] * N_cf)))
-            # recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
-            # recsys_params4 = list((zip(np.linspace(10, 180, N_ucf).tolist(), [2] * N_ucf)))
-            # recsys_params5 = list((zip(np.linspace(10, 180, N_ucbf).tolist(), [5] * N_ucbf)))
-            # recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
-
-            # N_cbf = 2
-            # N_cf = 6
-            # N_p3a = 1
-            # N_ucf = 1
-            # N_ucbf = 1
-            # N_rp3b = 1
-            # N_slim = 1
-            # N_als = 1
-            # N_hyb_item_sim = 0
-            # N_pure_svd = 0
-            # N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_als + N_hyb_item_sim + N_pure_svd
-            # recsys = []
-            # for i in range(N_cbf):
-            #     recsys.append(ItemCBFKNNRecommender(URM_train, ICM_all))
-            # for i in range(N_cf):
-            #     recsys.append(ItemCFKNNRecommender(URM_train))
-            # for i in range(N_p3a):
-            #     recsys.append(P3AlphaRecommender(URM_train))
-            # for i in range(N_ucf):
-            #     recsys.append(UserCFKNNRecommender(URM_train))
-            # for i in range(N_ucbf):
-            #     recsys.append(UserCBFKNNRecommender(URM_train, ICM_all))
-            # for i in range(N_rp3b):
-            #     recsys.append(RP3betaRecommender(URM_train))
-            # for i in range(N_slim):
-            #     recsys.append(SLIM_BPR_Cython(URM_train))
-            # for i in range(N_als):
-            #     recsys.append(ImplicitALSRecommender(URM_train))
-            # for i in range(N_pure_svd):
-            #     recsys.append(PureSVDRecommender(URM_train))
-            #
-            # recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
-            # recsys_params2 = list((zip(np.linspace(5, 800, N_cf).tolist(), [12] * N_cf)))
-            # recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
-            # recsys_params4 = list((zip(np.linspace(170, 180, N_ucf).tolist(), [2] * N_ucf)))
-            # recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
-            # recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
 
             print("Starting fitting single recsys")
             t = time.time()
@@ -774,7 +669,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params2[i][0]
                 shrink = recsys_params2[i][1]
-                recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.4)
+                recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.15)
             for i in range(N_p3a):
                 # print("Training system {:d}...".format(i+N_cbf))
                 topK = recsys_params3[i][0]
@@ -797,14 +692,9 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
                 recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.5927789387679869,
                                                                       beta=0.009260542392306892)
 
-            # slims_dir_old = "result_experiments/hyb_est_ratings_4/"
-            # slims_dir = "result_experiments/hyb_est_ratings_6/"
-            # recsys[-3].loadModel(slims_dir_old, "SLIM_BPR_Recommender_best_model_300")
-            # recsys[-2].loadModel(slims_dir, "SLIM_BPR_rw_300")
-            # print("Load complete of slim bpr")
-
             # load slim bpr
             slims_dir = "result_experiments/hyb_est_ratings_6/"
+            # recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_100")
             recsys[-2].loadModel(slims_dir, "SLIM_BPR_rw_300")
             print("Load complete of slim bpr")
             el_t = time.time() - t
@@ -833,13 +723,6 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             el_t = time.time() - t2
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
-            # print("Recommending als")
-            # t2 = time.time()
-            # # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
-            # recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_rw_est_rat")[0])
-            # el_t = time.time() - t2
-            # print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
-
             print("Recommending als")
             t2 = time.time()
             # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
@@ -848,10 +731,20 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             el_t = time.time() - t2
             print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
+            #
             # print("Recommending als")
             # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
             # print("Recommending hyb item sim")
             # recsys_est_ratings.append(svd_est)
+
+            # # boosting rp3b, slim and als
+            # factor = 2.0
+            # # rp3b
+            # recsys_est_ratings[-3] = recsys_est_ratings[-3] * factor
+            # # slim
+            # recsys_est_ratings[-2] = recsys_est_ratings[-2] * factor
+            # # als
+            # recsys_est_ratings[-1] = recsys_est_ratings[-1] * factor
 
             print("Starting hopefully the tuning")
             hyperparamethers_range_dictionary = {}
@@ -859,9 +752,16 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             for i in range(0, N_hyb):
                 text = "alphas" + str(i)
                 #hyperparamethers_range_dictionary[text] = Real(low = 0.0, high = 40.0, prior = 'uniform')
-                hyperparamethers_range_dictionary[text] = Real(low=0.0, high=60.0)
+                hyperparamethers_range_dictionary[text] = Real(low=0.0, high=100.0)
             # text = "alphas" + str(N_hyb-1)
             # hyperparamethers_range_dictionary[text] = range(0, 2)
+            #
+            # # rp3b
+            # hyperparamethers_range_dictionary["alphas8"] = Real(low=0.0, high=500.0)
+            # # slim
+            # hyperparamethers_range_dictionary["alphas9"] = Real(low=0.0, high=500.0)
+            # # als
+            # hyperparamethers_range_dictionary["alphas10"] = Real(low=0.0, high=500.0)
 
             # hyperparamethers_range_dictionary["alphas1"] = range(0, 20)
             # hyperparamethers_range_dictionary["alpha"] = range(0, 2)
@@ -1013,23 +913,25 @@ if __name__ == '__main__':
     #                                                       nnz_threshold=10)
     # URM_train, URM_valid = train_test_holdout(URM_train_val, train_perc=0.7, seed=seed)
     # URM_test_known = None
-    usersNonOrdered = [i for i in userList_unique if i not in targetsListOrdered]
-    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, targetsListOrdered, train_sequential_df,
+    URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df,
                                                             train_perc=0.8,
                                                             seed=seed, targetsListOrdered=targetsListOrdered,
                                                             nnz_threshold=2)
-    # URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, targetsListOrdered, train_sequential_df,
-    #                                                   train_perc=0.5,
+    # URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df,
+    #                                                         train_perc=0.8,
+    #                                                         seed=seed, targetsListOrdered=targetsListOrdered,
+    #                                                         nnz_threshold=2)
+    # URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, userList_unique, train_sequential_df,
+    #                                                   train_perc=0.8,
     #                                                   seed=seed, targetsListOrdered=targetsListOrdered,
     #                                                   nnz_threshold=1)
-    URM_test_known = None
 
     URM_train = URM_train
     URM_validation = URM_valid_test_pred
     # URM_validation = URM_valid
     # URM_test = URM_test_pred
 
-    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}_seq2/".format(date=datetime.datetime.now())
+    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}_tot2/".format(date=datetime.datetime.now())
 
     # If directory does not exist, create
     if not os.path.exists(output_root_path):
@@ -1066,8 +968,8 @@ if __name__ == '__main__':
     # users_excluded_targets = [u for u in userList_unique if u not in targetsListList]
     # evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
     # evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
-    evaluator_validation = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=usersNonOrdered)
-    #evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=usersNonOrdered)
+    evaluator_validation = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
+    # evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
 
     runParameterSearch_Collaborative_partial = partial(runParameterSearch_Collaborative,
                                                        URM_train = URM_train,
@@ -1111,7 +1013,7 @@ if __name__ == '__main__':
                 output_root_path_recsys = output_root_path + "{}/".format(
                     recommender_class.RECOMMENDER_NAME if recommender_class.RECOMMENDER_NAME is not None else recommender_class)
                 parameterSearch = BayesianSkoptSearch(recommender_class, evaluator_validation=evaluator_validation)
-                                                 #evaluator_test=evaluator_test)
+                                                 #,evaluator_test=evaluator_test)
                 runParameterSearch_Collaborative_partial(recommender_class, parameterSearch=parameterSearch,
                                                          #output_root_path=output_root_path_recsys,
                                                          #loggerPath=output_root_path_recsys
