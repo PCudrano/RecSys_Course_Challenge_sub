@@ -1,0 +1,22 @@
+name: srs
+channels:
+  - defaults
+  - conda-forge
+  - anaconda
+dependencies:
+  - cython
+  - gensim=3.4.0
+  - ipykernel=4.9.0
+  - matplotlib
+  - mkl-service
+  - networkx=1.11
+  - numba=0.39.0
+  - numpy=1.15.1
+  - pandas=0.23.4
+  - scipy=1.1.0
+  - theano=1.0.3
+  - tqdm=4.25.0
+  - pip:
+    - treelib
+    - pymining
+
