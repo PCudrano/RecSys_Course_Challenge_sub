@@ -174,11 +174,11 @@ if __name__ == '__main__':
         ############################# tot
 
         N_cbf = 2
-        N_cf = 2
+        N_cf = 4
         N_p3a = 0
         N_ucf = 2
         N_ucbf = 0
-        N_rp3b = 1
+        N_rp3b = 2
         N_slim = 1
         N_als = 1
         N_hyb_item_sim = 0
@@ -204,12 +204,12 @@ if __name__ == '__main__':
         for i in range(N_pure_svd):
             recsys.append(PureSVDRecommender(URM_train))
 
-        recsys_params = list(zip(np.linspace(5, 70, N_cbf).tolist(), [4] * N_cbf))
-        recsys_params2 = list((zip(np.linspace(5, 200, N_cf).tolist(), [5] * N_cf)))
-        recsys_params3 = list((zip(np.linspace(10, 101, N_p3a).tolist(), [2] * N_p3a)))
+        recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
+        recsys_params2 = list((zip(np.linspace(5, 200, N_cf).tolist(), [12] * N_cf)))
+        recsys_params3 = list((zip(np.linspace(10, 101, N_p3a).tolist(), [1] * N_p3a)))
         recsys_params4 = list((zip(np.linspace(10, 180, N_ucf).tolist(), [2] * N_ucf)))
-        recsys_params5 = list((zip(np.linspace(10, 180, N_ucbf).tolist(), [2] * N_ucbf)))
-        recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
+        recsys_params5 = list((zip(np.linspace(10, 180, N_ucbf).tolist(), [5] * N_ucbf)))
+        recsys_params6 = list((zip(np.linspace(10, 101, N_rp3b).tolist(), [0] * N_rp3b)))
 
         print("Starting fitting single recsys")
         t = time.time()
@@ -306,21 +306,16 @@ if __name__ == '__main__':
 
         print("Building the alphas")
 
-        # a = {'alphas0': 5.374007050416101, 'alphas1': 12.286842283197624, 'alphas2': 51.55731289247982, 'alphas3': 0.0,
-        #  'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 37.48525138687169, 'alphas7': 3.570461023824344,
-        #  'alphas8': 57.079121233691254, 'alphas9': 15.053088685697723, 'alphas10': 100.0}
-
-        # a = {'alphas0': 4.142061337738176, 'alphas1': 13.498314770949873, 'alphas2': 53.446909244830174, 'alphas3': 0.0,
-        #  'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 45.15053539934059, 'alphas7': 3.467604331006338,
-        #  'alphas8': 26.647837003732427, 'alphas9': 15.6435056678189, 'alphas10': 100.0}
-
-        #best tot sub44 a = {'alphas0': 7.286599943096979, 'alphas1': 11.148986037554979, 'alphas2': 49.434095074724446, 'alphas3': 0.0,
+        # best tot sub44
+        # a = {'alphas0': 7.286599943096979, 'alphas1': 11.148986037554979, 'alphas2': 49.434095074724446, 'alphas3': 0.0,
         #  'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 41.12426731662427, 'alphas7': 3.9862172159427405,
         #  'alphas8': 23.669511899629843, 'alphas9': 16.979647789179317, 'alphas10': 100.0}
 
-        a = {'alphas0': 7.324851548263503, 'alphas1': 10.700908398887929, 'alphas2': 42.548035402358906, 'alphas3': 0.0,
-         'alphas4': 33.24620191606821, 'alphas5': 2.542543358351475, 'alphas6': 52.241901379837884,
-         'alphas7': 14.089491364805125, 'alphas8': 100.0}
+        # sub 48
+        a = {'alphas0': 8.936339105551486, 'alphas1': 9.06632076650215, 'alphas2': 46.14936143285681, 'alphas3': 0.0,
+         'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 49.59836467761108, 'alphas7': 6.488581024286513,
+         'alphas8': 35.58085230583754, 'alphas9': 16.854226764855838, 'alphas10': 15.73570400789563, 'alphas11': 100.0}
+
 
         print("Init recsys")
         recommender = recommender_class(URM_train, recsys_est_ratings)
@@ -442,15 +437,10 @@ if __name__ == '__main__':
         print("Building the alphas")
 
 
-        # a = {'alphas0': 34.911326584505346, 'alphas1': 13.831283494529938, 'alphas2': 60.0, 'alphas3': 60.0,
-        #  'alphas4': 60.0, 'alphas5': 1.0902144703511967, 'alphas6': 60.0, 'alphas7': 0.0, 'alphas8': 60.0,
-        #  'alphas9': 35.4356726344163, 'alphas10': 0.0, 'alphas11': 0.0, 'alphas12': 19.743538083994164,
-        #  'alphas13': 60.0}
-
+        # best seq
         a = {'alphas0': 0.0, 'alphas1': 15.905698874220151, 'alphas2': 60.0, 'alphas3': 0.0, 'alphas4': 0.0,
          'alphas5': 34.35448269489327, 'alphas6': 0.0, 'alphas7': 31.56008184417095, 'alphas8': 60.0, 'alphas9': 0.0,
          'alphas10': 0.0, 'alphas11': 0.0, 'alphas12': 19.773411506848962, 'alphas13': 60.0}
-
 
         print("Init recsys")
         recommender = recommender_class(URM_train, recsys_est_ratings)
@@ -481,7 +471,7 @@ if __name__ == '__main__':
         print(target_df[0:5])
 
         # Custom name
-        csv_filename = "hybrid_est_ratings_46"
+        csv_filename = "hybrid_est_ratings_48"
         # Default name
         #csv_filename = "submission_{algtype:}_{date:%Y%m%d%H%M%S}".format(algtype=recommender_class, date=datetime.datetime.now())
 
