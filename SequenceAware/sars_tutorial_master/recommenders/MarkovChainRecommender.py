@@ -4,8 +4,8 @@ import numpy as np
 import networkx as nx
 import pickle
 
-from recommenders.ISeqRecommender import ISeqRecommender
-from util.markov.Markov import add_nodes_to_graph, add_edges, apply_skipping, apply_clustering
+from SequenceAware.sars_tutorial_master.recommenders.ISeqRecommender import ISeqRecommender
+from SequenceAware.sars_tutorial_master.util.markov.Markov import add_nodes_to_graph, add_edges, apply_skipping, apply_clustering
 
 from SequenceAware.sars_tutorial_master.util.data_utils import create_seq_db_filter_top_k, sequences_to_spfm_format
 from Base.Recommender_utils import check_matrix
@@ -55,8 +55,8 @@ class MarkovChainRecommender(ISeqRecommender):
     def recommend(self, user_id_arr=None):
         if user_id_arr is None:
             user_id_arr = self.seq_user_arr
-        elif not np.all(np.isin(user_id_arr, self.seq_user_arr, assume_unique=True)):
-            raise ValueError('user_id not present in initial seq_user_arr.')
+        # elif not np.all(np.isin(user_id_arr, self.seq_user_arr, assume_unique=True)):
+        #     raise ValueError('user_id not present in initial seq_user_arr.')
         recommendations_arr = []
         for user_id in user_id_arr:
             # user_profile = self.train_data.loc[self.train_data.user_id == user_id, 'sequence'].values

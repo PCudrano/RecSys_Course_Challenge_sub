@@ -3,10 +3,12 @@ import numpy as np
 import scipy.sparse as sps
 import datetime
 
-from recommenders.ISeqRecommender import ISeqRecommender
-from recommenders.MarkovChainRecommender import MarkovChainRecommender
+from SequenceAware.sars_tutorial_master.recommenders.ISeqRecommender import ISeqRecommender
+from SequenceAware.sars_tutorial_master.recommenders.MarkovChainRecommender import MarkovChainRecommender
 
 from Base.Recommender_utils import check_matrix
+
+from src.utils.top_n_idx_sparse import top_n_idx_sparse, top_n_idx_sparse_submatrix
 
 class MixedMarkovChainRecommender(ISeqRecommender):
     """
@@ -49,43 +51,12 @@ class MixedMarkovChainRecommender(ISeqRecommender):
         for order in self.recommenders:
             self.recommenders[order].fit()
 
-    # def recommend(self, user_id_arr=None):
-    #     if user_id_arr is None:
-    #         user_id_arr = self.seq_user_arr
-    #     elif not np.all(np.isin(user_id_arr, self.seq_user_arr, assume_unique=True)):
-    #         raise ValueError('user_id not present in initial seq_user_arr.')
-    #     recommendations_arr = []
-    #     for user_id in user_id_arr:
-    #         recommendations = self._recommend_single(user_id)
-    #         recommendations_arr.append(recommendations)
-    #     return recommendations_arr
-    #
-    # def _recommend_single(self, user_id):
-    #     # user_profile = self.train_data[self.train_data.user_id == user_id]['sequence'].values
-    #     # user_profile = user_profile[0]
-    #     rec_dict = {}
-    #     recommendations = []
-    #     sum_of_weights = 0
-    #     for order, r in self.recommenders.items():
-    #         rec_list = r.recommend([user_id])[0]
-    #         print(rec_list)
-    #         sum_of_weights += 1 / order
-    #         for i in rec_list:
-    #             if tuple(i[0]) in rec_dict:
-    #                 rec_dict[tuple(i[0])] += 1 / order * i[1]
-    #             else:
-    #                 rec_dict[tuple(i[0])] = 1 / order * i[1]
-    #     for k, v in rec_dict.items():
-    #         recommendations.append((list(k), v / sum_of_weights))
-    #
-    #     return recommendations
-
     def compute_markov_score(self, user_id_array, k=160):
 
         if user_id_array is None:
             user_id_array = self.seq_user_arr
-        elif not np.all(np.isin(user_id_array, self.seq_user_arr, assume_unique=True)):
-            raise ValueError('user_id not present in initial seq_user_arr.')
+        # elif not np.all(np.isin(user_id_array, self.seq_user_arr, assume_unique=True)):
+        #     raise ValueError('user_id not present in initial seq_user_arr.')
         est_ratings_data = []
         est_ratings_users = []
         est_ratings_items = []
@@ -108,43 +79,12 @@ class MixedMarkovChainRecommender(ISeqRecommender):
                 est_ratings_items.append(k[0])
                 est_ratings_data.append(v / sum_of_weights)
 
-        est_ratings = sps.coo_matrix((est_ratings_data, (est_ratings_users, est_ratings_items)), shape=(len(user_id_array), self.URM_train.shape[1]))
+        est_ratings = sps.coo_matrix((est_ratings_data, (est_ratings_users, est_ratings_items)), shape=(self.URM_train.shape[0], self.URM_train.shape[1]))
         return est_ratings.tocsr()
 
-    # #override
-    # def recommend(self, user_id_array, cutoff = None, remove_seen_flag=True, remove_top_pop_flag = False, remove_CustomItems_flag = False):
-    #
-    #     # If is a scalar transform it in a 1-cell array
-    #     if np.isscalar(user_id_array):
-    #         user_id_array = np.atleast_1d(user_id_array)
-    #         single_user = True
-    #     else:
-    #         single_user = False
-    #
-    #
-    #     if cutoff is None:
-    #         cutoff = self.URM_train.shape[1] - 1
-    #
-    #     # Compute the scores using the model-specific function
-    #     # Vectorize over all users in user_id_array
-    #     scores_batch = self.compute_item_score(user_id_array)
-    #
-    #
-    #     # if self.normalize:
-    #     #     # normalization will keep the scores in the same range
-    #     #     # of value of the ratings in dataset
-    #     #     user_profile = self.URM_train[user_id]
-    #     #
-    #     #     rated = user_profile.copy()
-    #     #     rated.data = np.ones_like(rated.data)
-    #     #     if self.sparse_weights:
-    #     #         den = rated.dot(self.W_sparse).toarray().ravel()
-    #     #     else:
-    #     #         den = rated.dot(self.W).ravel()
-    #     #     den[np.abs(den) < 1e-6] = 1.0  # to avoid NaNs
-    #     #     scores /= den
-    #
-    #     return top_n_idx_sparse(scores_batch, cutoff, self.URM_train, userListInMatrix=user_id_array, exclude_seen=remove_seen_flag)
+    def recommend(self, user_id_array, cutoff = None, remove_seen_flag=True, remove_top_pop_flag = False, remove_CustomItems_flag = False):
+        return self.recommend_seq(user_id_array, cutoff = cutoff, remove_seen_flag=remove_seen_flag, remove_top_pop_flag = remove_top_pop_flag, remove_CustomItems_flag = remove_CustomItems_flag)
+
 
     def _set_model_debug(self, recommender, order):
         self.recommenders[order] = recommender

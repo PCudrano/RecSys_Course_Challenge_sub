@@ -1,9 +1,10 @@
 import logging
+from tqdm import tqdm
 
 from numba import jit
 
-from util.fpmc import FPMC as FPMC_basic
-from util.fpmc.utils import *
+from SequenceAware.sars_tutorial_master.util.fpmc import FPMC as FPMC_basic
+from SequenceAware.sars_tutorial_master.util.fpmc.utils import *
 
 
 class FPMC(FPMC_basic.FPMC):
@@ -27,6 +28,25 @@ class FPMC(FPMC_basic.FPMC):
         scores = evaluation_jit_recommender(user, user_profile, self.VUI_m_VIU, self.VIL_m_VLI)
         return sorted(range(len(scores)), key=lambda x: -scores[x]), sorted(scores, reverse=True)
 
+    def evaluation_recommender_repeated(self, user, user_profile, iter=0):
+        if iter == 0:
+            np.dot(self.VUI, self.VIU.T, out=self.VUI_m_VIU)
+            np.dot(self.VIL, self.VLI.T, out=self.VIL_m_VLI)
+        scores = evaluation_jit_recommender(user, user_profile, self.VUI_m_VIU, self.VIL_m_VLI)
+        return sorted(range(len(scores)), key=lambda x: -scores[x]), sorted(scores, reverse=True)
+
+    # def evaluation_recommender_user_arr(self, user_arr, train_data):
+    #     np.dot(self.VUI, self.VIU.T, out=self.VUI_m_VIU)
+    #     np.dot(self.VIL, self.VLI.T, out=self.VIL_m_VLI)
+    #     scores_arr = []
+    #     for user_id in tqdm(user_arr):
+    #         user_profile = train_data[train_data.user_id == user_id]['sequence'].values
+    #         user_profile = user_profile[0]
+    #         scores = evaluation_jit_recommender(user_id, user_profile, self.VUI_m_VIU, self.VIL_m_VLI)
+    #         scores_to_ret = sorted(range(len(scores)), key=lambda x: -scores[x]), sorted(scores, reverse=True)
+    #         scores_arr.append(scores_to_ret)
+    #     return scores_arr
+
     def learn_epoch(self, data_3_list, neg_batch_size):
         VUI, VIU, VLI, VIL = learn_epoch_jit(data_3_list[0], data_3_list[1], data_3_list[2], neg_batch_size,
                                              np.array(list(self.item_set)), self.VUI, self.VIU, self.VLI, self.VIL,
@@ -39,9 +59,9 @@ class FPMC(FPMC_basic.FPMC):
     def learnSBPR_FPMC(self, tr_data, n_epoch=10, neg_batch_size=10):
         tr_3_list = data_to_3_list(tr_data)
 
-        for epoch in range(n_epoch):
+        for epoch in tqdm(range(n_epoch)):
             self.learn_epoch(tr_3_list, neg_batch_size)
-            self.logger.info('epoch %d done' % epoch)
+            # self.logger.info('epoch %d done' % epoch)
 
         # if eval_per_epoch == False:
         #     acc_in, mrr_in = self.evaluation(tr_3_list)
@@ -126,7 +146,6 @@ def compute_x_batch_jit(u, b_tm1, VUI_m_VIU, VIL_m_VLI):
         for l in b_tm1:
             latter[idx] += VIL_m_VLI[idx, l]
     latter = latter / len(b_tm1)
-
     return (former + latter)
 
 

@@ -2,7 +2,7 @@ import logging
 import pickle
 import random
 
-from util.fpmc.utils import *
+from SequenceAware.sars_tutorial_master.util.fpmc.utils import *
 
 
 class FPMC:

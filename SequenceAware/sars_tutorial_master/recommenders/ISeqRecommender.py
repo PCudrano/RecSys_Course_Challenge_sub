@@ -5,6 +5,8 @@ import pandas as pd
 from Base.Recommender import Recommender
 from Base.Recommender_utils import check_matrix
 
+from src.utils.top_n_idx_sparse import top_n_idx_sparse, top_n_idx_sparse_submatrix
+
 class ISeqRecommender(Recommender):
     """Abstract Recommender class"""
 
@@ -13,6 +15,27 @@ class ISeqRecommender(Recommender):
 
     def __init__(self):
         super(ISeqRecommender, self).__init__()
+
+    #override from Recommender.recommend adapted for seq only
+    def recommend_seq(self, user_id_array, cutoff = None, remove_seen_flag=True, remove_top_pop_flag = False, remove_CustomItems_flag = False):
+
+        # If is a scalar transform it in a 1-cell array
+        if np.isscalar(user_id_array):
+            user_id_array = np.atleast_1d(user_id_array)
+            single_user = True
+        else:
+            single_user = False
+
+
+        if cutoff is None:
+            cutoff = self.URM_train.shape[1] - 1
+
+        # Compute the scores using the model-specific function
+        # Vectorize over all users in user_id_array
+        scores_batch = self.compute_item_score(user_id_array)
+
+        return top_n_idx_sparse(scores_batch[user_id_array], cutoff, self.URM_train, userListInMatrix=user_id_array, exclude_seen=remove_seen_flag)
+
 
     @staticmethod
     def get_recommendation_list(recommendation):

@@ -1,4 +1,4 @@
-from recommenders.ISeqRecommender import ISeqRecommender
+from recommenders_original.ISeqRecommender import ISeqRecommender
 from util.fpmc.FPMC_numba import FPMC
 
 
