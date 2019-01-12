@@ -311,6 +311,10 @@ if __name__ == '__main__':
          'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 41.12426731662427, 'alphas7': 3.9862172159427405,
          'alphas8': 23.669511899629843, 'alphas9': 16.979647789179317, 'alphas10': 100.0}
 
+        import pickle
+
+        with open("dump/dump_est_rat_tot_array_complete", "wb") as dump_file:
+            pickle.dump(recsys_est_ratings, dump_file)
 
         print("Init recsys")
         recommender = recommender_class(URM_train, recsys_est_ratings)
@@ -318,7 +322,11 @@ if __name__ == '__main__':
         recommender.fit(**a)
         print("Hopefully done")
 
-        recommendations_cas = np.array(recommender.recommend(targetsListCasual, cutoff=10, remove_seen_flag=True)).tolist()
+        with open("dump/dump_est_rat_tot_sum_complete", "wb") as dump_file:
+            pickle.dump(recommender.mine_est_ratings, dump_file)
+
+
+        #recommendations_cas = np.array(recommender.recommend(targetsListCasual, cutoff=10, remove_seen_flag=True)).tolist()
 
         print("second") ##########################################################################################################
         ############################# seq
@@ -437,40 +445,48 @@ if __name__ == '__main__':
          'alphas5': 34.35448269489327, 'alphas6': 0.0, 'alphas7': 31.56008184417095, 'alphas8': 60.0, 'alphas9': 0.0,
          'alphas10': 0.0, 'alphas11': 0.0, 'alphas12': 19.773411506848962, 'alphas13': 60.0}
 
+        import pickle
+
+        with open("dump/dump_est_rat_seq_array_complete", "wb") as dump_file:
+            pickle.dump(recsys_est_ratings, dump_file)
+
         print("Init recsys")
         recommender = recommender_class(URM_train, recsys_est_ratings)
         print("Fitting recsys")
         recommender.fit(**a)
         print("Hopefully done")
 
-        recommendations_seq = np.array(recommender.recommend(targetsListOrdered, cutoff=10, remove_seen_flag=True)).tolist()
+        with open("dump/dump_est_rat_seq_sum_complete", "wb") as dump_file:
+            pickle.dump(recommender.mine_est_ratings, dump_file)
+
+        #recommendations_seq = np.array(recommender.recommend(targetsListOrdered, cutoff=10, remove_seen_flag=True)).tolist()
 
 
 
-        # Submission
-        if JUPYTER:
-            # Jupyter
-            target_csv_file = "../../../data/target_playlists.csv"
-        else:
-            # PyCharm
-            target_csv_file = "data/target_playlists.csv"
-        target_df = pd.read_csv(target_csv_file)
-        targets = target_df["playlist_id"]
-
-        #recommendations = recommender.recommend(targets, at=10)  #  recommend_submatrix(targets, at=10)
-        # recommendations = recommender.recommend(targets, remove_seen_flag=True,
-        #                                           cutoff=10, remove_top_pop_flag=False,
-        #                                           remove_CustomItems_flag=False)
-        global_rec = recommendations_seq + recommendations_cas
-        target_df["track_ids"] = global_rec
-        print(target_df[0:5])
-
-        # Custom name
-        csv_filename = "hybrid_est_ratings_50"
-        # Default name
-        #csv_filename = "submission_{algtype:}_{date:%Y%m%d%H%M%S}".format(algtype=recommender_class, date=datetime.datetime.now())
-
-        print_to_csv(target_df, csv_filename)
+        # # Submission
+        # if JUPYTER:
+        #     # Jupyter
+        #     target_csv_file = "../../../data/target_playlists.csv"
+        # else:
+        #     # PyCharm
+        #     target_csv_file = "data/target_playlists.csv"
+        # target_df = pd.read_csv(target_csv_file)
+        # targets = target_df["playlist_id"]
+        #
+        # #recommendations = recommender.recommend(targets, at=10)  #  recommend_submatrix(targets, at=10)
+        # # recommendations = recommender.recommend(targets, remove_seen_flag=True,
+        # #                                           cutoff=10, remove_top_pop_flag=False,
+        # #                                           remove_CustomItems_flag=False)
+        # global_rec = recommendations_seq + recommendations_cas
+        # target_df["track_ids"] = global_rec
+        # print(target_df[0:5])
+        #
+        # # Custom name
+        # csv_filename = "hybrid_est_ratings_50"
+        # # Default name
+        # #csv_filename = "submission_{algtype:}_{date:%Y%m%d%H%M%S}".format(algtype=recommender_class, date=datetime.datetime.now())
+        #
+        # print_to_csv(target_df, csv_filename)
 
         # Save model
         #recommender.saveModel("../../../submissions/", file_name=csv_filename+"_model")

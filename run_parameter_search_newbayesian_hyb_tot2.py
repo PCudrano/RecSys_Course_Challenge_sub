@@ -614,12 +614,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
 
             print("Starting initing the single recsys")
 
-            # N_cbf = 6
-            # N_cf = 40
-            # N_p3a = 3
-            # N_ucf = 20
-            # N_ucbf = 8
-            # N_rp3b = 3
+
             N_cbf = 2
             N_cf = 4
             N_p3a = 0
@@ -749,7 +744,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             print("Starting hopefully the tuning")
             hyperparamethers_range_dictionary = {}
             # hyperparamethers_range_dictionary["alphas0"] = range(0, 20)
-            for i in range(0, N_hyb):
+            for i in range(0, N_hyb-1):
                 text = "alphas" + str(i)
                 #hyperparamethers_range_dictionary[text] = Real(low = 0.0, high = 40.0, prior = 'uniform')
                 hyperparamethers_range_dictionary[text] = Real(low=0.0, high=100.0)
@@ -761,7 +756,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             # # slim
             # hyperparamethers_range_dictionary["alphas9"] = Real(low=0.0, high=500.0)
             # # als
-            # hyperparamethers_range_dictionary["alphas10"] = Real(low=0.0, high=500.0)
+            hyperparamethers_range_dictionary["alphas10"] = Real(low=90.0, high=500.0)
 
             # hyperparamethers_range_dictionary["alphas1"] = range(0, 20)
             # hyperparamethers_range_dictionary["alpha"] = range(0, 2)

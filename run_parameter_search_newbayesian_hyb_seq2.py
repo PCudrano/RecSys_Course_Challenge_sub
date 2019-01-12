@@ -771,7 +771,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             for i in range(0, N_hyb):
                 text = "alphas" + str(i)
                 #hyperparamethers_range_dictionary[text] = Real(low = 0.0, high = 40.0, prior = 'uniform')
-                hyperparamethers_range_dictionary[text] = Real(low=0.0, high=60.0)
+                hyperparamethers_range_dictionary[text] = Real(low=0.0, high=100.0)
             # text = "alphas" + str(N_hyb-1)
             # hyperparamethers_range_dictionary[text] = range(0, 2)
 
