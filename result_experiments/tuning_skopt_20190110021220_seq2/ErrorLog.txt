@@ -1,0 +1,1 @@
+On recommender <class 'src.recommenders.HybridLinCombEstRatings.HybridLinCombEstRatings'> Exception user_id not present in initial seq_user_arr.
