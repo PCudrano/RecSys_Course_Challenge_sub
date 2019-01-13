@@ -717,7 +717,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
 
             # load slim bpr
             slims_dir = "result_experiments/hyb_est_ratings_6/"
-            recsys[-2].loadModel(slims_dir, "SLIM_BPR_rw_300")
+            recsys[-2].loadModel(slims_dir, "SLIM_BPR_rw_300_seq")
             print("Load complete of slim bpr")
             el_t = time.time() - t
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
@@ -756,7 +756,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             t2 = time.time()
             # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
             slims_dir = "result_experiments/hyb_est_ratings_6/"
-            recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_rw_est_rat")[0])
+            recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_rw_est_rat_seq")[0])
             el_t = time.time() - t2
             print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
@@ -771,7 +771,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             for i in range(0, N_hyb):
                 text = "alphas" + str(i)
                 #hyperparamethers_range_dictionary[text] = Real(low = 0.0, high = 40.0, prior = 'uniform')
-                hyperparamethers_range_dictionary[text] = Real(low=0.0, high=100.0)
+                hyperparamethers_range_dictionary[text] = Real(low=0.0, high=60.0)
             # text = "alphas" + str(N_hyb-1)
             # hyperparamethers_range_dictionary[text] = range(0, 2)
 

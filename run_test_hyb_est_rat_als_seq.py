@@ -158,7 +158,7 @@ if __name__ == '__main__':
     #                                                   seed=seed, targetsListOrdered=targetsListOrdered,
     #                                                   nnz_threshold=1)
     URM_test_known = None
-    #usersNonOrdered = [i for i in userList_unique if i not in targetsListOrdered]
+    usersNonOrdered = [i for i in userList_unique if i not in targetsListOrdered]
     URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, targetsListOrdered, train_sequential_df,
                                                             train_perc=0.8,
                                                             seed=seed, targetsListOrdered=targetsListOrdered,
@@ -306,7 +306,7 @@ if __name__ == '__main__':
         print("Recommending als")
         t2 = time.time()
         # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
-        recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_rw_est_rat")[0])
+        recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_rw_est_rat_seq")[0])
         el_t = time.time() - t2
         print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
@@ -323,12 +323,18 @@ if __name__ == '__main__':
          'alphas10': 0.0, 'alphas11': 0.0, 'alphas12': 19.773411506848962, 'alphas13': 60.0}
 
 
-
         print("Init recsys")
         recommender = recommender_class(URM_train, recsys_est_ratings)
         print("Fitting recsys")
         recommender.fit(**a)
         print("Hopefully done")
+
+        from Base.Evaluation.Evaluator import SequentialEvaluator, CompleteEvaluator, FastEvaluator
+
+        evaluator_validation = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True,
+                                             ignore_users=usersNonOrdered)
+
+        print(evaluator_validation.evaluateRecommender(recommender))
 
         #users_excluded_targets = [u for u in userList_unique if u not in targetsListList]
         result_dict = evaluate_algorithm_targets(URM_validation, recommender, targets=targetsListOrdered, at=10,
