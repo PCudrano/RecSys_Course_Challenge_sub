@@ -116,7 +116,8 @@ if __name__ == '__main__':
     # URM_train, URM_test_known, URM_test_pred = train_test_user_holdout(URM_all, user_perc=0.8, train_perc=0.8, seed=seed)
 
     # row holdout
-    URM_train, URM_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df, train_perc=0.8, seed=seed, targetsListOrdered=targetsListOrdered, nnz_threshold=2)
+    URM_train, URM_test_pred = train_test_row_holdout(URM_all, targetsListOrdered, train_sequential_df,
+                                                      train_perc=0.8, seed=seed, targetsListOrdered=targetsListOrdered, nnz_threshold=2)
     URM_test_known = None
 
     # row holdout - validation
@@ -172,189 +173,189 @@ if __name__ == '__main__':
 
 
     try:
-        print("Algorithm: {}".format(recommender_class))
-
-        print("Starting initing the single recsys")
-        ############################# tot
-
-        N_cbf = 2
-        N_cf = 4
-        N_p3a = 0
-        N_ucf = 2
-        N_ucbf = 0
-        N_rp3b = 1
-        N_slim = 1
-        N_als = 1
-        N_hyb_item_sim = 0
-        N_pure_svd = 0
-        N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_als + N_hyb_item_sim + N_pure_svd
-        recsys = []
-        for i in range(N_cbf):
-            recsys.append(ItemCBFKNNRecommender(URM_train, ICM_all))
-        for i in range(N_cf):
-            recsys.append(ItemCFKNNRecommender(URM_train))
-        for i in range(N_p3a):
-            recsys.append(P3AlphaRecommender(URM_train))
-        for i in range(N_ucf):
-            recsys.append(UserCFKNNRecommender(URM_train))
-        for i in range(N_ucbf):
-            recsys.append(UserCBFKNNRecommender(URM_train, ICM_all))
-        for i in range(N_rp3b):
-            recsys.append(RP3betaRecommender(URM_train))
-        for i in range(N_slim):
-            recsys.append(SLIM_BPR_Cython(URM_train))
-        for i in range(N_als):
-            recsys.append(ImplicitALSRecommender(URM_train))
-        for i in range(N_pure_svd):
-            recsys.append(PureSVDRecommender(URM_train))
-
-        recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
-        recsys_params2 = list((zip(np.linspace(5, 200, N_cf).tolist(), [12] * N_cf)))
-        recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
-        recsys_params4 = list((zip(np.linspace(10, 180, N_ucf).tolist(), [2] * N_ucf)))
-        recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
-        recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
-
-        print("Starting fitting single recsys")
-        t = time.time()
-        for i in range(N_cbf):
-            # print("Training system {:d}...".format(i))
-            topK = recsys_params[i][0]
-            shrink = recsys_params[i][1]
-            recsys[i].fit(topK=topK, shrink=shrink, type="tanimoto")
-        for i in range(N_cf):
-            # print("Training system {:d}...".format(i+N_cbf))
-            topK = recsys_params2[i][0]
-            shrink = recsys_params2[i][1]
-            recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.15)
-        for i in range(N_p3a):
-            # print("Training system {:d}...".format(i+N_cbf))
-            topK = recsys_params3[i][0]
-            shrink = recsys_params3[i][1]
-            recsys[i + N_cbf + N_cf].fit(topK=topK, shrink=shrink, alpha=0.31)
-        for i in range(N_ucf):
-            # print("Training system {:d}...".format(i+N_cbf))
-            topK = recsys_params4[i][0]
-            shrink = recsys_params4[i][1]
-            recsys[i + N_cbf + N_cf + N_p3a].fit(topK=topK, shrink=shrink, type="jaccard")
-        for i in range(N_ucbf):
-            # print("Training system {:d}...".format(i+N_cbf))b
-            topK = recsys_params5[i][0]
-            shrink = recsys_params5[i][1]
-            recsys[i + N_cbf + N_cf + N_p3a + N_ucf].fit(topK=topK, shrink=shrink, type="tanimoto")
-        for i in range(N_rp3b):
-            # print("Training system {:d}...".format(i+N_cbf))b
-            topK = int(recsys_params6[i][0])
-            shrink = recsys_params6[i][1]
-            recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.5927789387679869,
-                                                                  beta=0.009260542392306892)
-
-
+        # print("Algorithm: {}".format(recommender_class))
+        #
+        # print("Starting initing the single recsys")
+        # ############################# tot
+        #
+        # N_cbf = 2
+        # N_cf = 4
+        # N_p3a = 0
+        # N_ucf = 2
+        # N_ucbf = 0
+        # N_rp3b = 1
+        # N_slim = 1
+        # N_als = 1
+        # N_hyb_item_sim = 0
+        # N_pure_svd = 0
+        # N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_als + N_hyb_item_sim + N_pure_svd
+        # recsys = []
+        # for i in range(N_cbf):
+        #     recsys.append(ItemCBFKNNRecommender(URM_train, ICM_all))
+        # for i in range(N_cf):
+        #     recsys.append(ItemCFKNNRecommender(URM_train))
+        # for i in range(N_p3a):
+        #     recsys.append(P3AlphaRecommender(URM_train))
+        # for i in range(N_ucf):
+        #     recsys.append(UserCFKNNRecommender(URM_train))
+        # for i in range(N_ucbf):
+        #     recsys.append(UserCBFKNNRecommender(URM_train, ICM_all))
+        # for i in range(N_rp3b):
+        #     recsys.append(RP3betaRecommender(URM_train))
+        # for i in range(N_slim):
+        #     recsys.append(SLIM_BPR_Cython(URM_train))
+        # for i in range(N_als):
+        #     recsys.append(ImplicitALSRecommender(URM_train))
+        # for i in range(N_pure_svd):
+        #     recsys.append(PureSVDRecommender(URM_train))
+        #
+        # recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
+        # recsys_params2 = list((zip(np.linspace(5, 200, N_cf).tolist(), [12] * N_cf)))
+        # recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
+        # recsys_params4 = list((zip(np.linspace(10, 180, N_ucf).tolist(), [2] * N_ucf)))
+        # recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
+        # recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
+        #
+        # print("Starting fitting single recsys")
+        # t = time.time()
+        # for i in range(N_cbf):
+        #     # print("Training system {:d}...".format(i))
+        #     topK = recsys_params[i][0]
+        #     shrink = recsys_params[i][1]
+        #     recsys[i].fit(topK=topK, shrink=shrink, type="tanimoto")
+        # for i in range(N_cf):
+        #     # print("Training system {:d}...".format(i+N_cbf))
+        #     topK = recsys_params2[i][0]
+        #     shrink = recsys_params2[i][1]
+        #     recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.15)
+        # for i in range(N_p3a):
+        #     # print("Training system {:d}...".format(i+N_cbf))
+        #     topK = recsys_params3[i][0]
+        #     shrink = recsys_params3[i][1]
+        #     recsys[i + N_cbf + N_cf].fit(topK=topK, shrink=shrink, alpha=0.31)
+        # for i in range(N_ucf):
+        #     # print("Training system {:d}...".format(i+N_cbf))
+        #     topK = recsys_params4[i][0]
+        #     shrink = recsys_params4[i][1]
+        #     recsys[i + N_cbf + N_cf + N_p3a].fit(topK=topK, shrink=shrink, type="jaccard")
+        # for i in range(N_ucbf):
+        #     # print("Training system {:d}...".format(i+N_cbf))b
+        #     topK = recsys_params5[i][0]
+        #     shrink = recsys_params5[i][1]
+        #     recsys[i + N_cbf + N_cf + N_p3a + N_ucf].fit(topK=topK, shrink=shrink, type="tanimoto")
+        # for i in range(N_rp3b):
+        #     # print("Training system {:d}...".format(i+N_cbf))b
+        #     topK = int(recsys_params6[i][0])
+        #     shrink = recsys_params6[i][1]
+        #     recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.5927789387679869,
+        #                                                           beta=0.009260542392306892)
+        #
+        #
+        # # # load slim bpr
+        # # slims_dir_old = "result_experiments/hyb_est_ratings_4/"
+        # # slims_dir = "result_experiments/hyb_est_ratings_6/"
+        # # recsys[-3].loadModel(slims_dir_old, "SLIM_BPR_300_complete")
+        # # recsys[-2].loadModel(slims_dir, "SLIM_BPR_complete")
+        # # print("Load complete of slim bpr")
+        # # el_t = time.time() - t
+        # # print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+        #
+        #
+        #
+        #
         # # load slim bpr
-        # slims_dir_old = "result_experiments/hyb_est_ratings_4/"
         # slims_dir = "result_experiments/hyb_est_ratings_6/"
-        # recsys[-3].loadModel(slims_dir_old, "SLIM_BPR_300_complete")
-        # recsys[-2].loadModel(slims_dir, "SLIM_BPR_complete")
+        # # recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_100")
+        # # recsys[-2].loadModel(slims_dir, "SLIM_BPR_complete")
+        # recsys[-2].loadModel(slims_dir, "SLIM_BPR_rw_300")
         # print("Load complete of slim bpr")
         # el_t = time.time() - t
         # print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
-
-
-
-
-        # load slim bpr
-        slims_dir = "result_experiments/hyb_est_ratings_6/"
-        # recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_100")
-        # recsys[-2].loadModel(slims_dir, "SLIM_BPR_complete")
-        recsys[-2].loadModel(slims_dir, "SLIM_BPR_rw_300")
-        print("Load complete of slim bpr")
-        el_t = time.time() - t
-        print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
-
-        # print("Starting fitting als")
-        # recsys[-1].fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
-        # print("Ended fitting als")
-
-        print("Starting recommending the est_ratings")
-        t2 = time.time()
-        recsys_est_ratings = []
-        for i in range(0, N_hyb - 1):
-            if i >= N_cbf + N_cf + N_p3a + N_ucf + N_ucbf:
-                recsys_est_ratings.append(recsys[i].compute_item_score(userList_unique, 160))
-            else:
-                recsys_est_ratings.append(recsys[i].estimate_ratings(userList_unique, 160))
-        el_t = time.time() - t2
-        print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
-
-        print("Recommending als")
-        t2 = time.time()
-        # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
-        # recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_complete_est_rat")[0])
-        recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_rw_est_rat")[0])
-        el_t = time.time() - t2
-        print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
-
-        # print("Recommending als")
+        #
+        # # print("Starting fitting als")
+        # # recsys[-1].fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
+        # # print("Ended fitting als")
+        #
+        # print("Starting recommending the est_ratings")
         # t2 = time.time()
-        # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
+        # recsys_est_ratings = []
+        # for i in range(0, N_hyb - 1):
+        #     if i >= N_cbf + N_cf + N_p3a + N_ucf + N_ucbf:
+        #         recsys_est_ratings.append(recsys[i].compute_item_score(userList_unique, 160))
+        #     else:
+        #         recsys_est_ratings.append(recsys[i].estimate_ratings(userList_unique, 160))
         # el_t = time.time() - t2
         # print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
-        print("Starting hopefully the tuning")
-
-        # # boosting rp3b, slim and als
-        # factor = 2.0
-        # # rp3b
-        # recsys_est_ratings[-3] = recsys_est_ratings[-3] * factor
-        # # slim
-        # recsys_est_ratings[-2] = recsys_est_ratings[-2] * factor
-        # # als
-        # recsys_est_ratings[-1] = recsys_est_ratings[-1] * factor
-
-        print("Building the alphas")
-
-        # best tot sub44
-        a = {'alphas0': 7.286599943096979, 'alphas1': 11.148986037554979, 'alphas2': 49.434095074724446, 'alphas3': 0.0,
-         'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 41.12426731662427, 'alphas7': 3.9862172159427405,
-         'alphas8': 23.669511899629843, 'alphas9': 16.979647789179317, 'alphas10': 100.0}
-
-        import pickle
-
-        with open("../../../dump/dump_est_rat_tot_array_train0802th2", "wb") as dump_file:
-            pickle.dump(recsys_est_ratings, dump_file)
-
-        print("Init recsys")
-        recommender = recommender_class(URM_train, recsys_est_ratings)
-        print("Fitting recsys")
-        recommender.fit(**a)
-        print("Hopefully done")
-
-        with open("../../../dump/dump_est_rat_tot_sum_train0802th2", "wb") as dump_file:
-            pickle.dump(recommender.mine_est_ratings, dump_file)
-
-        from Base.Evaluation.Evaluator import SequentialEvaluator, CompleteEvaluator, FastEvaluator
-
-        # users_excluded_targets_for_cas = [u for u in userList_unique if u not in targetsListCasual]
-        #users_excluded_targets_for_seq = [u for u in userList_unique if u not in targetsListOrdered]
-        users_excluded_targets_for_tot = [u for u in userList_unique if u not in targetsListList]
-        # evaluator_test_casual = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True,
-        #                                       ignore_users=users_excluded_targets_for_cas)
-        # evaluator_test_seq = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True,
-        #                                    ignore_users=users_excluded_targets_for_seq)
-        evaluator_test_tot = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True,
-                                           ignore_users=users_excluded_targets_for_tot)
-        # evaluator_validation = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True,
-        #                                      ignore_users=usersNonOrdered)
-
-        t = time.time()
-
-        results_run, results_run_string = evaluator_test_tot.evaluateRecommender(recommender)
-
-        elapsed_time = time.time() - t
-        print("Elapsed time (recommend_mat_fast) [mm:ss.fff]: {:02d}:{:06.3f}".format(int(elapsed_time / 60),
-                                                                                      elapsed_time - 60 * int(
-                                                                                          elapsed_time / 60)))
-
-        print("Algorithm: {}, results: \n{}".format(recommender.__class__, results_run_string))
+        #
+        # print("Recommending als")
+        # t2 = time.time()
+        # # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
+        # # recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_complete_est_rat")[0])
+        # recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_rw_est_rat")[0])
+        # el_t = time.time() - t2
+        # print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+        #
+        # # print("Recommending als")
+        # # t2 = time.time()
+        # # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
+        # # el_t = time.time() - t2
+        # # print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+        # print("Starting hopefully the tuning")
+        #
+        # # # boosting rp3b, slim and als
+        # # factor = 2.0
+        # # # rp3b
+        # # recsys_est_ratings[-3] = recsys_est_ratings[-3] * factor
+        # # # slim
+        # # recsys_est_ratings[-2] = recsys_est_ratings[-2] * factor
+        # # # als
+        # # recsys_est_ratings[-1] = recsys_est_ratings[-1] * factor
+        #
+        # print("Building the alphas")
+        #
+        # # best tot sub44
+        # a = {'alphas0': 7.286599943096979, 'alphas1': 11.148986037554979, 'alphas2': 49.434095074724446, 'alphas3': 0.0,
+        #  'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 41.12426731662427, 'alphas7': 3.9862172159427405,
+        #  'alphas8': 23.669511899629843, 'alphas9': 16.979647789179317, 'alphas10': 100.0}
+        #
+        # import pickle
+        #
+        # with open("../../../dump/dump_est_rat_tot_array_train0802th2", "wb") as dump_file:
+        #     pickle.dump(recsys_est_ratings, dump_file)
+        #
+        # print("Init recsys")
+        # recommender = recommender_class(URM_train, recsys_est_ratings)
+        # print("Fitting recsys")
+        # recommender.fit(**a)
+        # print("Hopefully done")
+        #
+        # with open("../../../dump/dump_est_rat_tot_sum_train0802th2", "wb") as dump_file:
+        #     pickle.dump(recommender.mine_est_ratings, dump_file)
+        #
+        # from Base.Evaluation.Evaluator import SequentialEvaluator, CompleteEvaluator, FastEvaluator
+        #
+        # # users_excluded_targets_for_cas = [u for u in userList_unique if u not in targetsListCasual]
+        # #users_excluded_targets_for_seq = [u for u in userList_unique if u not in targetsListOrdered]
+        # users_excluded_targets_for_tot = [u for u in userList_unique if u not in targetsListList]
+        # # evaluator_test_casual = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True,
+        # #                                       ignore_users=users_excluded_targets_for_cas)
+        # # evaluator_test_seq = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True,
+        # #                                    ignore_users=users_excluded_targets_for_seq)
+        # evaluator_test_tot = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True,
+        #                                    ignore_users=users_excluded_targets_for_tot)
+        # # evaluator_validation = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True,
+        # #                                      ignore_users=usersNonOrdered)
+        #
+        # t = time.time()
+        #
+        # results_run, results_run_string = evaluator_test_tot.evaluateRecommender(recommender)
+        #
+        # elapsed_time = time.time() - t
+        # print("Elapsed time (recommend_mat_fast) [mm:ss.fff]: {:02d}:{:06.3f}".format(int(elapsed_time / 60),
+        #                                                                               elapsed_time - 60 * int(
+        #                                                                                   elapsed_time / 60)))
+        #
+        # print("Algorithm: {}, results: \n{}".format(recommender.__class__, results_run_string))
 
 
 
@@ -463,7 +464,7 @@ if __name__ == '__main__':
         # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
         slims_dir = "result_experiments/hyb_est_ratings_6/"
         # recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_complete_est_rat")[0])
-        recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_rw_est_rat")[0])
+        recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_rw_est_rat_seq")[0])
         el_t = time.time() - t2
         print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
