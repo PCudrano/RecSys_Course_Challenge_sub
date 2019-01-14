@@ -180,7 +180,7 @@ if __name__ == '__main__':
         N_ucbf = 0
         N_rp3b = 1
         N_slim = 1
-        N_als = 1
+        N_als = 2
         N_hyb_item_sim = 0
         N_pure_svd = 0
         N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_als + N_hyb_item_sim + N_pure_svd
@@ -261,7 +261,7 @@ if __name__ == '__main__':
         # load slim bpr
         slims_dir = "result_experiments/hyb_est_ratings_6/"
         # recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_100")
-        recsys[-2].loadModel(slims_dir, "SLIM_BPR_complete")
+        recsys[-3].loadModel(slims_dir, "SLIM_BPR_complete")
         print("Load complete of slim bpr")
         el_t = time.time() - t
         print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
@@ -273,7 +273,7 @@ if __name__ == '__main__':
         print("Starting recommending the est_ratings")
         t2 = time.time()
         recsys_est_ratings = []
-        for i in range(0, N_hyb - 1):
+        for i in range(0, N_hyb - 2):
             if i >= N_cbf + N_cf + N_p3a + N_ucf + N_ucbf:
                 recsys_est_ratings.append(recsys[i].compute_item_score(userList_unique, 160))
             else:
@@ -284,7 +284,8 @@ if __name__ == '__main__':
         print("Recommending als")
         t2 = time.time()
         # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
-        recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_complete_est_rat")[0])
+        recsys_est_ratings.append(recsys[-2].loadEstRatings(slims_dir, "ALS_complete_est_rat")[0])
+        recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_complete_est_rat_2")[0])
         el_t = time.time() - t2
         print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
@@ -307,9 +308,15 @@ if __name__ == '__main__':
         print("Building the alphas")
 
         # best tot sub44
-        a = {'alphas0': 7.286599943096979, 'alphas1': 11.148986037554979, 'alphas2': 49.434095074724446, 'alphas3': 0.0,
-         'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 41.12426731662427, 'alphas7': 3.9862172159427405,
-         'alphas8': 23.669511899629843, 'alphas9': 16.979647789179317, 'alphas10': 100.0}
+        # a = {'alphas0': 7.286599943096979, 'alphas1': 11.148986037554979, 'alphas2': 49.434095074724446, 'alphas3': 0.0,
+        #  'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 41.12426731662427, 'alphas7': 3.9862172159427405,
+        #  'alphas8': 23.669511899629843, 'alphas9': 16.979647789179317, 'alphas10': 100.0}
+
+        # tot sub 56
+        a = {'alphas0': 11.05582264699394, 'alphas1': 34.157371147183014, 'alphas2': 99.66856408476876,
+         'alphas3': 0.18755415432473205, 'alphas4': 0.8641137081047058, 'alphas5': 0.21781006059262092,
+         'alphas6': 108.3328448446436, 'alphas7': 2.595400903388823, 'alphas8': 97.81864969173873,
+         'alphas9': 46.974913279396745, 'alphas10': 113.14852518233992, 'alphas11': 165.5555093862131}
 
 
         print("Init recsys")
@@ -437,6 +444,7 @@ if __name__ == '__main__':
          'alphas5': 34.35448269489327, 'alphas6': 0.0, 'alphas7': 31.56008184417095, 'alphas8': 60.0, 'alphas9': 0.0,
          'alphas10': 0.0, 'alphas11': 0.0, 'alphas12': 19.773411506848962, 'alphas13': 60.0}
 
+
         print("Init recsys")
         recommender = recommender_class(URM_train, recsys_est_ratings)
         print("Fitting recsys")
@@ -466,7 +474,7 @@ if __name__ == '__main__':
         print(target_df[0:5])
 
         # Custom name
-        csv_filename = "hybrid_est_ratings_50"
+        csv_filename = "hybrid_est_ratings_56"
         # Default name
         #csv_filename = "submission_{algtype:}_{date:%Y%m%d%H%M%S}".format(algtype=recommender_class, date=datetime.datetime.now())
 

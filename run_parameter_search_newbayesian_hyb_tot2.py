@@ -622,7 +622,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             N_ucbf = 0
             N_rp3b = 1
             N_slim = 1
-            N_als = 1
+            N_als = 2
             N_hyb_item_sim = 0
             N_pure_svd = 0
             N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_als + N_hyb_item_sim + N_pure_svd
@@ -690,14 +690,14 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             # load slim bpr
             slims_dir = "result_experiments/hyb_est_ratings_6/"
             # recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_100")
-            recsys[-2].loadModel(slims_dir, "SLIM_BPR_rw_300")
+            recsys[-3].loadModel(slims_dir, "SLIM_BPR_rw_300")
             print("Load complete of slim bpr")
             el_t = time.time() - t
             print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
-            # print("Starting fitting als")
-            # recsys[-1].fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
-            # print("Ended fitting als")
+            print("Starting fitting als")
+            recsys[-1].fit(alpha=12, factors=600, regularization=0.05388, iterations=80)
+            print("Ended fitting als")
 
             # print("Starting fitting PureSVD")
             # recsys[-1].fit(num_factors=165)
@@ -710,7 +710,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             print("Starting recommending the est_ratings")
             t2 = time.time()
             recsys_est_ratings = []
-            for i in range(0, N_hyb - 1):
+            for i in range(0, N_hyb - 2):
                 if i >= N_cbf + N_cf + N_p3a + N_ucf + N_ucbf:
                     recsys_est_ratings.append(recsys[i].compute_item_score(userList_unique, 160))
                 else:
@@ -722,13 +722,13 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             t2 = time.time()
             # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
             slims_dir = "result_experiments/hyb_est_ratings_6/"
-            recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_rw_est_rat")[0])
+            recsys_est_ratings.append(recsys[-2].loadEstRatings(slims_dir, "ALS_rw_est_rat")[0])
             el_t = time.time() - t2
             print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
             #
-            # print("Recommending als")
-            # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
+            print("Recommending als")
+            recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
             # print("Recommending hyb item sim")
             # recsys_est_ratings.append(svd_est)
 
@@ -744,7 +744,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             print("Starting hopefully the tuning")
             hyperparamethers_range_dictionary = {}
             # hyperparamethers_range_dictionary["alphas0"] = range(0, 20)
-            for i in range(0, N_hyb-1):
+            for i in range(0, N_hyb-2):
                 text = "alphas" + str(i)
                 #hyperparamethers_range_dictionary[text] = Real(low = 0.0, high = 40.0, prior = 'uniform')
                 hyperparamethers_range_dictionary[text] = Real(low=0.0, high=100.0)
@@ -756,7 +756,8 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             # # slim
             # hyperparamethers_range_dictionary["alphas9"] = Real(low=0.0, high=500.0)
             # # als
-            hyperparamethers_range_dictionary["alphas10"] = Real(low=90.0, high=500.0)
+            hyperparamethers_range_dictionary["alphas10"] = Real(low=90.0, high=200.0)
+            hyperparamethers_range_dictionary["alphas11"] = Real(low=90.0, high=200.0)
 
             # hyperparamethers_range_dictionary["alphas1"] = range(0, 20)
             # hyperparamethers_range_dictionary["alpha"] = range(0, 2)
@@ -977,7 +978,7 @@ if __name__ == '__main__':
                                                        output_folder_path = output_root_path,
                                                        optimizer="bayesian", # "forest", "gbrt", "bayesian"
                                                        # params
-                                                       n_calls=800, # 70,
+                                                       n_calls=700, # 70,
                                                        #n_random_starts= 20, #20,
                                                        n_points=10000,
                                                        n_jobs=1,
@@ -989,7 +990,7 @@ if __name__ == '__main__':
                                                        verbose=True,
                                                        n_restarts_optimizer=10,  # only bayesian
                                                        xi=0.01,
-                                                       kappa=3, # 1.96,
+                                                       kappa=4, # 1.96,
                                                        x0=None,
                                                        y0=None,
                                                        )

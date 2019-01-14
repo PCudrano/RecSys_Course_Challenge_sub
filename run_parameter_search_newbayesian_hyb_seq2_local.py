@@ -768,16 +768,47 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
             print("Starting hopefully the tuning")
             hyperparamethers_range_dictionary = {}
             # hyperparamethers_range_dictionary["alphas0"] = range(0, 20)
-            for i in range(0, N_hyb):
-                text = "alphas" + str(i)
-                #hyperparamethers_range_dictionary[text] = Real(low = 0.0, high = 40.0, prior = 'uniform')
-                hyperparamethers_range_dictionary[text] = Real(low=0.0, high=80.0)
+            # for i in range(0, N_hyb):
+            #     text = "alphas" + str(i)
+            #     #hyperparamethers_range_dictionary[text] = Real(low = 0.0, high = 40.0, prior = 'uniform')
+            #     hyperparamethers_range_dictionary[text] = Real(low=0.0, high=80.0)
             # text = "alphas" + str(N_hyb-1)
             # hyperparamethers_range_dictionary[text] = range(0, 2)
 
-            # hyperparamethers_range_dictionary["alphas1"] = range(0, 20)
+
+            hyperparamethers_range_dictionary["alphas0"] = Real(low=10.0, high=20.0)
+            hyperparamethers_range_dictionary["alphas1"] = Real(low=10.0, high=20.0)
+            hyperparamethers_range_dictionary["alphas2"] = Real(low=70.0, high=90.0)
+            hyperparamethers_range_dictionary["alphas3"] = Real(low=0.0, high=1.0)
+            hyperparamethers_range_dictionary["alphas4"] = Real(low=40.0, high=50.0)
+            hyperparamethers_range_dictionary["alphas5"] = Real(low=0.0, high=1.0)
+            hyperparamethers_range_dictionary["alphas6"] = Real(low=0.0, high=1.0)
+            hyperparamethers_range_dictionary["alphas7"] = Real(low=0.0, high=1.0)
+            hyperparamethers_range_dictionary["alphas8"] = Real(low=40.0, high=55.0)
+            hyperparamethers_range_dictionary["alphas9"] = Real(low=0.0, high=1.0)
+            hyperparamethers_range_dictionary["alphas10"] = Real(low=0.0, high=1.0)
+            hyperparamethers_range_dictionary["alphas11"] = Real(low=0.0, high=1.0)
+            hyperparamethers_range_dictionary["alphas12"] = Real(low=15.0, high=30.0)
+            hyperparamethers_range_dictionary["alphas13"] = Real(low=70.0, high=90.0)
+
             # hyperparamethers_range_dictionary["alpha"] = range(0, 2)
             # hyperparamethers_range_dictionary["normalize_similarity"] = [True, False]
+
+            # 428: {'alphas0': 14.292616836328378, 'alphas1': 14.652406560455377, 'alphas2': 80.0, 'alphas3': 0.0,
+            #       'alphas4': 45.81512351371488, 'alphas5': 0.0, 'alphas6': 0.0, 'alphas7': 0.0,
+            #       'alphas8': 48.31988378048099, 'alphas9': 0.0, 'alphas10': 0.0, 'alphas11': 0.0,
+            #       'alphas12': 22.924082038403526, 'alphas13': 80.0} - results: {'ROC_AUC': 0.0, 'PRECISION': 0.0,
+            #                                                                     'RECALL': 0.0, 'RECALL_TEST_LEN': 0.0,
+            #                                                                     'MAP': 0.06771085141093457, 'MRR': 0.0,
+            #                                                                     'NDCG': 0.0, 'F1': 0.0, 'HIT_RATE': 0.0,
+            #                                                                     'ARHR': 0.0, 'NOVELTY': 0.0,
+            #                                                                     'DIVERSITY_MEAN_INTER_LIST': 1.0,
+            #                                                                     'DIVERSITY_HERFINDAHL': nan,
+            #                                                                     'COVERAGE_ITEM': 0.0,
+            #                                                                     'COVERAGE_USER': 0.0,
+            #                                                                     'DIVERSITY_GINI': 0.0,
+            #                                                                     'SHANNON_ENTROPY': -0.0}
+
 
             recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train, recsys_est_ratings],
                                      DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {},
@@ -941,7 +972,7 @@ if __name__ == '__main__':
     # URM_validation = URM_valid
     # URM_test = URM_test_pred
 
-    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}_seq2/".format(date=datetime.datetime.now())
+    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}_seq2_local/".format(date=datetime.datetime.now())
 
     # If directory does not exist, create
     if not os.path.exists(output_root_path):

@@ -185,9 +185,9 @@ if __name__ == '__main__':
             print("Init recsys")
             recommender = recommender_class(URM_train)
             print("Fitting recsys")
-            recommender.fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
+            recommender.fit(alpha=12, factors=600, regularization=0.05388, iterations=80)
             print("Hopefully done")
-            recommender.saveEstRatings("result_experiments/hyb_est_ratings_6/", file_name="ALS_rw_est_rat", user_id_array=userList_unique, k=160)
+            recommender.saveEstRatings("result_experiments/hyb_est_ratings_6/", file_name="ALS_rw_est_rat_2", user_id_array=userList_unique, k=160)
             print("Hopefully saved")
 
 
