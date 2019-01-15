@@ -5,6 +5,10 @@ Created on 22/11/17
 @author: Maurizio Ferrari Dacrema
 """
 
+import sys
+# sys.path.append('src/libs/RecSys_Course_2018')
+# sys.path.append('/home/stefano/git/recsys/recsys_challenge/src/libs/RecSys_Course_2018')
+# sys.path.append('/home/stefano/git/recsys/recsys_challenge')
 
 import numpy as np
 import pandas as pd
@@ -22,10 +26,12 @@ from src.utils.data_splitter import train_test_holdout, train_test_user_holdout,
 import traceback, os
 import datetime
 
-import sys
-sys.path.append("src/libs/RecSys_Course_2018/SequenceAware/sars_tutorial_master/") # go to parent dir
-sys.path.append('src/libs/RecSys_Course_2018')
+# import sys
+# sys.path.append('src/libs/RecSys_Course_2018')
 
+
+from src.recommenders.HybridLinCombItemSimilarities import HybridLinCombItemSimilarities
+from src.recommenders.HybridLinCombEstRatings import HybridLinCombEstRatings
 
 from Base.NonPersonalizedRecommender import TopPop, Random
 from KNN.UserKNNCFRecommender import UserKNNCFRecommender
@@ -33,8 +39,6 @@ from KNN.ItemKNNCFRecommender import ItemKNNCFRecommender
 from SLIM_BPR.Cython.SLIM_BPR_Cython import SLIM_BPR_Cython
 from SLIM_BPR.Cython.UserSLIM_BPR_Cython import UserSLIM_BPR_Cython
 from SLIM_ElasticNet.SLIMElasticNetRecommender import SLIMElasticNetRecommender
-from SLIM_ElasticNet.SLIMLinearRegressionRecommender import SLIMLinearRegressionRecommender
-from SLIM_ElasticNet.SLIMSGDLinearRegressionRecommender import SLIMSGDLinearRegressionRecommender
 from GraphBased.P3alphaRecommender import P3alphaRecommender
 from GraphBased.RP3betaRecommender import RP3betaRecommender
 from MatrixFactorization.Cython.MatrixFactorization_Cython import MatrixFactorization_BPR_Cython, MatrixFactorization_FunkSVD_Cython, MatrixFactorization_AsySVD_Cython
@@ -45,7 +49,6 @@ from LightFM.LightFMRecommender import LightFMRecommender
 from src.recommenders.ImplicitALSRecommender import ImplicitALSRecommender
 from src.recommenders.ImplicitBPRRecommender import ImplicitBPRRecommender
 
-from SequenceAware.sars_tutorial_master.recommenders.FPMCRecommender import FPMCRecommender
 
 from ParameterTuning.AbstractClassSearch_new import DictionaryKeys
 from ParameterTuning.BayesianSkoptSearch import BayesianSkoptSearch
@@ -58,12 +61,6 @@ from Utils.PoolWithSubprocess import PoolWithSubprocess
 
 import os, multiprocessing
 from functools import partial
-
-
-
-
-
-
 
 
 def run_KNNCFRecommender_on_similarity_type(similarity_type, parameterSearch,
@@ -192,15 +189,7 @@ def runParameterSearch_Content(recommender_class, URM_train, ICM_object, ICM_nam
             run_KNNCBFRecommender_on_similarity_type_partial(similarity_type)
 
 
-
-
-
-
-
-
-def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
-                                     train_sequential_df=None, targetsListOrdered=None,
-                                     metric_to_optimize = "PRECISION",
+def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None, metric_to_optimize = "PRECISION",
                                      evaluator_validation = None, evaluator_test = None, evaluator_validation_earlystopping = None,
                                      output_folder_path ="result_experiments/", parallelizeKNN = True,
                                      parameterSearch=None, **kwargs):
@@ -471,71 +460,21 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
         if recommender_class is SLIMElasticNetRecommender:
 
             hyperparamethers_range_dictionary = {}
-            hyperparamethers_range_dictionary["topK"] = Integer(10, 1000) # Integer(20, 800)
-            hyperparamethers_range_dictionary["l1_ratio"] = Real(low = 1e-2, high = 1.0, prior = 'log-uniform')
-            #hyperparamethers_range_dictionary["alpha"] = Real(low = 1e-6, high = 1.0, prior = 'log-uniform')# [1, 1e-1, 1e-3, 1e-6, 1e-9]
+            hyperparamethers_range_dictionary["topK"] = Integer(5, 800) # Integer(20, 800)
+            hyperparamethers_range_dictionary["l1_ratio"] = Real(low = 1e-5, high = 1.0, prior = 'log-uniform')
+            # hyperparamethers_range_dictionary["alpha"] = Real(low = 1e-9, high = 1.0, prior = 'log-uniform')# [1, 1e-1, 1e-3, 1e-6, 1e-9]
             # hyperparamethers_range_dictionary["max_iter"] = Integer(100, 2000) # [100, 250, 500, 1000, 2000]
 
             recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train],
                                      DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {},
                                      DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
-                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"positive_only":True,
-                                                                       "max_iter": 1000,
-                                                                       "selection": "random",
-                                                                       "tol": 1e-3,
-                                                                       "alpha": 1
-                                                                       },
+                                     DictionaryKeys.FIT_KEYWORD_ARGS: dict(),
                                      DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
 
 
-        ##########################################################################################################
-
-        if recommender_class is SLIMLinearRegressionRecommender:
-
-            hyperparamethers_range_dictionary = {}
-            # hyperparamethers_range_dictionary["reg_type"] = Categorical(["l2","l1"])
-            hyperparamethers_range_dictionary["topK"] = Integer(10, 1000) # Integer(20, 800)
-            hyperparamethers_range_dictionary["alpha"] = Real(low = 1e-3, high = 1, prior = 'log-uniform')
-            # hyperparamethers_range_dictionary["max_iter"] = Integer(100, 2000) # [100, 250, 500, 1000, 2000]
-
-            recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train],
-                                     DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {},
-                                     DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
-                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"reg_type": "l1", # l2 too slow because not sparse
-                                                                       "solver": 'auto',
-                                                                       "positive_only":False,
-                                                                       "max_iter": None,
-                                                                       "selection": "random",
-                                                                       "tol": None, # 1e-4
-                                                                       },
-                                     DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
-
 
         ##########################################################################################################
-
-        if recommender_class is SLIMSGDLinearRegressionRecommender:
-
-            hyperparamethers_range_dictionary = {}
-            # hyperparamethers_range_dictionary["learning_rate"] = Categorical(["optimal","adaptive","constant","invscaling"])
-            hyperparamethers_range_dictionary["topK"] = Integer(10, 1000) # Integer(20, 800)
-            # hyperparamethers_range_dictionary["alpha"] = Real(low = 1e-2, high = 1, prior = 'log-uniform')
-            hyperparamethers_range_dictionary["l1_ratio"] = Real(low=1e-2, high=1.0, prior='log-uniform')
-
-            recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train],
-                                     DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {},
-                                     DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
-                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"loss": "squared_loss",
-                                                                       "penalty": "elasticnet",
-                                                                       "learning_rate": "adaptive",
-                                                                       "max_iter": 50000,
-                                                                       "tol": 1e-3,
-                                                                       "alpha": 1
-                                                                       # eta0 = 0.01, power_t = 0.25
-                                                                       },
-                                     DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
-
-        ##########################################################################################################
-
+        from src.recommenders.ImplicitALSRecommender import ImplicitALSRecommender
         if recommender_class is ImplicitALSRecommender:
 
             hyperparamethers_range_dictionary = {}
@@ -572,6 +511,7 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
                                                                        "use_gpu": False},
                                      DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
 
+
         ##########################################################################################################
 
         if recommender_class is CFW_D_Similarity_Linalg:
@@ -602,50 +542,247 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
 
             hyperparamethers_range_dictionary = {}
             # hyperparamethers_range_dictionary["epochs"] = Integer(10, 1000)
-            hyperparamethers_range_dictionary["num_components"] = Integer(100,1000)
+            hyperparamethers_range_dictionary["num_components"] = Integer(10,1000)
             hyperparamethers_range_dictionary["alpha"] = Real(low=1e-16, high=1.0, prior='log-uniform') # reg
-            hyperparamethers_range_dictionary["learning_rate"] = Real(low=1e-4, high=1e-1, prior='log-uniform')
+            # hyperparamethers_range_dictionary["learning_rate"] = Real(low=5e-4, high=5e-2, prior='log-uniform')  # reg
             hyperparamethers_range_dictionary["learning_schedule"] = Categorical(["adadelta"])#"adagrad"
-            hyperparamethers_range_dictionary["loss"] = Categorical(["warp"])# , "warp-kos","logistic"])  #
-
 
             recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train], # ICM_all
                                      DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {"add_identity_features": True},
                                      DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
-                                     DictionaryKeys.FIT_KEYWORD_ARGS: {#"loss": "warp-kos", # 'logistic', 'bpr', 'warp', 'warp-kos'
-                                                                       "max_sampled": 10, # 10 # 100
-                                                                       #"learning_rate": 2e-2,#"learning_rate": 5e-3, # for adagrad learning schedule
-                                                                       # "rho": 0.99, "epsilon": 1e-08, # for adadelta learning schedule
+                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"loss": "warp", # 'logistic', 'bpr', 'warp', 'warp-kos'
+                                                                       "max_sampled": 100, # 10
+                                                                       "learning_rate": 5e-3, # for adagrad learning schedule
+                                                                       "rho": 0.99, "epsilon": 1e-08, # for adadelta learning schedule
                                                                        "epochs": 2000,
-                                                                       "validation_every_n": 5,
+                                                                       "validation_every_n": 10,
                                                                        "stop_on_validation": True,
                                                                        "evaluator_object": evaluator_validation_earlystopping,
-                                                                       "lower_validatons_allowed": 3,
+                                                                       "lower_validatons_allowed": 2,
                                                                        "validation_metric": metric_to_optimize
                                                                        },
                                      DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
 
+
         ##########################################################################################################
 
-        if recommender_class is FPMCRecommender:
-            hyperparamethers_range_dictionary = {}
-            #hyperparamethers_range_dictionary["learn_rate"] = Real(low=1e-4, high=1e-1, prior='log-uniform')
-            #hyperparamethers_range_dictionary["n_factor"] = Integer(10, 1000)
-            #hyperparamethers_range_dictionary["regular"] = Real(low=1e-4, high=1e-1, prior='log-uniform')
-            hyperparamethers_range_dictionary["n_epoch"] = Integer(10, 200)
+        if recommender_class is HybridLinCombEstRatings:
 
-            recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train, train_sequential_df, targetsListOrdered],
+            print("Starting importing everything")
+
+            from src.recommenders.ItemCFKNNRecommender import ItemCFKNNRecommender
+            from src.recommenders.ItemCBFKNNRecommender import ItemCBFKNNRecommender
+            from src.recommenders.P3AlphaRecommender import P3AlphaRecommender
+            from src.recommenders.UserCFKNNRecommender import UserCFKNNRecommender
+            from src.recommenders.UserCBFKNNRecommender import UserCBFKNNRecommender
+            from src.recommenders.ImplicitALSRecommender import ImplicitALSRecommender
+            import src.utils.build_icm as build_icm
+            import time
+
+            JUPYTER = True
+            sys.path.append('src/data/')
+
+            # #### Load data
+            if JUPYTER:
+                # Jupyter
+                tracks_csv_file = "../../../data/tracks.csv"
+                interactions_csv_file = "../../../data/train.csv"
+                playlist_id_csv_file = "../../../data/target_playlists.csv"
+                sequential_csv_file = "../../../data/train_sequential.csv"
+            else:
+                # PyCharm
+                tracks_csv_file = "data/tracks.csv"
+                interactions_csv_file = "data/train.csv"
+                playlist_id_csv_file = "data/target_playlists.csv"
+                sequential_csv_file = "data/train_sequential.csv"
+
+            tracks_df = pd.read_csv(tracks_csv_file)
+            interactions_df = pd.read_csv(interactions_csv_file)
+            playlist_id_df = pd.read_csv(playlist_id_csv_file)
+            train_sequential_df = pd.read_csv(sequential_csv_file)
+            userList = interactions_df["playlist_id"]
+            itemList = interactions_df["track_id"]
+            ratingList = np.ones(interactions_df.shape[0])
+            targetsList = playlist_id_df["playlist_id"]
+            targetsListOrdered = targetsList[:5000].tolist()
+            targetsListCasual = targetsList[5000:].tolist()
+            userList_unique = pd.unique(userList)
+            itemList_unique = tracks_df["track_id"]
+            numUsers = len(userList_unique)
+            numItems = len(itemList_unique)
+            numberInteractions = interactions_df.size
+
+            print("Starting initing the single recsys")
+
+
+            N_cbf = 2
+            N_cf = 4
+            N_p3a = 0
+            N_ucf = 2
+            N_ucbf = 0
+            N_rp3b = 1
+            N_slim = 1
+            N_elnet = 1
+            N_als = 2
+            N_hyb_item_sim = 0
+            N_pure_svd = 0
+            N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_elnet + N_als + N_hyb_item_sim + N_pure_svd
+            recsys = []
+            for i in range(N_cbf):
+                recsys.append(ItemCBFKNNRecommender(URM_train, ICM_all))
+            for i in range(N_cf):
+                recsys.append(ItemCFKNNRecommender(URM_train))
+            for i in range(N_p3a):
+                recsys.append(P3AlphaRecommender(URM_train))
+            for i in range(N_ucf):
+                recsys.append(UserCFKNNRecommender(URM_train))
+            for i in range(N_ucbf):
+                recsys.append(UserCBFKNNRecommender(URM_train, ICM_all))
+            for i in range(N_rp3b):
+                recsys.append(RP3betaRecommender(URM_train))
+            for i in range(N_slim):
+                recsys.append(SLIM_BPR_Cython(URM_train))
+            for i in range(N_elnet):
+                recsys.append(SLIMElasticNetRecommender(URM_train))
+            for i in range(N_als):
+                recsys.append(ImplicitALSRecommender(URM_train))
+            for i in range(N_pure_svd):
+                recsys.append(PureSVDRecommender(URM_train))
+
+            recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
+            recsys_params2 = list((zip(np.linspace(5, 200, N_cf).tolist(), [12] * N_cf)))
+            recsys_params3 = list((zip(np.linspace(99, 101, N_p3a).tolist(), [1] * N_p3a)))
+            recsys_params4 = list((zip(np.linspace(10, 180, N_ucf).tolist(), [2] * N_ucf)))
+            recsys_params5 = list((zip(np.linspace(170, 180, N_ucbf).tolist(), [5] * N_ucbf)))
+            recsys_params6 = list((zip(np.linspace(99, 101, N_rp3b).tolist(), [0] * N_rp3b)))
+
+            print("Starting fitting single recsys")
+            t = time.time()
+            for i in range(N_cbf):
+                # print("Training system {:d}...".format(i))
+                topK = recsys_params[i][0]
+                shrink = recsys_params[i][1]
+                recsys[i].fit(topK=topK, shrink=shrink, type="tanimoto")
+            for i in range(N_cf):
+                # print("Training system {:d}...".format(i+N_cbf))
+                topK = recsys_params2[i][0]
+                shrink = recsys_params2[i][1]
+                recsys[i + N_cbf].fit(topK=topK, shrink=shrink, type="cosine", alpha=0.15)
+            for i in range(N_p3a):
+                # print("Training system {:d}...".format(i+N_cbf))
+                topK = recsys_params3[i][0]
+                shrink = recsys_params3[i][1]
+                recsys[i + N_cbf + N_cf].fit(topK=topK, shrink=shrink, alpha=0.31)
+            for i in range(N_ucf):
+                # print("Training system {:d}...".format(i+N_cbf))
+                topK = recsys_params4[i][0]
+                shrink = recsys_params4[i][1]
+                recsys[i + N_cbf + N_cf + N_p3a].fit(topK=topK, shrink=shrink, type="jaccard")
+            for i in range(N_ucbf):
+                # print("Training system {:d}...".format(i+N_cbf))b
+                topK = recsys_params5[i][0]
+                shrink = recsys_params5[i][1]
+                recsys[i + N_cbf + N_cf + N_p3a + N_ucf].fit(topK=topK, shrink=shrink, type="tanimoto")
+            for i in range(N_rp3b):
+                # print("Training system {:d}...".format(i+N_cbf))b
+                topK = int(recsys_params6[i][0])
+                shrink = recsys_params6[i][1]
+                recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.5927789387679869,
+                                                                      beta=0.009260542392306892)
+
+            # load slim bpr
+            slims_dir = "result_experiments/hyb_est_ratings_6/"
+            # recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_100")
+            recsys[-4].loadModel(slims_dir, "SLIM_BPR_rw_300")
+            print("Load complete of slim bpr")
+            el_t = time.time() - t
+            print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+
+            # load slim elnet
+            # slims_dir = "result_experiments/tuning_skopt_20190114231643/"
+            # recsys[-3].loadModel(slims_dir, "SLIMLinearRegressionRecommender_best_model") # this is seq tho! overfitted
+            slims_dir = "result_experiments/elastic_net_2/"
+            recsys[-3].loadModel(slims_dir, "SLIMLinearRegressionRecommender_best_model")
+            print("Load complete of slim elasticnet")
+            el_t = time.time() - t
+            print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+
+            # print("Starting fitting als")
+            # recsys[-1].fit(alpha=12, factors=600, regularization=0.05388, iterations=80)
+            # print("Ended fitting als")
+
+            # print("Starting fitting PureSVD")
+            # recsys[-1].fit(num_factors=165)
+            # print("PureSVD fitted")
+
+            # print("Starting recommending svd")
+            # svd_est = recsys[-1].compute_score_SVD(userList_unique, 160)
+            # print("Ended recommending svd")
+
+            print("Starting recommending the est_ratings")
+            t2 = time.time()
+            recsys_est_ratings = []
+            for i in range(0, N_hyb - 2):
+                if i >= N_cbf + N_cf + N_p3a + N_ucf + N_ucbf:
+                    recsys_est_ratings.append(recsys[i].compute_item_score(userList_unique, 160))
+                else:
+                    recsys_est_ratings.append(recsys[i].estimate_ratings(userList_unique, 160))
+            el_t = time.time() - t2
+            print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+
+            print("Recommending als")
+            t2 = time.time()
+            # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
+            slims_dir = "result_experiments/hyb_est_ratings_6/"
+            recsys_est_ratings.append(recsys[-2].loadEstRatings(slims_dir, "ALS_rw_est_rat")[0])
+            recsys_est_ratings.append(recsys[-1].loadEstRatings(slims_dir, "ALS_rw_est_rat_2")[0])
+            el_t = time.time() - t2
+            print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+
+            #
+            # print("Recommending als")
+            # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
+            # print("Recommending hyb item sim")
+            # recsys_est_ratings.append(svd_est)
+
+            # # boosting rp3b, slim and als
+            # factor = 2.0
+            # # rp3b
+            # recsys_est_ratings[-3] = recsys_est_ratings[-3] * factor
+            # # slim
+            # recsys_est_ratings[-2] = recsys_est_ratings[-2] * factor
+            # # als
+            # recsys_est_ratings[-1] = recsys_est_ratings[-1] * factor
+
+            print("Starting hopefully the tuning")
+            hyperparamethers_range_dictionary = {}
+            # hyperparamethers_range_dictionary["alphas0"] = range(0, 20)
+            for i in range(0, N_hyb-2):
+                text = "alphas" + str(i)
+                #hyperparamethers_range_dictionary[text] = Real(low = 0.0, high = 40.0, prior = 'uniform')
+                hyperparamethers_range_dictionary[text] = Real(low=0.0, high=100.0)
+            # text = "alphas" + str(N_hyb-1)
+            # hyperparamethers_range_dictionary[text] = range(0, 2)
+            #
+            # # rp3b
+            # hyperparamethers_range_dictionary["alphas8"] = Real(low=0.0, high=500.0)
+            # # slim
+            # hyperparamethers_range_dictionary["alphas9"] = Real(low=0.0, high=500.0)
+            # # als
+            hyperparamethers_range_dictionary["alphas"+str(N_hyb-2)] = Real(low=90.0, high=200.0)
+            hyperparamethers_range_dictionary["alphas"+str(N_hyb-1)] = Real(low=90.0, high=200.0)
+
+            # hyperparamethers_range_dictionary["alphas1"] = range(0, 20)
+            # hyperparamethers_range_dictionary["alpha"] = range(0, 2)
+            # hyperparamethers_range_dictionary["normalize_similarity"] = [True, False]
+
+            recommenderDictionary = {DictionaryKeys.CONSTRUCTOR_POSITIONAL_ARGS: [URM_train, recsys_est_ratings],
                                      DictionaryKeys.CONSTRUCTOR_KEYWORD_ARGS: {},
                                      DictionaryKeys.FIT_POSITIONAL_ARGS: dict(),
-                                     DictionaryKeys.FIT_KEYWORD_ARGS: {"n_neg": 10,
-                                                                       "n_factor": 1000,
-                                                                       "regular": 0.001,
-                                                                       "learn_rate": 0.01,
-                                                                       },
+                                     DictionaryKeys.FIT_KEYWORD_ARGS: dict(),
                                      DictionaryKeys.FIT_RANGE_KEYWORD_ARGS: hyperparamethers_range_dictionary}
 
-       #########################################################################################################
-
+        ##########################################################################################################
 
         ## Final step, after the hyperparameter range has been defined for each type of algorithm
         best_parameters = parameterSearch.search(recommenderDictionary,
@@ -665,19 +802,6 @@ def runParameterSearch_Collaborative(recommender_class, URM_train, ICM_all=None,
         error_file = open(output_folder_path + "ErrorLog.txt", "a")
         error_file.write("On recommender {} Exception {}\n".format(recommender_class, str(e)))
         error_file.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -739,7 +863,8 @@ if __name__ == '__main__':
     numberInteractions = interactions_df.size
 
     # Build ICM
-    ICM_all = build_icm.build_icm(tracks_df, split_duration_lenght=800, feature_weights={'albums': 1, 'artists': 0.5, 'durations': 0.1})
+    #ICM_all = build_icm.build_icm(tracks_df, split_duration_lenght=800, feature_weights={'albums': 1, 'artists': 0.5, 'durations': 0.1})
+    ICM_all = build_icm.build_icm(tracks_df)
 
     IDF_ENABLED = True
 
@@ -797,31 +922,25 @@ if __name__ == '__main__':
     #                                                       nnz_threshold=10)
     # URM_train, URM_valid = train_test_holdout(URM_train_val, train_perc=0.7, seed=seed)
     # URM_test_known = None
-    ###
     URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df,
-                                                            train_perc=0.6,
+                                                            train_perc=0.8,
                                                             seed=seed, targetsListOrdered=targetsListOrdered,
                                                             nnz_threshold=2)
-    URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, userList_unique, train_sequential_df,
-                                                      train_perc=0.5,
-                                                      seed=seed, targetsListOrdered=targetsListOrdered,
-                                                      nnz_threshold=1)
-
-    URM_train = URM_train
-    URM_validation = URM_valid
-    URM_test = URM_test_pred
-    ###
-    # row holdout
     # URM_train, URM_valid_test_pred = train_test_row_holdout(URM_all, userList_unique, train_sequential_df,
     #                                                         train_perc=0.8,
     #                                                         seed=seed, targetsListOrdered=targetsListOrdered,
     #                                                         nnz_threshold=2)
-    # URM_test_known = None
-    # URM_train = URM_train
-    # URM_validation = URM_valid_test_pred
-    # URM_test = URM_valid_test_pred
+    # URM_valid, URM_test_pred = train_test_row_holdout(URM_valid_test_pred, userList_unique, train_sequential_df,
+    #                                                   train_perc=0.8,
+    #                                                   seed=seed, targetsListOrdered=targetsListOrdered,
+    #                                                   nnz_threshold=1)
 
-    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}/".format(date=datetime.datetime.now())
+    URM_train = URM_train
+    URM_validation = URM_valid_test_pred
+    # URM_validation = URM_valid
+    # URM_test = URM_test_pred
+
+    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}_tot2/".format(date=datetime.datetime.now())
 
     # If directory does not exist, create
     if not os.path.exists(output_root_path):
@@ -842,14 +961,12 @@ if __name__ == '__main__':
         # SLIM_BPR_Cython,
         # UserSLIM_BPR_Cython
         # SLIMElasticNetRecommender,
-        SLIMLinearRegressionRecommender,
-        # SLIMSGDLinearRegressionRecommender,
         # MatrixFactorization_BPR_Theano,
         # ImplicitALSRecommender,
         # ImplicitBPRRecommender,
         # CFW_D_Similarity_Linalg,
-        # LightFMRecommender,
-        # FPMCRecommender
+        #LightFMRecommender
+        HybridLinCombEstRatings
     ]
 
 
@@ -857,38 +974,36 @@ if __name__ == '__main__':
     from Base.Evaluation.Evaluator import SequentialEvaluator, CompleteEvaluator, FastEvaluator
 
     # FIXME maybe minRatingsPerUser in valid is too much? too few users?
-    #users_excluded_targets = [u for u in userList_unique if u not in targetsListList]
+    # users_excluded_targets = [u for u in userList_unique if u not in targetsListList]
     # evaluator_validation_earlystopping = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
     # evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=users_excluded_targets)
-    # evaluator_validation = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
+    evaluator_validation = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
     # evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True)
-    evaluator_validation = FastEvaluator(URM_validation, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=[])
-    evaluator_test = FastEvaluator(URM_test, cutoff_list=[10], minRatingsPerUser=1, exclude_seen=True, ignore_users=[]) # to be fast # userList_unique[:-2]
 
     runParameterSearch_Collaborative_partial = partial(runParameterSearch_Collaborative,
                                                        URM_train = URM_train,
                                                        ICM_all = ICM_all,
-                                                       train_sequential_df=train_sequential_df,
-                                                       targetsListOrdered=targetsListOrdered,
                                                        metric_to_optimize = "MAP",
+                                                       #n_cases = 600,
                                                        evaluator_validation_earlystopping = evaluator_validation,
                                                        evaluator_validation = evaluator_validation,
-                                                       evaluator_test = evaluator_test,
+                                                       #evaluator_test = evaluator_test,
                                                        output_folder_path = output_root_path,
-                                                       optimizer="gbrt",  # "forest", "gbrt", "bayesian"
+                                                       optimizer="bayesian", # "forest", "gbrt", "bayesian"
                                                        # params
-                                                       n_random_starts=5,  # 20,
-                                                       n_calls=100,  # 20
-                                                       n_points=10000,  # for acq_optimizer = 'sampling'
-                                                       n_jobs=1,  # -1 for all cores
-                                                       # noise='gaussian',  # only bayesian
-                                                       acq_func='gp_hedge',  # 'gp_hedge' only for bayesian, use EI or LCB otherwise
-                                                       acq_optimizer='auto',  # 'auto', 'sampling', 'lbfgs'; only for bayesian and gbrt
+                                                       n_calls=700, # 70,
+                                                       #n_random_starts= 20, #20,
+                                                       n_points=10000,
+                                                       n_jobs=1,
+                                                       #noise='gaussian',  # only bayesian
+                                                       noise=1e-10,  # only bayesian
+                                                       acq_func='LCB', # 'gp_hedge' only for bayesian, use EI or LCB otherwise
+                                                       acq_optimizer='auto', # only bayesian and gbrt
                                                        random_state=None,
                                                        verbose=True,
                                                        n_restarts_optimizer=10,  # only bayesian
                                                        xi=0.01,
-                                                       kappa=1.96, # 1.96,
+                                                       kappa=4, # 1.96,
                                                        x0=None,
                                                        y0=None,
                                                        )
@@ -906,8 +1021,8 @@ if __name__ == '__main__':
             try:
                 output_root_path_recsys = output_root_path + "{}/".format(
                     recommender_class.RECOMMENDER_NAME if recommender_class.RECOMMENDER_NAME is not None else recommender_class)
-                parameterSearch = BayesianSkoptSearch(recommender_class, evaluator_validation=evaluator_validation,
-                                                 evaluator_test=evaluator_test)
+                parameterSearch = BayesianSkoptSearch(recommender_class, evaluator_validation=evaluator_validation)
+                                                 #,evaluator_test=evaluator_test)
                 runParameterSearch_Collaborative_partial(recommender_class, parameterSearch=parameterSearch,
                                                          #output_root_path=output_root_path_recsys,
                                                          #loggerPath=output_root_path_recsys

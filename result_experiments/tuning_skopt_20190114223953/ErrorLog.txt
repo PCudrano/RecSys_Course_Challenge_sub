@@ -1,0 +1,1 @@
+On recommender <class 'SLIM_ElasticNet.SLIMElasticNetRecommender.SLIMElasticNetRecommender'> Exception SLIM_ElasticNet: l1_ratio*alpha must be >= 1e-2, provided value was 0.0009535254151794544*5.87637387631099=0.005603271840159137

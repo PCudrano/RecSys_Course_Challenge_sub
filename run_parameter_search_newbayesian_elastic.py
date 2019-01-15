@@ -5,6 +5,10 @@ Created on 22/11/17
 @author: Maurizio Ferrari Dacrema
 """
 
+import sys
+# sys.path.append('src/libs/RecSys_Course_2018')
+sys.path.append('/home/stefano/git/recsys/recsys_challenge/src/libs/RecSys_Course_2018')
+sys.path.append('/home/stefano/git/recsys/recsys_challenge')
 
 import numpy as np
 import pandas as pd
@@ -841,8 +845,8 @@ if __name__ == '__main__':
         # PureSVDRecommender,
         # SLIM_BPR_Cython,
         # UserSLIM_BPR_Cython
-        # SLIMElasticNetRecommender,
-        SLIMLinearRegressionRecommender,
+        SLIMElasticNetRecommender,
+        # SLIMLinearRegressionRecommender,
         # SLIMSGDLinearRegressionRecommender,
         # MatrixFactorization_BPR_Theano,
         # ImplicitALSRecommender,

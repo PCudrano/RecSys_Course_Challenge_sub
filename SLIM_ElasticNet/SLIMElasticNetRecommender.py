@@ -44,6 +44,12 @@ class SLIMElasticNetRecommender(SimilarityMatrixRecommender, Recommender):
     def fit(self, l1_ratio=0.1, positive_only=True, topK = 100, alpha=1, max_iter=100, selection="random", tol=1e-4):
 
         assert l1_ratio>= 0 and l1_ratio<=1, "SLIM_ElasticNet: l1_ratio must be between 0 and 1, provided value was {}".format(l1_ratio)
+        # assert l1_ratio * alpha >= 1e-2, "SLIM_ElasticNet: l1_ratio*alpha must be >= 1e-2, provided value was {}*{}={}".format(l1_ratio,alpha,l1_ratio*alpha)
+
+        # if not (l1_ratio * alpha >= 1e-2):
+        #     print("SLIM_ElasticNet: l1_ratio*alpha must be >= 1e-2, provided value was {}*{}={}".format(l1_ratio,alpha,l1_ratio*alpha))
+        #     self.W_sparse = sps.csr_matrix(([], ([], [])), shape=(self.URM_train.shape[1], self.URM_train.shape[1]), dtype=np.float32)
+        #     return
 
         self.l1_ratio = l1_ratio
         self.positive_only = positive_only
@@ -59,7 +65,6 @@ class SLIMElasticNetRecommender(SimilarityMatrixRecommender, Recommender):
                                 selection=selection,
                                 max_iter=max_iter,
                                 tol=tol)
-
 
         URM_train = check_matrix(self.URM_train, 'csc', dtype=np.float32)
 
