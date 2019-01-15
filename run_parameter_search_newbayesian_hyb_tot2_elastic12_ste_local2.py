@@ -987,7 +987,7 @@ if __name__ == '__main__':
     # URM_validation = URM_valid
     # URM_test = URM_test_pred
 
-    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}_tot2_elastic12_ste_local_k4/".format(date=datetime.datetime.now())
+    output_root_path = "result_experiments/tuning_skopt_{date:%Y%m%d%H%M%S}_tot2_elastic12_ste_local_k3/".format(date=datetime.datetime.now())
 
     # If directory does not exist, create
     if not os.path.exists(output_root_path):
@@ -1050,7 +1050,7 @@ if __name__ == '__main__':
                                                        verbose=True,
                                                        n_restarts_optimizer=10,  # only bayesian
                                                        xi=0.01,
-                                                       kappa=4, # 1.96,
+                                                       kappa=3, # 1.96,
                                                        x0=None,
                                                        y0=None,
                                                        )

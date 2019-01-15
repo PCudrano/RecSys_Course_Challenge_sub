@@ -44,6 +44,8 @@ from Base.NonPersonalizedRecommender import TopPop, Random
 from GraphBased.RP3betaRecommender import RP3betaRecommender
 #from GraphBased.P3alphaRecommender import P3alphaRecommender
 
+from SLIM_ElasticNet.SLIMElasticNetRecommender import SLIMElasticNetRecommender
+
 from MatrixFactorization.PureSVD import PureSVDRecommender
 from src.recommenders.ItemCFKNNRecommender import ItemCFKNNRecommender
 from src.recommenders.ItemCBFKNNRecommender import ItemCBFKNNRecommender
@@ -227,9 +229,12 @@ if __name__ == '__main__':
         N_ucbf = 0
         N_rp3b = 1
         N_slim = 1
-        N_als = 1
+        N_elnet = 2
+        N_als = 2
         N_top = 1
-        N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_als + N_top
+        N_hyb_item_sim = 0
+        N_pure_svd = 0
+        N_hyb = N_cbf + N_cf + N_p3a + N_ucf + N_ucbf + N_rp3b + N_slim + N_elnet + N_als + N_hyb_item_sim + N_pure_svd + N_top
         recsys = []
         for i in range(N_cbf):
             recsys.append(ItemCBFKNNRecommender(URM_train, ICM_all))
@@ -245,7 +250,12 @@ if __name__ == '__main__':
             recsys.append(RP3betaRecommender(URM_train))
         for i in range(N_slim):
             recsys.append(SLIM_BPR_Cython(URM_train))
-        recsys.append(ImplicitALSRecommender(URM_train))
+        for i in range(N_elnet):
+            recsys.append(SLIMElasticNetRecommender(URM_train))
+        for i in range(N_als):
+            recsys.append(ImplicitALSRecommender(URM_train))
+        for i in range(N_pure_svd):
+            recsys.append(PureSVDRecommender(URM_train))
         recsys.append(TopPopSimple(URM_train))
 
         recsys_params = list(zip(np.linspace(10, 70, N_cbf).tolist(), [4] * N_cbf))
@@ -289,25 +299,88 @@ if __name__ == '__main__':
             recsys[i + N_cbf + N_cf + N_p3a + N_ucf + N_ucbf].fit(topK=topK, alpha=0.5927789387679869,
                                                                   beta=0.009260542392306892)
 
+        # # toppop
+        # recsys[-1].fit()
+        #
+        # # load slim bpr
+        # slims_dir = "result_experiments/hyb_est_ratings_6/"
+        # # recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_100")
+        # recsys[-3].loadModel(slims_dir, "SLIM_BPR_rw_300")
+        # print("Load complete of slim bpr")
+        # el_t = time.time() - t
+        # print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+        #
+        # # print("Starting fitting als")
+        # # recsys[-1].fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
+        # # print("Ended fitting als")
+        #
+        # print("Starting recommending the est_ratings")
+        # t2 = time.time()
+        # recsys_est_ratings = []
+        # for i in range(0, N_hyb - 2):
+        #     if i >= N_cbf + N_cf + N_p3a + N_ucf + N_ucbf:
+        #         recsys_est_ratings.append(recsys[i].compute_item_score(userList_unique, 160))
+        #     else:
+        #         recsys_est_ratings.append(recsys[i].estimate_ratings(userList_unique, 160))
+        # el_t = time.time() - t2
+        # print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+        #
+        # print("Recommending als")
+        # t2 = time.time()
+        # #recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
+        # recsys_est_ratings.append(recsys[-2].loadEstRatings(slims_dir,"ALS_rw_est_rat")[0])
+        # el_t = time.time() - t2
+        # print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+        #
+        # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
+        #
+        # print("Starting hopefully the tuning")
+
         # toppop
         recsys[-1].fit()
 
         # load slim bpr
         slims_dir = "result_experiments/hyb_est_ratings_6/"
         # recsys[-3].loadModel(slims_dir, "SLIM_BPR_Recommender_best_model_100")
-        recsys[-3].loadModel(slims_dir, "SLIM_BPR_rw_300")
+        recsys[-6].loadModel(slims_dir, "SLIM_BPR_rw_300")
         print("Load complete of slim bpr")
         el_t = time.time() - t
         print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
+        # load slim elnet
+        # slims_dir = "result_experiments/tuning_skopt_20190114231643/"
+        # recsys[-3].loadModel(slims_dir, "SLIMLinearRegressionRecommender_best_model") # this is seq tho! overfitted
+        slims_dir = "result_experiments/elastic_net_2/"
+        recsys[-5].loadModel(slims_dir, "SLIMLinearRegressionRecommender_best_model")
+        print("Load complete of slim elasticnet")
+        el_t = time.time() - t
+        print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+
+        # load slim elnet
+        # slims_dir = "result_experiments/tuning_skopt_20190114231643/"
+        # recsys[-3].loadModel(slims_dir, "SLIMLinearRegressionRecommender_best_model") # this is seq tho! overfitted
+        slims_dir = "result_experiments/elastic_net_3/"
+        recsys[-4].loadModel(slims_dir, "SLIMElasticNetRecommender_best_model")
+        print("Load complete of slim elasticnet")
+        el_t = time.time() - t
+        print("Done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
+
         # print("Starting fitting als")
-        # recsys[-1].fit(alpha=15, factors=495, regularization=0.04388, iterations=20)
+        # recsys[-1].fit(alpha=12, factors=600, regularization=0.05388, iterations=80)
         # print("Ended fitting als")
+
+        # print("Starting fitting PureSVD")
+        # recsys[-1].fit(num_factors=165)
+        # print("PureSVD fitted")
+
+        # print("Starting recommending svd")
+        # svd_est = recsys[-1].compute_score_SVD(userList_unique, 160)
+        # print("Ended recommending svd")
 
         print("Starting recommending the est_ratings")
         t2 = time.time()
         recsys_est_ratings = []
-        for i in range(0, N_hyb - 2):
+        for i in range(0, N_hyb - 3):
             if i >= N_cbf + N_cf + N_p3a + N_ucf + N_ucbf:
                 recsys_est_ratings.append(recsys[i].compute_item_score(userList_unique, 160))
             else:
@@ -317,20 +390,28 @@ if __name__ == '__main__':
 
         print("Recommending als")
         t2 = time.time()
-        #recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
-        recsys_est_ratings.append(recsys[-2].loadEstRatings(slims_dir,"ALS_rw_est_rat")[0])
+        # recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
+        slims_dir = "result_experiments/hyb_est_ratings_6/"
+        recsys_est_ratings.append(recsys[-3].loadEstRatings(slims_dir, "ALS_rw_est_rat")[0])
+        recsys_est_ratings.append(recsys[-2].loadEstRatings(slims_dir, "ALS_rw_est_rat_2")[0])
         el_t = time.time() - t2
         print("ALS done. Elapsed time: {:02d}:{:06.3f}".format(int(el_t / 60), el_t - 60 * int(el_t / 60)))
 
+        # toppop
         recsys_est_ratings.append(recsys[-1].estimate_ratings(userList_unique, 160))
-
-        print("Starting hopefully the tuning")
 
         print("Building the alphas")
 
-        a = {'alphas0': 7.286599943096979, 'alphas1': 11.148986037554979, 'alphas2': 49.434095074724446, 'alphas3': 0.0,
-         'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 41.12426731662427, 'alphas7': 3.9862172159427405,
-         'alphas8': 23.669511899629843, 'alphas9': 16.979647789179317, 'alphas10': 100.0, "alphas11": -0.1}
+        # a = {'alphas0': 12.010528861567822, 'alphas1': 30.389030169991045, 'alphas2': 79.13675426820069,
+        #  'alphas3': 0.8825253038265624, 'alphas4': 0.0, 'alphas5': 0.43305412202467247, 'alphas6': 110.0,
+        #  'alphas7': 0.3996542429842397, 'alphas8': 44.36734517467593, 'alphas9': 44.7868387839422,
+        #  'alphas10': 2.5054716603458216, 'alphas11': 134.08766498406362, 'alphas12': 130.0,
+        #  'alphas13': 146.27814168552362}
+        a = {'alphas0': 12.010528861567822, 'alphas1': 30.389030169991045, 'alphas2': 79.13675426820069,
+         'alphas3': 0.8825253038265624, 'alphas4': 0.0, 'alphas5': 0.43305412202467247, 'alphas6': 110.0,
+         'alphas7': 0.3996542429842397, 'alphas8': 44.36734517467593, 'alphas9': 44.7868387839422,
+         'alphas10': 2.5054716603458216, 'alphas11': 134.08766498406362, 'alphas12': 130.0,
+         'alphas13': 146.27814168552362, "alphas14": -0.3}
 
 
         print("Init recsys")

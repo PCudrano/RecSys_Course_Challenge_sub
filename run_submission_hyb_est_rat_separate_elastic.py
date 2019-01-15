@@ -336,11 +336,18 @@ if __name__ == '__main__':
         #  'alphas6': 108.3328448446436, 'alphas7': 2.595400903388823, 'alphas8': 97.81864969173873,
         #  'alphas9': 46.974913279396745, 'alphas10': 113.14852518233992, 'alphas11': 165.5555093862131}
 
-        # best tot 57
-        a = {'alphas0': 13.718596681389458, 'alphas1': 28.891119601707942, 'alphas2': 70.78984416850315, 'alphas3': 0.0,
-         'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 100.0, 'alphas7': 0.0, 'alphas8': 43.2858779572141,
-         'alphas9': 42.97687725604619, 'alphas10': 0.0, 'alphas11': 141.8544586406087,
-         'alphas12': 118.95603165055005, 'alphas13': 142.0455597041231, "alphas14": 0.3}
+        # # best tot 57
+        # a = {'alphas0': 13.718596681389458, 'alphas1': 28.891119601707942, 'alphas2': 70.78984416850315, 'alphas3': 0.0,
+        #  'alphas4': 0.0, 'alphas5': 0.0, 'alphas6': 100.0, 'alphas7': 0.0, 'alphas8': 43.2858779572141,
+        #  'alphas9': 42.97687725604619, 'alphas10': 0.0, 'alphas11': 141.8544586406087,
+        #  'alphas12': 118.95603165055005, 'alphas13': 142.0455597041231, "alphas14": 0.3}
+
+        # # best tot 58
+        a = {'alphas0': 12.010528861567822, 'alphas1': 30.389030169991045, 'alphas2': 79.13675426820069,
+             'alphas3': 0.8825253038265624, 'alphas4': 0.0, 'alphas5': 0.43305412202467247, 'alphas6': 110.0,
+             'alphas7': 0.3996542429842397, 'alphas8': 44.36734517467593, 'alphas9': 44.7868387839422,
+             'alphas10': 2.5054716603458216, 'alphas11': 134.08766498406362, 'alphas12': 130.0,
+             'alphas13': 146.27814168552362, "alphas14": 0.2}
 
 
         print("Init recsys")
@@ -498,7 +505,7 @@ if __name__ == '__main__':
         print(target_df[0:5])
 
         # Custom name
-        csv_filename = "hybrid_est_ratings_57"
+        csv_filename = "hybrid_est_ratings_58"
         # Default name
         #csv_filename = "submission_{algtype:}_{date:%Y%m%d%H%M%S}".format(algtype=recommender_class, date=datetime.datetime.now())
 
